@@ -2,15 +2,16 @@
 #include <USBSerial.h>
 #include "shell.h"
 
-DigitalOut led(PB_1);
-DigitalOut usbDisconnect(PB_9);
+DigitalOut led(LED1);
 
 int main()
 {
   shell_init_usb();
-  usbDisconnect = 0;
 
     while (true) {
-        ThisThread::sleep_for(100);
+        led = 0;
+        ThisThread::sleep_for(500);
+        led = 1;
+        ThisThread::sleep_for(500);
     }
 }
