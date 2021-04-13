@@ -1,0 +1,44 @@
+{
+  "build": {
+    "cpu": "cortex-m4",
+    "extra_flags": "-DSTM32L4A6xx",
+    "f_cpu": "80000000L",
+    "mcu": "stm32l4a6rgt6",
+	"product_line": "STM32L4A6xx",
+    "variant": "ZEST_CORE_STM32L4A6RG"
+  },
+  "connectivity": [
+    "can"
+  ],
+  "debug": {
+    "default_tools": [
+      "stlink"
+    ],
+    "jlink_device": "STM32L4A6RG",
+    "onboard_tools": [
+      "stlink"
+    ],
+    "openocd_board": "st_nucleo_l4",
+    "openocd_target": "stm32l4x",
+    "svd_path": "STM32L4x6.svd"
+  },
+  "frameworks": [
+    "mbed",
+    "stm32cube"
+  ],
+  "name": "Zest Core STM32L4A6RG",
+  "upload": {
+    "maximum_ram_size": 327680,
+    "maximum_size": 1024000,
+    "protocol": "dfu",
+    "protocols": [
+      "jlink",
+      "stlink",
+      "blackmagic",
+      "mbed",
+	  "dfu"
+    ]
+  },
+  "url": "https://member.6tron.io/fr/m/ressources/plateforme-materielle/cartes-zest-core/zest_core_stm32l4a6rg/latest/en/index/",
+  "vendor": "6TRON"
+}
