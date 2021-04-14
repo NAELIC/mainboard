@@ -18,7 +18,6 @@ void ir_init()
     ir_value = 0;
 }
 
-
 bool ir_present()
 {
   return (ir_tampon > 10);
@@ -64,7 +63,6 @@ void ir_diagnostic()
 SHELL_COMMAND(ir, "Test IR")
 {
     while (!shell_available()) {
-      ir_tick();
       shell_println(ir_value);
       shell_println(ir_present());      
     }
