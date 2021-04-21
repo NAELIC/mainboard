@@ -7,12 +7,11 @@ volatile bool ir_detected = false;
 volatile int ir_value = 0;
 volatile int ir_tampon = 0;
 
-extern bool developer_mode;
 
 DigitalOut ir_emit(IR_EMIT);
 AnalogIn ir_receive(IR_RECEIVE);
 
-void ir_init()
+void ir_init() // initialisation for the start of the main
 {
     ir_emit = 0;
     ir_value = 0;
