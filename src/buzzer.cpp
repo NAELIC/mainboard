@@ -1,4 +1,4 @@
-
+//include
 #include "buzzer.h"
 #include "mbed.h"
 #include "shell.h"
@@ -13,8 +13,7 @@ struct buzzer_note {    //definition of the structure who had for name "buzzer_n
 
 // Config
 PwmOut buzzer_pin(BUZZER_PIN); // Set the PIN we name BUZZER_PIN in hardware.h as a Pwmout
-
-
+Timer millis;
 // Partitions
 
 
@@ -193,11 +192,18 @@ void buzzer_init()
 {
     melody = NULL;
     buzzer_pin = 0.0; //No sound
-
+    millis.start(); //start millis timer
+    // make a beep for the initialisation
+    buzzer_pin.period(1.0/946.0); //set the sonor frequences
+    buzzer_pin = 0.5; //turn on soud 
+    wait_us(100000); // delay 
+    buzzer_pin = 0.0; // turn of sound
 }
 
-void buzzer_play_note(unsigned int note)
+void buzzer_play_note(int note)
 {
+  
+
     buzzer_pin.period( float(1.0 / note)); //set the period on the buzzer
 
     if (note == 0) { //if the melody is end
@@ -210,11 +216,11 @@ void buzzer_play_note(unsigned int note)
     }
 }
 
-static void buzzer_enter(struct buzzer_note *note)
+static void buzzer_enter(struct buzzer_note *note) 
 {
     buzzer_play_note(note->freq);
-    melody = note;
-    melody_st = Kernel::Clock::now().time_since_epoch().count();
+    melody = note; 
+    melody_st = millis.read_ms(); //melody start take the value of the current time
 
     if (note->freq == 0 && note->duration == 0) {
         if (melody_repeat != NULL) {
@@ -224,7 +230,7 @@ static void buzzer_enter(struct buzzer_note *note)
         }
     }
 
-       shell_println("Coucou ");
+    shell_println("Coucou ");
 }
 
 void buzzer_play(unsigned int melody_num, bool repeat)
@@ -264,12 +270,18 @@ void buzzer_play(unsigned int melody_num, bool repeat)
   }
 }
 
+int instant_melody ;
 void buzzer_tick()
-{
+{   
+    instant_melody = millis.read_ms();
+    // shell_println("tick");
     if (melody != NULL) {
-        if (Kernel::Clock::now().time_since_epoch().count()-melody_st > melody->duration) {
+      // shell_println("melody != NULL");
+        
+        if (instant_melody - melody_st > melody->duration) {
             buzzer_enter(melody+1);
-        }
+        //     shell_println("Passage note suivante");
+       }
     }
 }
 
@@ -289,7 +301,7 @@ void buzzer_wait_play()
 {
     while (buzzer_is_playing()) {
         buzzer_tick();
-        Watchdog::get_instance().kick();
+        // Watchdog::get_instance().kick();
     }
 }
 
