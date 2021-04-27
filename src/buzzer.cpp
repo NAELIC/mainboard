@@ -14,8 +14,219 @@ struct buzzer_note {    //definition of the structure who had for name "buzzer_n
 // Config
 PwmOut buzzer_pin(BUZZER_PIN); // Set the PIN we name BUZZER_PIN in hardware.h as a Pwmout
 Timer millis;
-// Partitions
 
+
+
+// Partitions
+static struct buzzer_note sparow[] = {
+    {330, 125} ,
+    {392, 125} ,
+    {440, 250} ,
+    {440, 125} ,
+    {0, 125} ,
+    {440, 125} ,
+    {494, 125} ,
+    {523, 250} ,
+    {523, 125} ,
+    {0, 125} ,
+    {523, 125} ,
+    {587, 125} ,
+    {494, 250} ,
+    {494, 125} ,
+    {0, 125} ,
+    {440, 125} ,
+    {392, 125} ,
+    {440, 375} ,
+    {0, 125} ,
+    {330, 125} ,
+    {392, 125} ,
+    {440, 250} ,
+    {440, 125} ,
+    {0, 125} ,
+    {440, 125} ,
+    {494, 125} ,
+    {523, 250} ,
+    {523, 125} ,
+    {0, 125} ,
+    {523, 125} ,
+    {587, 125} ,
+    {494, 250} ,
+    {494, 125} ,
+    {0, 125} ,
+    {440, 125} ,
+    {392, 125} ,
+    {440, 375} ,
+    {0, 125} ,
+    {330, 125} ,
+    {392, 125} ,
+    {440, 250} ,
+    {440, 125} ,
+    {0, 125} ,
+    {440, 125} ,
+    {523, 125} ,
+    {587, 250} ,
+    {587, 125} ,
+    {0, 125} ,
+    {587, 125} ,
+    {659, 125} ,
+    {698, 250} ,
+    {698, 125} ,
+    {0, 125} ,
+    {659, 125} ,
+    {587, 125} ,
+    {659, 125} ,
+    {440, 250} ,
+    {0, 125} ,
+    {440, 125} ,
+    {494, 125} ,
+    {523, 250} ,
+    {523, 125} ,
+    {0, 125} ,
+    {587, 250} ,
+    {659, 125} ,
+    {440, 250} ,
+    {0, 125} ,
+    {440, 125} ,
+    {523, 125} ,
+    {494, 250} ,
+    {494, 125} ,
+    {0, 125} ,
+    {523, 125} ,
+    {440, 125} ,
+    {494, 375} ,
+    {0, 375} ,
+    {440, 250} ,
+    {440, 125} ,
+    {440, 125} ,
+    {494, 125} ,
+    {523, 250} ,
+    {523, 125} ,
+    {0, 125} ,
+    {523, 125} ,
+    {587, 125} ,
+    {494, 250} ,
+    {494, 125} ,
+    {0, 125} ,
+    {440, 125} ,
+    {392, 125} ,
+    {440, 375} ,
+    {0, 125} ,
+    {330, 125} ,
+    {392, 125} ,
+    {440, 250} ,
+    {440, 125} ,
+    {0, 125} ,
+    {440, 125} ,
+    {494, 125} ,
+    {523, 250} ,
+    {523, 125} ,
+    {0, 125} ,
+    {523, 125} ,
+    {587, 125} ,
+    {494, 250} ,
+    {494, 125} ,
+    {0, 125} ,
+    {440, 125} ,
+    {392, 125} ,
+    {440, 375} ,
+    {0, 125} ,
+    {330, 125} ,
+    {392, 125} ,
+    {440, 250} ,
+    {440, 125} ,
+    {0, 125} ,
+    {440, 125} ,
+    {523, 125} ,
+    {587, 250} ,
+    {587, 125} ,
+    {0, 125} ,
+    {587, 125} ,
+    {659, 125} ,
+    {698, 250} ,
+    {698, 125} ,
+    {0, 125} ,
+    {659, 125} ,
+    {587, 125} ,
+    {659, 125} ,
+    {440, 250} ,
+    {0, 125} ,
+    {440, 125} ,
+    {494, 125} ,
+    {523, 250} ,
+    {523, 125} ,
+    {0, 125} ,
+    {587, 250} ,
+    {659, 125} ,
+    {440, 250} ,
+    {0, 125} ,
+    {440, 125} ,
+    {523, 125} ,
+    {494, 250} ,
+    {494, 125} ,
+    {0, 125} ,
+    {523, 125} ,
+    {440, 125} ,
+    {494, 375} ,
+    {0, 375} ,
+    {659, 250} ,
+    {0, 125} ,
+    {0, 375} ,
+    {698, 250} ,
+    {0, 125} ,
+    {0, 375} ,
+    {659, 125} ,
+    {659, 125} ,
+    {0, 125} ,
+    {784, 125} ,
+    {0, 125} ,
+    {659, 125} ,
+    {587, 125} ,
+    {0, 125} ,
+    {0, 375} ,
+    {587, 250} ,
+    {0, 125} ,
+    {0, 375} ,
+    {523, 250} ,
+    {0, 125} ,
+    {0, 375} ,
+    {494, 125} ,
+    {523, 125} ,
+    {0, 125} ,
+    {494, 125} ,
+    {0, 125} ,
+    {440, 500} ,
+    {659, 250} ,
+    {0, 125} ,
+    {0, 375} ,
+    {698, 250} ,
+    {0, 125} ,
+    {0, 375} ,
+    {659, 125} ,
+    {659, 125} ,
+    {0, 125} ,
+    {784, 125} ,
+    {0, 125} ,
+    {659, 125} ,
+    {587, 125} ,
+    {0, 125} ,
+    {0, 375} ,
+    {587, 250} ,
+    {0, 125} ,
+    {0, 375} ,
+    {523, 250} ,
+    {0, 125} ,
+    {0, 375} ,
+    {494, 125} ,
+    {523, 125} ,
+    {0, 125} ,
+    {494, 125} ,
+    {0, 125} ,
+    {440, 500} ,
+    {0, 0},
+
+
+    
+};
 
 // static struct buzzer_note beethoven_boot[] = {
 //     {440, 200},
@@ -26,13 +237,12 @@ Timer millis;
 //     {0, 10},
 //     {392, 600},
 //     {0, 10},
-// //    {415, 300/2},
-// //    {415, 300/2},
-// //    {415, 300/2},
-// //    {370, 160/2},
+//    {415, 300/2},
+//    {415, 300/2},
+//    {415, 300/2},
+//    {370, 160/2},
 //     {0, 0}
 // };
-
 
 static struct buzzer_note rickroll[] = {
 
@@ -108,7 +318,6 @@ static struct buzzer_note chord_boot[] = {
 //   {0, 0}
 // };
 
-
 static struct buzzer_note chord_boot_dev[] = {
 {C6, 50},
 {G5, 50},
@@ -116,7 +325,6 @@ static struct buzzer_note chord_boot_dev[] = {
 {C5, 200},
 {0, 0}
 };
-
 
 // static struct buzzer_note melody_boot[] = {
 //     {523, 200/2},
@@ -181,12 +389,24 @@ static struct buzzer_note melody_assert[] = {
 {0,0}
 };
 
+static struct buzzer_note melody_mario_intro[] = {
+{660, 120},
+{660, 200},
+{660, 200},
+{510, 250},
+{660, 200},
+{770, 250},
+{380, 120},
+{0,0}
+};
+
+
 // Status
 static struct buzzer_note *note_now;
-
 static struct buzzer_note *melody;
 static struct buzzer_note *melody_repeat;
 static int melody_st;
+
 
 void buzzer_init()
 {
@@ -194,25 +414,25 @@ void buzzer_init()
     buzzer_pin = 0.0; //No sound
     millis.start(); //start millis timer
     // make a beep for the initialisation
-    buzzer_pin.period(1.0/946.0); //set the sonor frequences
-    buzzer_pin = 0.5; //turn on soud 
-    wait_us(100000); // delay 
-    buzzer_pin = 0.0; // turn of sound
+    // buzzer_pin.period(1.0/946.0); //set the sonor frequences
+    // buzzer_pin = 0.5; //turn on soud 
+    wait_us(1000); // delay 
+    // buzzer_pin = 0.0; // turn of sound
 }
 
 void buzzer_play_note(int note)
 {
   
-
-    buzzer_pin.period( float(1.0 / note)); //set the period on the buzzer
-
+    // shell_println("Buzzer play note");
     if (note == 0) { //if the melody is end
 
         buzzer_pin = 0.0; //No sound
+        // shell_println("Buzzer play note coupure du son");
     } 
     else {
         buzzer_pin.period(float(1.0 / note)); //set the eriod on the buzzer
         buzzer_pin = 0.5 ;// Activation of soud
+        // shell_println("Buzzer play note activation du son");
     }
 }
 
@@ -230,7 +450,7 @@ static void buzzer_enter(struct buzzer_note *note)
         }
     }
 
-    shell_println("Coucou ");
+    // shell_println("Buzzer enter ");
 }
 
 void buzzer_play(unsigned int melody_num, bool repeat)
@@ -241,24 +461,30 @@ void buzzer_play(unsigned int melody_num, bool repeat)
     // to_play = &melody_boot[0];
     to_play = &chord_boot[0];
 
-  } else if (melody_num == MELODY_ALERT) {
+  } if (melody_num == MELODY_ALERT) {
     to_play = &melody_alert[0];
-  } else if (melody_num == MELODY_ALERT_FAST) {
+  } if (melody_num == MELODY_ALERT_FAST) {
     to_play = &melody_alert_fast[0];
-  } else if (melody_num == MELODY_WARNING) {
+  } if (melody_num == MELODY_WARNING) {
     to_play = &melody_warning[0];
-  } else if (melody_num == MELODY_BEETHOVEN) {
+  } if (melody_num == MELODY_BEETHOVEN) {
     to_play = &chord_boot[0];
-  } else if (melody_num == MELODY_BEGIN) {
+  } if (melody_num == MELODY_BEGIN) {
     to_play = &melody_begin[0];
-  } else if (melody_num == MELODY_END) {
+  } if (melody_num == MELODY_END) {
     to_play = &melody_end[0];
-  } else if (melody_num == MELODY_CUSTOM) {
+  } if (melody_num == MELODY_CUSTOM) {
     to_play = &melody_custom[0];
-  }else if (melody_num == MELODY_BOOT_DEV) {
+  } if (melody_num == MELODY_BOOT_DEV) {
     to_play = &chord_boot_dev[0];
-  }else if (melody_num == RICKROLL) {
+  } if (melody_num == RICKROLL) {
     to_play = &rickroll[0];
+  } if (melody_num == SPAROW) {
+    to_play = &sparow[0];
+  } if (melody_num == MARIO_INTRO) {
+    to_play = &melody_mario_intro[0];
+
+
 
   } else {
     melody = NULL;
@@ -270,17 +496,13 @@ void buzzer_play(unsigned int melody_num, bool repeat)
   }
 }
 
-int instant_melody ;
+// int instant_melody ;
 void buzzer_tick()
 {   
-    instant_melody = millis.read_ms();
-    // shell_println("tick");
+    int instant_melody = millis.read_ms();
     if (melody != NULL) {
-      // shell_println("melody != NULL");
-        
         if (instant_melody - melody_st > melody->duration) {
             buzzer_enter(melody+1);
-        //     shell_println("Passage note suivante");
        }
     }
 }
@@ -313,7 +535,7 @@ void buzzer_beep(unsigned int freq, unsigned int duration)
 }
 
 
-
+//SHELL Comand
 SHELL_COMMAND(play, "Play a melody")
 {
     int melnum = atoi(argv[0]);

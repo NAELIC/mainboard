@@ -20,6 +20,8 @@
 #define MELODY_BOOT_DEV       8
 #define RICKROLL       9
 #define MELODY_ASSERT 10
+#define SPAROW 11
+#define MARIO_INTRO 12
 
 
 const int A5  =880;

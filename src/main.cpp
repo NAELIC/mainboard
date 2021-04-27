@@ -19,14 +19,11 @@ int main()
         //ir_init();
 
 
-    //RICKroll
-    
-        buzzer_init();
+    //melody
 
-        // buzzer_play(RICKROLL);
-        // buzzer_wait_play();
-        // wait_us(2000000);
-
+        buzzer_play(11);
+        buzzer_wait_play();
+        wait_us(2000000);
 
     while (true) {
         // ir
