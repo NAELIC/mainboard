@@ -5,7 +5,6 @@
         ],
         "public": false,
         "extra_labels_add": [
-            "STM32L4",
             "STM32L4A6xG"
         ],
         "components_add": [

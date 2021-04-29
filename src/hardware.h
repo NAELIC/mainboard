@@ -13,11 +13,11 @@
 // #define DRIVERS_SPI 1
 
 // Multiplexer
-// #define MUX         8
+#define MUX         DIO9
 
-// #define ADDR1       14
-// #define ADDR2       31
-// #define ADDR3       2
+#define ADDR1       DIO11
+#define ADDR2       DIO13
+#define ADDR3       DIO14
 
 // Communication pins
 // #define COM_CE1  13
@@ -57,7 +57,7 @@
 // #define HALL3_ADDR      2
 // #define HALL4_ADDR      3
 
-// #define HALL_THRES     2000
+#define HALL_THRES     2000
 
 // Kicker
 // #define KICKER1_PIN     25
@@ -65,9 +65,9 @@
 // #define KICKER_TIMER    4
 
 // Voltage
-// #define BAT_ADDR        5
-// #define BAT_R1          10000
-// #define BAT_R2          1000
+#define BAT_ADDR        5
+#define BAT_R1          10000
+#define BAT_R2          1000
 
 // Infrared
 #define IR_EMIT         DIO10   // IR_LED 

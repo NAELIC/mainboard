@@ -3,6 +3,9 @@
 #include "shell.h"
 #include "buzzer.h"
 #include "hardware.h"
+#include "voltage.h"
+#include "mux.h"
+
 
 uint32_t TIMEOUT_WATCHDOG_MS = 2000;
 DigitalOut led(LED1);
