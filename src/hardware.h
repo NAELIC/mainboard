@@ -4,13 +4,15 @@
 #include "mbed.h"
 
 // Brushless drivers
-// #define DRIVERS_CS1 7
-// #define DRIVERS_CS2 1
-// #define DRIVERS_CS3 19
-// #define DRIVERS_CS4 18
-// #define DRIVERS_CS5 17
+#define DRIVERS_CS1 SPI1_CS
+#define DRIVERS_CS2 PWM_1
+#define DRIVERS_CS3 PWM_2
+#define DRIVERS_CS4 PWM_3
+#define DRIVERS_CS5 ICAPT1
 
-// #define DRIVERS_SPI 1
+#define DRV_MOSI SPI1_MOSI
+#define DRV_MISO SPI1_MISO
+#define DRV_CLK SPI1_SCK
 
 // Multiplexer
 #define MUX         DIO9
@@ -20,6 +22,11 @@
 #define ADDR3       DIO14
 
 // Communication pins
+
+// #define COM_MOSI DIO7
+// #define COM_MISO DIO8
+// #define COM_CLK DAC1
+
 // #define COM_CE1  13
 // #define COM_CE2  3
 // #define COM_CE3  9

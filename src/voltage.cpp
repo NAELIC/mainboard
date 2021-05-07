@@ -39,3 +39,9 @@ float voltage_value()
 {
     return bat;
 }
+
+
+SHELL_COMMAND(Voltage, "Voltage value")
+{
+   shell_println(voltage_value());
+}

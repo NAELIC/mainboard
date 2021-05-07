@@ -17,20 +17,23 @@ int main()
     //watchdog.start(TIMEOUT_WATCHDOG_MS);
 
     // Buzzer
-        
+        mux_init();
+        voltage_init();
         buzzer_init();  
         //ir_init();
 
 
     //melody
 
-        buzzer_play(11);
+        buzzer_play(12);
         buzzer_wait_play();
         wait_us(2000000);
 
     while (true) {
         // ir
         buzzer_tick();
+        voltage_tick();
+    
         //ir_tick();
 
         

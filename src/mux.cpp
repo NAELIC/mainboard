@@ -34,9 +34,9 @@ bool get_hall(int addr)
 SHELL_COMMAND(mdb, "Mux debug")
 {
     for (int k=0; k<8; k++) {
-        shell_print("Mux #");
-        shell_print(k);
-        shell_print(": ");
+        shell_println("Mux #");
+        shell_println(k);
+        shell_println(": ");
         shell_println(mux_sample(k));
         // Watchdog::get_instance().kick();
     }
