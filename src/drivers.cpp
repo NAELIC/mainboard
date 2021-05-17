@@ -7,7 +7,8 @@
 // #include "kicker.h"
 #include "errors.h"
 
-SPI drivers(DRV_MOSI, DRV_MISO, DRV_CLK ); //declaration du SPI
+SPI drivers(DRV_MOSI, DRV_MISO, DRV_CLK ); //Declaration of SPI
+// USBSerial serial; //Declaration of USBSerial
 
 static bool drivers_is_error = false;
 static bool drivers_present[5] = {false};
@@ -18,12 +19,14 @@ static int drivers_pins[5] = {
     DRIVERS_CS4, DRIVERS_CS5
 };
 
-void pause_boost()
+USBSerial serial;
+
+void pause_boost() //recreation de fonction qui est normalement ecrite differament dans kikker.cpp
 {
     wait_us(100);
 }
 
-void resume_boost()
+void resume_boost()//recreation de fonction qui est normalement ecrite differament dans kikker.cpp
 {
     wait_us(100);
 }
@@ -34,26 +37,26 @@ void resume_boost()
 void drivers_init()
 {
   cstatic_assert(
-    sizeof(driver_packet_set) > sizeof(driver_packet_ans),
+    sizeof(driver_packet_set) > sizeof(driver_packet_ans), //Compare les longueur en bits 
     "In SPI, packet answer have to be strictly smaller than the resquest packet"
     );
 
   // Initializing SPI
-  drivers.frequency(250000);
+  drivers.frequency(250000); //set the frequency of the drivers
 
 
   // Initializing CS pins
   for (int k=0; k<5; k++) {
-    drivers_pins[k] = 1; // Set des pin en high
+    drivers_pins[k] = 1; // Set the pins in high mode
   }
 
   for (int k=0; k<5; k++) {
     bool ret=false;
     while(!ret){
-    //   BOARD_LED_PIN = 1;
+    //   BOARD_LED_PIN = 1;  // I don't fuckin know what is BOARD_LED_PIN, never define
       ret=drivers_ping(k);
       wait_us(10);
-    //   watchdog_feed();
+    //   watchdog_feed();      // for now we don't use the watchdog
     //   BOARD_LED_PIN = 1;
     }
     drivers_present[k] = ret;
@@ -155,14 +158,7 @@ void drivers_set_safe(int index, bool enable, float target, int16_t pwm)
     }
 }
 
-SHELL_COMMAND(pid, "PID")
-{
-    if (argc != 3) {
-        shell_println("Usage: pid [p] [i] [d]");
-    } else {
-        drivers_set_params(atof(argv[0]), atof(argv[1]), atof(argv[2]));
-    }
-}
+
 
 void drivers_tick()
 {
@@ -179,61 +175,9 @@ void drivers_tick()
 
 
 
-SHELL_COMMAND(scan, "Scan for drivers")
-{
-    for (int k=0; k<5; k++) {
-        shell_println("Driver #");
-        shell_println(k);
-        shell_println(" ");
-        shell_println(drivers_pins[k]);
-        shell_println(" ");
-        if (drivers_ping(k)) {
-            shell_println("Present!");
-        } else {
-            shell_println("-");
-        }
-    }
-}
-
-// SHELL_COMMAND(set, "Set speed for one driver")
-// {
-//     if (argc != 2) {
-//         shell_println("Usage: set [driver] [speed]");
-//     } else {
-//         while (!SerialUSB.available()) {
-//             drivers_set_safe(atoi(argv[0]), true, atof(argv[1]));
-//             drivers_tick();
-//             buzzer_tick();
-
-// // Remove of steve Debug
-// // //GROS DEBUG
-// //            digitalWrite(IR_EMIT, HIGH);
-// //            int value = analogRead(IR_RECEIVE);
-// //            digitalWrite(IR_EMIT, LOW);
-// //            terminal_io()->println(value);
-// //            delay(5);
-// //            /////////
 
 
-//             // watchdog_feed();
-//             wait_us(500);
-//         }
-//     }
-// }
 
-SHELL_COMMAND(blink, "Blink the drivers")
-{
-    for (int k=0; k<5; k++) {
-        shell_println("Blinking ");
-        shell_println(k);
-
-        for (int n=0; n<50; n++) {
-            wait_us(1000);
-            drivers_set(k, true, 0);
-            // watchdog_feed();
-        }
-    }
-}
 
 bool drivers_is_all_ok()
 {
@@ -286,5 +230,70 @@ SHELL_COMMAND(ddb, "")
     uint8_t *ptr = (uint8_t*)&ans;
     for (size_t k=0; k<sizeof(ans); k++) {
         shell_println((int)ptr[k]);
+    }
+}
+
+SHELL_COMMAND(blink, "Blink the drivers")
+{
+    for (int k=0; k<5; k++) {
+        shell_println("Blinking ");
+        shell_println(k);
+
+        for (int n=0; n<50; n++) {
+            wait_us(1000);
+            drivers_set(k, true, 0);
+            // watchdog_feed();
+        }
+    }
+}
+
+SHELL_COMMAND(pid, "PID")
+{
+    if (argc != 3) {
+        shell_println("Usage: pid [p] [i] [d]");
+    } else {
+        drivers_set_params(atof(argv[0]), atof(argv[1]), atof(argv[2]));
+    }
+}
+
+SHELL_COMMAND(scan, "Scan for drivers")
+{
+    for (int k=0; k<5; k++) {
+        shell_println("Driver #");
+        shell_println(k);
+        shell_println(" ");
+        shell_println(drivers_pins[k]);
+        shell_println(" ");
+        if (drivers_ping(k)) {
+            shell_println("Present!");
+        } else {
+            shell_println("-");
+        }
+    }
+}
+
+SHELL_COMMAND(set, "Set speed for one driver")
+{
+    if (argc != 2) {
+        shell_println("Usage: set [driver] [speed]");
+    } else {
+        while (!serial.available()) {
+            drivers_set_safe(atoi(argv[0]), true, atof(argv[1]));
+            drivers_tick();
+            buzzer_tick();
+
+// Remove of steve Debug
+// //GROS DEBUG
+//            digitalWrite(IR_EMIT, HIGH);
+//            int value = analogRead(IR_RECEIVE);
+//            digitalWrite(IR_EMIT, LOW);
+//            terminal_io()->println(value);
+//            delay(5);
+//            /////////
+
+
+            // watchdog_feed();
+            wait_us(500);
+        }
     }
 }

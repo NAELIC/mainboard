@@ -5,6 +5,9 @@
 #include "hardware.h"
 #include "voltage.h"
 #include "mux.h"
+#include "drivers.h"
+
+
 
 
 uint32_t TIMEOUT_WATCHDOG_MS = 2000;
@@ -20,12 +23,13 @@ int main()
         mux_init();
         voltage_init();
         buzzer_init();  
+        // drivers_init();
         //ir_init();
 
 
     //melody
 
-        buzzer_play(12);
+        buzzer_play(11);
         buzzer_wait_play();
         wait_us(2000000);
 
