@@ -16,18 +16,6 @@ struct driver_packet_ans driver_answers[5];
 static DigitalOut drivers_pins[5] = {DRIVERS_CS1, DRIVERS_CS2, DRIVERS_CS3,
                               DRIVERS_CS4, DRIVERS_CS5};
 
-void pause_boost() // recreation de fonction qui est normalement ecrite
-                   // differament dans kikker.cpp
-{
-  wait_us(100);
-}
-
-void resume_boost() // recreation de fonction qui est normalement ecrite
-                    // differament dans kikker.cpp
-{
-  wait_us(100);
-}
-
 void drivers_init() // initialisation of the drivers
 {
   // Initializing SPI
@@ -51,14 +39,12 @@ void drivers_init() // initialisation of the drivers
 }
 
 uint8_t drivers_status(int index) {
-  pause_boost();           //
   drivers_pins[index] = 0; // Set des pin en low
   wait_us(35);             // pause
   drivers.write(0);
   uint8_t answer = drivers.write(0);
   wait_us(5);              // pause
   drivers_pins[index] = 1; // Set des pin en high
-  resume_boost();
 
   return answer;
 }
@@ -70,7 +56,6 @@ int drivers_ping(int index) {
 
 static void drivers_send(int index, uint8_t instruction, uint8_t *data,
                          size_t len, uint8_t *answer) {
-  pause_boost();
   drivers_pins[index] = 0;
   wait_us(35);
 
@@ -79,7 +64,6 @@ static void drivers_send(int index, uint8_t instruction, uint8_t *data,
 
   wait_us(5);
   drivers_pins[index] = 1;
-  resume_boost();
 }
 
 #define REVERSE_TURN
