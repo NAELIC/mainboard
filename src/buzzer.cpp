@@ -416,7 +416,7 @@ void buzzer_init()
     // make a beep for the initialisation
     // buzzer_pin.period(1.0/946.0); //set the sonor frequences
     // buzzer_pin = 0.5; //turn on soud 
-    wait_us(1000); // delay 
+    wait_us(100); // delay 
     // buzzer_pin = 0.0; // turn of sound
 }
 

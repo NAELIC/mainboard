@@ -8,7 +8,6 @@
 #include "errors.h"
 
 SPI drivers(DRV_MOSI, DRV_MISO, DRV_CLK ); //Declaration of SPI
-// USBSerial serial; //Declaration of USBSerial
 
 static bool drivers_is_error = false;
 static bool drivers_present[5] = {false};
@@ -19,7 +18,6 @@ static int drivers_pins[5] = {
     DRIVERS_CS4, DRIVERS_CS5
 };
 
-USBSerial serial;
 
 void pause_boost() //recreation de fonction qui est normalement ecrite differament dans kikker.cpp
 {
@@ -34,10 +32,10 @@ void resume_boost()//recreation de fonction qui est normalement ecrite differame
 
 
 
-void drivers_init()
+void drivers_init() //initialisation of the drivers
 {
-  cstatic_assert(
-    sizeof(driver_packet_set) > sizeof(driver_packet_ans), //Compare les longueur en bits 
+  cstatic_assert(   //garentee the good functionement of the protocole spi
+    sizeof(driver_packet_set) > sizeof(driver_packet_ans), // Compare the length in bits of the two structures
     "In SPI, packet answer have to be strictly smaller than the resquest packet"
     );
 
@@ -46,20 +44,20 @@ void drivers_init()
 
 
   // Initializing CS pins
-  for (int k=0; k<5; k++) {
-    drivers_pins[k] = 1; // Set the pins in high mode
+  for (int k=0; k<5; k++) { // loop for to select all the drivers
+    drivers_pins[k] = 1; // Set the driver_pins in high mode
   }
 
   for (int k=0; k<5; k++) {
     bool ret=false;
     while(!ret){
-    //   BOARD_LED_PIN = 1;  // I don't fuckin know what is BOARD_LED_PIN, never define
+    // BOARD_LED_PIN = 1;  // I don't fuckin know what is BOARD_LED_PIN, never define
       ret=drivers_ping(k);
       wait_us(10);
     //   watchdog_feed();      // for now we don't use the watchdog
-    //   BOARD_LED_PIN = 1;
+    // BOARD_LED_PIN = 1;
     }
-    drivers_present[k] = ret;
+    drivers_present[k] = ret;// make the driver_pins ping
   }
 }
 
@@ -272,28 +270,28 @@ SHELL_COMMAND(scan, "Scan for drivers")
     }
 }
 
-SHELL_COMMAND(set, "Set speed for one driver")
-{
-    if (argc != 2) {
-        shell_println("Usage: set [driver] [speed]");
-    } else {
-        while (!serial.available()) {
-            drivers_set_safe(atoi(argv[0]), true, atof(argv[1]));
-            drivers_tick();
-            buzzer_tick();
+// SHELL_COMMAND(set, "Set speed for one driver")
+// {
+//     if (argc != 2) {
+//         shell_println("Usage: set [driver] [speed]");
+//     } else {
+//         while (!shell_available()) {
+//             drivers_set_safe(atoi(argv[0]), true, atof(argv[1]));
+//             drivers_tick();
+//             buzzer_tick();
 
-// Remove of steve Debug
-// //GROS DEBUG
-//            digitalWrite(IR_EMIT, HIGH);
-//            int value = analogRead(IR_RECEIVE);
-//            digitalWrite(IR_EMIT, LOW);
-//            terminal_io()->println(value);
-//            delay(5);
-//            /////////
+// // Remove of steve Debug
+// // //GROS DEBUG
+// //            digitalWrite(IR_EMIT, HIGH);
+// //            int value = analogRead(IR_RECEIVE);
+// //            digitalWrite(IR_EMIT, LOW);
+// //            terminal_io()->println(value);
+// //            delay(5);
+// //            /////////
 
 
-            // watchdog_feed();
-            wait_us(500);
-        }
-    }
-}
+//             // watchdog_feed();
+//             wait_us(500);
+//         }
+//     }
+// }

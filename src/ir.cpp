@@ -47,7 +47,7 @@ void ir_tick()
         }
     }
     //same as ir tick
-    Watchdog::get_instance().kick();
+    // Watchdog::get_instance().kick();
 }
 
 void ir_diagnostic()

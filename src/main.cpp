@@ -10,7 +10,7 @@
 
 
 
-uint32_t TIMEOUT_WATCHDOG_MS = 2000;
+// uint32_t TIMEOUT_WATCHDOG_MS = 2000;
 DigitalOut led(LED1);
 
 int main()
@@ -23,13 +23,13 @@ int main()
         mux_init();
         voltage_init();
         buzzer_init();  
-        // drivers_init();
+        drivers_init();
         //ir_init();
 
 
     //melody
 
-        buzzer_play(11);
+        buzzer_play(12);
         buzzer_wait_play();
         wait_us(2000000);
 
