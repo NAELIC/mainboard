@@ -10,8 +10,8 @@ struct driver_packet_set {
     bool enable;
     float targetSpeed;
     int16_t pwm;
-    uint32_t padding1; // See the next static_assert
-    uint8_t padding2; // See the next static_assert
+    uint32_t padding1;
+    uint8_t padding2;
 } __attribute__((packed));
 
 struct driver_packet_ans {

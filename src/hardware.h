@@ -5,10 +5,10 @@
 
 // Brushless drivers
 #define DRIVERS_CS1 SPI1_CS
-#define DRIVERS_CS2 PWM_1
-#define DRIVERS_CS3 PWM_2
-#define DRIVERS_CS4 PWM_3
-#define DRIVERS_CS5 ICAPT1
+#define DRIVERS_CS2 PA_10
+#define DRIVERS_CS3 PA_9
+#define DRIVERS_CS4 PB_0
+#define DRIVERS_CS5 PB_1
 
 #define DRV_MOSI SPI1_MOSI
 #define DRV_MISO SPI1_MISO
