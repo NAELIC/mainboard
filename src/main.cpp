@@ -4,6 +4,7 @@
 #include "mux.h"
 #include "shell.h"
 #include "voltage.h"
+#include "infos.h"
 #include <USBSerial.h>
 #include <mbed.h>
 
@@ -16,6 +17,7 @@ int main() {
   // watchdog.start(TIMEOUT_WATCHDOG_MS);
 
   // Buzzer
+  infos_init();
   mux_init();
   voltage_init();
   buzzer_init();
