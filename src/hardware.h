@@ -23,23 +23,22 @@
 
 // Communication pins
 
-// #define COM_MOSI DIO7
-// #define COM_MISO DIO8
-// #define COM_CLK DAC1
+#define COM_MOSI DIO8
+#define COM_MISO DIO7
+#define COM_CLK DAC1
 
-// #define COM_CE1  13
-// #define COM_CE2  3
-// #define COM_CE3  9
 
-// #define COM_CS1 20
-// #define COM_CS2 21
-// #define COM_CS3 22
-
-// #define COM_IRQ1 23
-// #define COM_IRQ2 24
-// #define COM_IRQ3 0
-
-// #define COM_SPI 2
+// // D7 "CSn" du transmetteur
+// #define SPI1_CS1 PA_4
+// // D8 "CSn" de l'émetteur
+// #define SPI1_CS2 PA_3
+// // D9 "CE" du transmetteur
+// #define CE1 PA_2
+// // D10 "CE" de l'émetteur
+// #define CE2 PA_1
+// // D11
+// #define INT PA_0
+#define COM_SPI 2
 
 // Communication configuration
 // #define COM_ADDR   {0x22, 0x87, 0xe8, 0xf9, 0x00}

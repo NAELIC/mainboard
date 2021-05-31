@@ -39,36 +39,36 @@ void drivers_init() // initialisation of the drivers
 }
 
 uint8_t drivers_status(int index) {
-  drivers_pins[index] = 0; // Set des pin en low
-  wait_us(35);             // pause
-  drivers.write(0);
-  uint8_t answer = drivers.write(0);
-  wait_us(5);              // pause
-  drivers_pins[index] = 1; // Set des pin en high
+  drivers_pins[index] = 0; // Set low
+  wait_us(35);             // pause needed
+  drivers.write(0); // send oly one bit to test the mosi of the spi
+  uint8_t answer = drivers.write(0); // write the one bit return of the miso
+  wait_us(5);              // pause needed
+  drivers_pins[index] = 1; // Set high
 
-  return answer;
+  return answer; //if answer != {} : the driver ping
 }
 
-int drivers_ping(int index) {
-  uint8_t status = drivers_status(index);
-  return (status == 0x55 || ((status & 0xf0) == 0x80));
+int drivers_ping(int index) {   //test to make ping the drivers
+  uint8_t status = drivers_status(index); //ping the drivers
+  return (status == 0x55 || ((status & 0xf0) == 0x80)); 
 }
 
 static void drivers_send(int index, uint8_t instruction, uint8_t *data,
-                         size_t len, uint8_t *answer) {
-  drivers_pins[index] = 0;
-  wait_us(35);
+                         size_t len, uint8_t *answer) { //send somthing to the drivers
+  drivers_pins[index] = 0; //turn on the pins of the drivers
+  wait_us(35); //wait needed and imortant
 
   drivers.write(instruction);
   drivers.write((char*)data, len, (char*)answer, answer == NULL ? 0 : len);
 
-  wait_us(5);
-  drivers_pins[index] = 1;
+  wait_us(5);//wait needed and imortant
+  drivers_pins[index] = 1; //turn off the pins of the drivers
 }
 
 #define REVERSE_TURN
 struct driver_packet_ans drivers_set(int index, bool enable, float target,
-                                     int16_t pwm) {
+                                     int16_t pwm) { // set the speed of the drivers
   driver_packet_set packet;
 
   packet.enable = enable;
@@ -89,7 +89,7 @@ struct driver_packet_ans drivers_set(int index, bool enable, float target,
   return ans;
 }
 
-void drivers_set_params(float kp, float ki, float kd) {
+void drivers_set_params(float kp, float ki, float kd) { //set the param of the drivers
   for (int index = 0; index < 5; index++) {
     struct driver_packet_params packet;
     packet.kp = kp;
@@ -134,8 +134,7 @@ void drivers_tick() {
   }
 }
 
-bool drivers_is_all_ok() {
-  // XXX: We are only looking for the 4th firsts
+bool drivers_is_all_ok() { // check if all is ok
   for (int k = 0; k < 4; k++) {
     if (!drivers_present[k]) {
       return false;
@@ -145,7 +144,7 @@ bool drivers_is_all_ok() {
   return true;
 }
 
-void drivers_diagnostic() {
+void drivers_diagnostic() { //detect if the drivers is prsent or is in error
   for (int k = 0; k < 5; k++) {
     shell_print("* Driver #");
     shell_print(k);
@@ -163,7 +162,7 @@ void drivers_diagnostic() {
   }
 }
 
-SHELL_COMMAND(err, "Error") {
+SHELL_COMMAND(err, "Error") { //detect the error in debug shell
   if (drivers_is_error) {
     shell_println("Drivers are in error mode");
   } else {
@@ -227,17 +226,6 @@ SHELL_COMMAND(set, "Set speed for one driver")
             drivers_set_safe(atoi(argv[0]), true, atof(argv[1]));
             drivers_tick();
             buzzer_tick();
-
-// Remove of steve Debug
-// //GROS DEBUG
-//            digitalWrite(IR_EMIT, HIGH);
-//            int value = analogRead(IR_RECEIVE);
-//            digitalWrite(IR_EMIT, LOW);
-//            terminal_io()->println(value);
-//            delay(5);
-//            /////////
-
-            // watchdog_feed();
             wait_us(500);
         }
     }
