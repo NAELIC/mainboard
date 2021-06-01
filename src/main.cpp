@@ -5,6 +5,7 @@
 #include "shell.h"
 #include "voltage.h"
 #include "infos.h"
+#include "com.h"
 #include <USBSerial.h>
 #include <mbed.h>
 
@@ -22,6 +23,7 @@ int main() {
   voltage_init();
   buzzer_init();
   drivers_init();
+  com_init();
   // ir_init();
 
   // melody
