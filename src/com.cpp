@@ -9,33 +9,42 @@
 DigitalOut led(PB_1);
 DigitalOut usbDisconnect(PB_9);
 
+// D4
+#define SPI1_MOSI PA_7
+// D5
+#define SPI1_MISO PA_6
+// D6
+#define SPI1_SCK PA_5
+// D7 "CSn" du transmetteur
+#define SPI1_CS1 PA_4
+// D8 "CSn" de l'émetteur
+#define SPI1_CS2 PA_3
+// D9 "CE" du transmetteur
+#define CE1 PA_2
+// D10 "CE" de l'émetteur
+#define CE2 PA_1
+// D11
+#define INT PA_0
 
-nRF24L01P Device1(SPI1_MOSI, SPI1_MISO, SPI1_SCK, SPI1_CS1);
-nRF24L01P Device2(SPI1_MOSI, SPI1_MISO, SPI1_SCK, SPI1_CS2);
+//define mast
+nRF24L01P CH1(SPI1_MOSI, SPI1_MISO, SPI1_SCK, SPI1_CS1);
+nRF24L01P CH2_1(SPI1_MOSI, SPI1_MISO, SPI1_SCK, SPI1_CS2);
+nRF24L01P CH2_2(SPI1_MOSI, SPI1_MISO, SPI1_SCK, SPI1_CS2);
 
-nRF24L01P_PTX PTX(Device1, CE1, INT);
-nRF24L01P_PRX PRX(Device2, CE2, INT);
+//pin allocation and Transmission or Reception mode
+nRF24L01P_PTX PTX(CH1, CE1, INT);
+nRF24L01P_PRX PRX_1(CH2_1, CE2, INT);
+nRF24L01P_PRX PRX_2(CH2_2, CE2, INT);
 
-SHELL_COMMAND(test, "") {
-  char c = 'a';
-  shell_println("Transmit");
-  int r = PTX.TransmitPacket(&c, 1);
-  shell_println(r);
+SHELL_COMMAND(send, "emission") {
+    PTX.TransmitPacket(&argv[0],sizeof(argv[0]));
+}
 
-  shell_println(Device1.num_lost_packets());
-  shell_println(Device2.num_lost_packets());
-
+SHELL_COMMAND(receive, "reception") {
   if (PRX.IsPacketReady()) {
-    char d;
-    int r = PRX.ReadPacket(&d);
-    shell_print("Read: ");
-    shell_print(r);
-    shell_print(" ");
-    shell_println(d);
+    char buffer;
+    int r = PRX_1.ReadPacket(&buffer);
   }
-
-  shell_println((int)Device1.debug_read());
-
   wait_us(1000);
 }
 
