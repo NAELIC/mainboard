@@ -1,7 +1,7 @@
 #ifndef _HARDWARE_H
 #define _HARDWARE_H
 
-#include "mbed.h"
+#include <mbed.h>
 
 // Brushless drivers
 #define DRIVERS_CS1 SPI1_CS
