@@ -32,7 +32,7 @@ SHELL_COMMAND(receive, "reception") {
     char buffer_2;
     size_packet = PRX_2.ReadPacket(&buffer);
     //test size_packet
-
+    if (buffer_1 & buffer_2) shell_println(buffer_1);
     
   }
   wait_us(1000);
