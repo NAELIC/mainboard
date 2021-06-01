@@ -38,6 +38,19 @@
 // #define CE2 PA_1
 // // D11
 // #define INT PA_0
+
+#define COM_CE1  DIO4
+#define COM_CE2  ADC1
+#define COM_CE3  ADC2
+
+#define COM_CS1 DIO1
+#define COM_CS2 DIO2
+#define COM_CS3 DIO3
+
+#define COM_IRQ1 ADC4
+#define COM_IRQ2 DIO5
+#define COM_IRQ3 SPI3_SCK
+
 #define COM_SPI 2
 
 // Communication configuration
