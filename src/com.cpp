@@ -35,7 +35,7 @@ int receive(nRF24L01P_PRX PRX, char *buffer) {
 
 SHELL_COMMAND(send, "emission") {
     //PTX.TransmitPacket(argv[0],sizeof(argv[0]));
-  char c = 'a';
+  //char c = 'a';
 
   int size_packet = send(PTX, argv[0], sizeof(argv[0]));
   shell_println(size_packet);
@@ -56,6 +56,7 @@ SHELL_COMMAND(receive, "reception") {
   int size_packet_1 = receive(PRX_1, &buffer_1);
   int size_packet_2 = receive(PRX_2, &buffer_2);
   if(size_packet_1 != size_packet_2) shell_println("(com.cpp) error : recieve -> size of variables 'size_packet_X' is different");
+  if (buffer_1 & buffer_2) shell_println(buffer_1);
   wait_us(1000);
 }
 
