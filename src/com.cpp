@@ -33,6 +33,30 @@ int receive(nRF24L01P_PRX PRX, char *buffer) {
     return size_packet;
 }
 
+void com_init() {
+
+  //initialize transmit mast
+  PTX.Initialize();
+  PTX.SetChannel(0);
+  PTX.SetDataRate(2000);
+  PTX.PowerUp();
+
+  //initialize receive mast
+  PRX_1.Initialize();
+  PRX_1.SetChannel(1);
+  PRX_1.SetDataRate(2000);
+  PRX_1.SetPayloadSize(1);
+  PRX_1.PowerUp();
+  PRX_1.StartReceive();
+
+  PRX_2.Initialize();
+  PRX_2.SetChannel(1);
+  PRX_2.SetDataRate(2000);
+  PRX_2.SetPayloadSize(1);
+  PRX_2.PowerUp();
+  PRX_2.StartReceive();
+}
+
 SHELL_COMMAND(send, "emission") {
     //PTX.TransmitPacket(argv[0],sizeof(argv[0]));
   //char c = 'a';
@@ -60,26 +84,6 @@ SHELL_COMMAND(receive, "reception") {
   wait_us(1000);
 }
 
-void com_init() {
-
-  //initialize transmit mast
-  PTX.Initialize();
-  PTX.SetChannel(0);
-  PTX.SetDataRate(2000);
-  PTX.PowerUp();
-
-  //initialize receive mast
-  PRX_1.Initialize();
-  PRX_1.SetChannel(1);
-  PRX_1.SetDataRate(2000);
-  PRX_1.SetPayloadSize(1);
-  PRX_1.PowerUp();
-  PRX_1.StartReceive();
-
-  PRX_2.Initialize();
-  PRX_2.SetChannel(1);
-  PRX_2.SetDataRate(2000);
-  PRX_2.SetPayloadSize(1);
-  PRX_2.PowerUp();
-  PRX_2.StartReceive();
+SHELL_COMMAND(com_init, "Initialize Communications"){
+    com_init();
 }
