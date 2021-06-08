@@ -83,7 +83,3 @@ SHELL_COMMAND(receive, "reception") {
   if (buffer_1 & buffer_2) shell_println(buffer_1);
   wait_us(1000);
 }
-
-SHELL_COMMAND(com_init, "Initialize Communications"){
-    com_init();
-}
