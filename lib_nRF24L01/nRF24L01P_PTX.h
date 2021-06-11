@@ -60,13 +60,13 @@ class nRF24L01P_PTX
       // returns 0 if the packet was sent successfully, -1 if it wasn't.
       int TransmitComplete();
 
+      DigitalOut CE;
    private:
       void IntHandler();
       void ReadyInitialize();
       void ReadyStandby();
    
       nRF24L01P& Device;
-      DigitalOut CE;
       // InterruptIn Int;
       // Timeout PowerOnTimer;
       // Timeout InitializeTimer;

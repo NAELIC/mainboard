@@ -110,13 +110,15 @@ nRF24L01P_PTX::TransmitPacket(char* Buf, int Size)
       return -1;
    }
 
-   Device.write_tx_payload(Buf, Size);
+   Device.write_tx_payload_no_ack(Buf, Size);
    Status = STATUS_TRANSMITTING;
    CE = 1;
    wait_us(Thce_us);
-   CE = 0;
+   Timer timer_timeout;
+   timer_timeout.start();
+   
    // wait until the packet is transmitted (or some error)
-   while (Status == STATUS_TRANSMITTING)
+   while (Status == STATUS_TRANSMITTING && timer_timeout.read() < 1)
    {
       wait_us(1);
       if (Device.is_tx_sent())
@@ -132,7 +134,9 @@ nRF24L01P_PTX::TransmitPacket(char* Buf, int Size)
          Device.clear_max_rt();
       }
    }
-  //  CE=0;
+
+   CE = 0;
+
    if (Status == STATUS_PACKET_OK)
    {
       Status = STATUS_STANDBY;
@@ -143,11 +147,11 @@ nRF24L01P_PTX::TransmitPacket(char* Buf, int Size)
       Status = STATUS_STANDBY;
       Device.flush_tx_fifo();
       return -3;
+   } else {
+      Status = STATUS_STANDBY;
+      Device.flush_tx_fifo();
+      return -4; // Timeout
    }
-   // else the Status isn't what we expected, which
-   // shouldn't happen in blocking mode.  Some interrupt must have
-   // reset Status.  Bug out with an error.
-   return -4;
 }
 
 int
