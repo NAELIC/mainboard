@@ -18,11 +18,12 @@ int main() {
   // watchdog.start(TIMEOUT_WATCHDOG_MS);
 
   // Buzzer
-  infos_init();
-  mux_init();
-  voltage_init();
-  buzzer_init();
-  drivers_init();
+
+  //infos_init();
+  //mux_init();
+  //voltage_init();
+  //buzzer_init();
+  //drivers_init();
   com_init();
   // ir_init();
 
@@ -43,6 +44,7 @@ int main() {
     // ThisThread::sleep_for(500ms);
     // led = 1;
     ThisThread::sleep_for(50ms);
+
   }
 }
 
