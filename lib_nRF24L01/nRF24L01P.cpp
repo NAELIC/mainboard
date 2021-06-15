@@ -228,7 +228,7 @@ nRF24L01P::is_rx_ready()
 uint8_t
 nRF24L01P::debug_read()
 {
-  return this->read_register(NRF24L01P_EN_AA);
+  return this->read_register(NRF24L01P_CONFIG);
 }
 
 void

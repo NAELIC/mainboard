@@ -28,6 +28,8 @@
  *******************************************************************************
  */
 
+/* MBED TARGET LIST: ZEST_CORE_STM32L4A6RG */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -73,7 +75,6 @@ typedef enum {
     PA_14 = 0x0E,
     PA_15 = 0x0F,
     PA_15_ALT0 = PA_15 | ALT0,
-
     PB_0  = 0x10,
     PB_0_ALT0 = PB_0 | ALT0,
     PB_0_ALT1 = PB_0 | ALT1,
@@ -108,7 +109,6 @@ typedef enum {
     PB_15 = 0x1F,
     PB_15_ALT0 = PB_15 | ALT0,
     PB_15_ALT1 = PB_15 | ALT1,
-
     PC_0  = 0x20,
     PC_0_ALT0 = PC_0 | ALT0,
     PC_0_ALT1 = PC_0 | ALT1,
@@ -141,108 +141,80 @@ typedef enum {
     PC_13 = 0x2D,
     PC_14 = 0x2E,
     PC_15 = 0x2F,
-
     PD_2  = 0x32,
-
     PH_0  = 0x70,
     PH_1  = 0x71,
     PH_3  = 0x73,
 
-    // ADC internal channels
-    ADC_TEMP = 0xF0,
-    ADC_VREF = 0xF1,
-    ADC_VBAT = 0xF2,
- 
-    // Zest J1 connector signal namings
-    CAN1_RX     = PB_12, // CAN2_RX
-    CAN1_TX     = PB_13, // CAN2_TX
-    I2C1_SCL    = PC_0,  // I2C3_SCL
-    I2C1_SDA    = PC_1,  // I2C3_SDA
-    UART1_RX    = PA_3,  // USART2_RX
-    UART1_TX    = PA_2,  // USART2_TX
-    SPI1_MOSI   = PB_15, // SPI2_MOSI
-    SPI1_MISO   = PB_14, // SPI2_MISO
-    SPI1_SCK    = PB_10, // SPI2_SCK
-    SPI1_CS     = PB_2,  // GPIO_28
-    PWM1_OUT    = PA_10, // TIM1_CH3
-    PWM2_OUT    = PA_9,  // TIM1_CH2
-    PWM3_OUT    = PB_0_ALT0,  // TIM3_CH3
-    ICAPT1      = PB_1_ALT0,  // TIM3_CH4
-    WKUP        = PC_13, // WKUP2
-    ADC_IN1     = PC_2,  // ADC123_IN3
-    ADC_IN2     = PC_3,  // ADC123_IN4
-    ADC_IN3     = PA_0,  // ADC12_IN5   
-    ADC_IN4     = PA_1,  // ADC12_IN6
-    DAC_OUT1    = PA_5,  // DAC_OUT2
-    DIO1        = PB_5,  // GPIO_57
-    DIO2        = PB_4,  // GPIO_56
-    DIO3        = PD_2,  // GPIO_54
-    DIO4        = PC_12, // GPIO_53
-    DIO5        = PA_8,  // GPIO_41 (MCO)
-    DIO6        = PC_10, // GPIO_51
-    DIO7        = PA_6,  // GPIO_22
-    DIO8        = PA_7,  // GPIO_23
-    DIO9        = PA_4,  // GPIO_20
-    DIO10       = PH_1,  // GPIO_06
-    DIO11       = PH_0,  // GPIO_05
-    DIO12       = PB_7,  // GPIO_59
-    DIO13       = PC_6,  // GPIO_37
-    DIO14       = PC_7,  // GPIO_38
-    DIO15       = PC_8,  // GPIO_39
-    DIO16       = PC_9,  // GPIO_40
-    DIO17       = PC_11, // GPIO_52
-    DIO18       = PB_6,  // GPIO_58
-    DIO19       = PB_8,  // GPIO_61
-    DIO20       = PB_9,  // GPIO_62
+    /**** ADC internal channels ****/
+    
+    ADC_TEMP = 0xF0,  // Internal pin virtual value
+    ADC_VREF = 0xF1,  // Internal pin virtual value
+    ADC_VBAT = 0xF2,  // Internal pin virtual value
 
     // STDIO for console print
 #ifdef MBED_CONF_TARGET_STDIO_UART_TX
-    STDIO_UART_TX = MBED_CONF_TARGET_STDIO_UART_TX,
+    CONSOLE_TX = MBED_CONF_TARGET_STDIO_UART_TX,
 #else
-    STDIO_UART_TX = PC_4,
+    CONSOLE_TX = PC_4,
 #endif
 #ifdef MBED_CONF_TARGET_STDIO_UART_RX
-    STDIO_UART_RX = MBED_CONF_TARGET_STDIO_UART_RX,
+    CONSOLE_RX = MBED_CONF_TARGET_STDIO_UART_RX,
 #else
-    STDIO_UART_RX = PC_5,
+    CONSOLE_RX = PC_5,
 #endif
+ 
+    /**** Zest connector signal namings (J1) ****/
+    CAN1_RX     = PB_12,        // CAN2_RX
+    CAN1_TX     = PB_13,        // CAN2_TX
+    I2C1_SCL    = PC_0,         // I2C3_SCL
+    I2C1_SDA    = PC_1,         // I2C3_SDA
+    UART1_RX    = PA_3,         // USART2_RX
+    UART1_TX    = PA_2,         // USART2_TX
+    SPI1_MOSI   = PB_15,        // SPI2_MOSI
+    SPI1_MISO   = PB_14,        // SPI2_MISO
+    SPI1_SCK    = PB_10,        // SPI2_SCK
+    SPI1_CS     = PB_2,         // GPIO_28
+    PWM1_OUT    = PA_10,        // TIM1_CH3
+    PWM2_OUT    = PA_9,         // TIM1_CH2
+    PWM3_OUT    = PB_0_ALT0,    // TIM3_CH3
+    ICAPT1      = PB_1_ALT0,    // TIM3_CH4
+    WKUP        = PC_13,        // WKUP2
+    ADC_IN1     = PC_2,         // ADC123_IN3
+    ADC_IN2     = PC_3,         // ADC123_IN4
+    ADC_IN3     = PA_0,         // ADC12_IN5   
+    ADC_IN4     = PA_1,         // ADC12_IN6
+    DAC_OUT1    = PA_5,         // DAC_OUT2
+    DIO1        = PB_5,         // GPIO_57
+    DIO2        = PB_4,         // GPIO_56
+    DIO3        = PD_2,         // GPIO_54
+    DIO4        = PC_12,        // GPIO_53
+    DIO5        = PA_8,         // GPIO_41 (MCO)
+    DIO6        = PC_10,        // GPIO_51
+    DIO7        = PA_6,         // GPIO_22
+    DIO8        = PA_7,         // GPIO_23
+    DIO9        = PA_4,         // GPIO_20
+    DIO10       = PH_1,         // GPIO_06
+    DIO11       = PH_0,         // GPIO_05
+    DIO12       = PB_7,         // GPIO_59
+    DIO13       = PC_6,         // GPIO_37
+    DIO14       = PC_7,         // GPIO_38
+    DIO15       = PC_8,         // GPIO_39
+    DIO16       = PC_9,         // GPIO_40
+    DIO17       = PC_11,        // GPIO_52
+    DIO18       = PB_6,         // GPIO_58
+    DIO19       = PB_8,         // GPIO_61
+    DIO20       = PB_9,         // GPIO_62
 
-    // Standardized LED namings
-    LED1        = PB_11,
-    LED2        = LED1,
-    LED3        = LED1,
-    LED4        = LED1,
-
-    // Standardized button namings
-    BUTTON1     = PH_3,
-
-    // Standardized signal names
-    SERIAL_TX   = STDIO_UART_TX, // Virtual Com Port
-    SERIAL_RX   = STDIO_UART_RX, // Virtual Com Port
-    USBTX       = STDIO_UART_TX, // Virtual Com Port
-    USBRX       = STDIO_UART_RX, // Virtual Com Port
-    I2C_SCL     = I2C1_SCL,
-    I2C_SDA     = I2C1_SDA,
-    SPI_MOSI    = SPI1_MOSI,
-    SPI_MISO    = SPI1_MISO,
-    SPI_SCK     = SPI1_SCK,
-    SPI_CS      = SPI1_CS,
-    PWM_OUT     = PWM1_OUT,
-
-    // USB Pins
+    /**** USB FS pins ****/
     USB_OTG_FS_DM = PA_11,
     USB_OTG_FS_DP = PA_12,
-    // USB_OTG_FS_ID = PA_10,
-    // USB_OTG_FS_NOE = PA_13,
-    // USB_OTG_FS_NOE_ALT0 = PC_9,
-    // USB_OTG_FS_SOF = PA_8,
-    // USB_OTG_FS_VBUS = PA_9,
 
-    // Oscillator pins
+    /**** OSCILLATOR pins ****/
     RCC_OSC32_IN = PC_14,
     RCC_OSC32_OUT = PC_15,
 
-    // Debug pins
+    /**** DEBUG pins ****/
     SYS_JTCK_SWCLK = PA_14,
     SYS_JTDI = PA_15,
     SYS_JTDO_SWO = PB_3,
@@ -252,6 +224,10 @@ typedef enum {
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;
+
+// Standardized LED and button names
+#define LED1    PB_11
+#define BUTTON1 PH_3
 
 #ifdef __cplusplus
 }
