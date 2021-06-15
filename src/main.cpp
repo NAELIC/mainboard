@@ -42,7 +42,7 @@ int main() {
     // led = 0;
     // ThisThread::sleep_for(500ms);
     // led = 1;
-    ThisThread::sleep_for(5ms);
+    ThisThread::sleep_for(50ms);
   }
 }
 
