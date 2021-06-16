@@ -43,7 +43,9 @@ int main() {
     // led = 0;
     // ThisThread::sleep_for(500ms);
     // led = 1;
+    led = 0;
     ThisThread::sleep_for(50ms);
+    led = 1;
 
   }
 }
