@@ -27,18 +27,6 @@
 #define COM_MISO PA_6
 #define COM_CLK PA_5
 
-
-// // D7 "CSn" du transmetteur
-// #define SPI1_CS1 PA_4
-// // D8 "CSn" de l'émetteur
-// #define SPI1_CS2 PA_3
-// // D9 "CE" du transmetteur
-// #define CE1 PA_2
-// // D10 "CE" de l'émetteur
-// #define CE2 PA_1
-// // D11
-//#define INT PA_0
-
 #define COM_CE1  PC_12
 #define COM_CE2  PC_2
 #define COM_CE3  PC_3
