@@ -1,15 +1,10 @@
 #include "com.h"
-#include <stdint.h>
-#include <stdio.h>
 #include "nRF24L01P_PRX.h"
 #include "nRF24L01P_PTX.h"
 #include "shell.h"
 #include <USBSerial.h>
 #include <mbed.h>
 #include <hardware.h>
-#include "errors.h"
-#include <assert.h>
-
 
 nRF24L01P Device1(COM_MOSI, COM_MISO, COM_CLK, COM_CS1);
 nRF24L01P Device2(COM_MOSI, COM_MISO, COM_CLK, COM_CS2);
@@ -31,31 +26,6 @@ int receive(nRF24L01P_PRX PRX, char *buffer) {
         size_packet = PRX.ReadPacket(buffer);
     }
     return size_packet;
-}
-
-SHELL_COMMAND(send, "send packet; limited with length 10"){
-  if (argc != 1) {
-        shell_println("Usage: send [packet]");
-    } else {
-        while (!shell_available()) {
-          if(strlen(argv[0])+1 > 10){
-            shell_println("Usage: lenght of packet is limited to 10 bytes");
-          } else {
-            char packet[10] = {0};
-            for(int i = 0; i < strlen(argv[0])+1 ; i++) packet[i] = argv[0][i];
-            send(PTX,packet,10);
-          }
-        }
-    }
-}
-
-SHELL_COMMAND(receive, "receive packet"){
-  while(PRX.IsPacketReady()){
-    char packet[10];
-    int r = receive(PRX, packet);
-    shell_println(packet);
-    shell_println(r);
-  }
 }
 
 SHELL_COMMAND(test, "") {
@@ -95,7 +65,7 @@ void com_init() {
  PRX.Initialize();
  PRX.SetChannel(0);
  PRX.SetDataRate(2000);
- PRX.SetPayloadSize(10);
+ PRX.SetPayloadSize(1);
  PRX.PowerUp();
  PRX.StartReceive();
 }
