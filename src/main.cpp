@@ -9,8 +9,12 @@
 #include <USBSerial.h>
 #include <mbed.h>
 
+#include "swo.h"
+
 uint32_t TIMEOUT_WATCHDOG_MS = 2000;
 DigitalOut led(LED1);
+static naelic::SWO swo;
+
 
 int main() {
   shell_init_usb();
@@ -32,21 +36,16 @@ int main() {
   // buzzer_play(11);
   // buzzer_wait_play();
   // wait_us(2000000);
-
+  led = 1;
   while (true) {
+    swo.printf("Begin work !\n");
     // ir
     buzzer_tick();
     voltage_tick();
 
     // ir_tick();
 
-    // led = 0;
-    // ThisThread::sleep_for(500ms);
-    // led = 1;
-    led = 0;
     ThisThread::sleep_for(50ms);
-    led = 1;
-
   }
 }
 
