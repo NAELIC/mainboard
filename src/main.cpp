@@ -15,8 +15,8 @@ uint32_t TIMEOUT_WATCHDOG_MS = 2000;
 DigitalOut led(LED1);
 static naelic::SWO swo;
 
-
-int main() {
+int main()
+{
   shell_init_usb();
   // Watchdog &watchdog = Watchdog::get_instance();
   // watchdog.start(TIMEOUT_WATCHDOG_MS);
@@ -37,7 +37,8 @@ int main() {
   // buzzer_wait_play();
   // wait_us(2000000);
   led = 1;
-  while (true) {
+  while (true)
+  {
     swo.printf("Begin work !\n");
     // ir
     buzzer_tick();
@@ -45,7 +46,8 @@ int main() {
 
     // ir_tick();
 
-    ThisThread::sleep_for(50ms);
+    ThisThread::sleep_for(100ms);
+    test_radio();
   }
 }
 

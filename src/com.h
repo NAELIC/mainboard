@@ -3,6 +3,7 @@
 #include "nRF24L01P_PTX.h"
 
 void com_init();
+void test_radio();
 
 int send(nRF24L01P_PTX PTX, char *buffer, int size);
 
