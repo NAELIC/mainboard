@@ -10,6 +10,8 @@
 #include <swo.h>
 #include <shell.h>
 
+#include <common/version.h>
+
 // uint32_t TIMEOUT_WATCHDOG_MS = 2000;
 DigitalOut led(LED1);
 static naelic::SWO swo;

@@ -9,10 +9,6 @@ nRF24L01P_PRX PRX(Device2, COM_CE2, COM_CE1);
 nRF24L01P_PRX PRX2(Device3, COM_CE3, COM_CE1);
 static naelic::SWO swo;
 
-SHELL_COMMAND(version, "version") {
-  shell_println("Master");
-}
-
 int send(nRF24L01P_PTX PTX)
 { 
   struct packet_master packet;
