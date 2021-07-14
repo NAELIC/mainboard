@@ -126,6 +126,19 @@ nRF24L01P_PRX::ReadPacket(char* Buf)
    return PayloadSize;
 }
 
+int
+nRF24L01P_PRX::ReadPacket(uint8_t* Buf)
+{
+   if (!this->IsPacketReady())
+   {
+      error("nRF24L01P_PRX::ReadPacket(): error: no packet to read!");
+   }
+
+   Device.read_rx_payload(Buf);
+   Device.clear_rx_ready();
+   return PayloadSize;
+}
+
 void
 nRF24L01P_PRX::IntHandler()
 {

@@ -1,17 +1,17 @@
-#include "buzzer.h"
-#include "drivers.h"
-#include "hardware.h"
-#include "mux.h"
-#include "shell.h"
-#include "voltage.h"
-#include "infos.h"
-#include "com.h"
 #include <USBSerial.h>
 #include <mbed.h>
+#include <shell.h>
+#include <swo.h>
 
-#include "swo.h"
+// #include "buzzer.h"
+// #include "drivers.h"
+// #include "hardware.h"
+// #include "mux.h"
+// #include "voltage.h"
+// #include "infos.h"
+#include "com.h"
 
-uint32_t TIMEOUT_WATCHDOG_MS = 2000;
+// uint32_t TIMEOUT_WATCHDOG_MS = 2000;
 DigitalOut led(LED1);
 static naelic::SWO swo;
 
@@ -23,11 +23,11 @@ int main()
 
   // Buzzer
 
-  infos_init();
-  mux_init();
-  voltage_init();
-  buzzer_init();
-  drivers_init();
+//   infos_init();
+//   mux_init();
+//   voltage_init();
+//   buzzer_init();
+//   drivers_init();
   com_init();
   // ir_init();
 
@@ -39,10 +39,10 @@ int main()
   led = 1;
   while (true)
   {
-    swo.printf("Begin work !\n");
+    swo.println("Hello World !");
     // ir
-    buzzer_tick();
-    voltage_tick();
+    // buzzer_tick();
+    // voltage_tick();
 
     // ir_tick();
 
@@ -50,5 +50,3 @@ int main()
     test_radio();
   }
 }
-
-// afficher valeur millis dans le tickn pour changement.

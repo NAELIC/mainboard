@@ -1,10 +1,5 @@
 //include
 #include "buzzer.h"
-#include "mbed.h"
-#include "shell.h"
-#include "hardware.h"
-
-
 
 struct buzzer_note {    //definition of the structure who had for name "buzzer_note"
     unsigned int freq;

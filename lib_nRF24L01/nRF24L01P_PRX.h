@@ -47,7 +47,7 @@ class nRF24L01P_PRX
       // Reads the packet into the given buffer.
       // Returns the size of the packet.
       int ReadPacket(char* Buf);
-
+      int ReadPacket(uint8_t* Buf);
    private:
       void IntHandler();
       void ReadyInitialize();

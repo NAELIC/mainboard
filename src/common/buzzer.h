@@ -1,5 +1,10 @@
-#ifndef _BUZZER_H
-#define _BUZZER_H
+#pragma once
+
+
+#include <mbed.h>
+#include <shell.h>
+#include "hardware.h"
+
 #define BUZZER_POWER 0.5
 
 // When the robot starts
@@ -84,5 +89,3 @@ void buzzer_wait_play();
 void buzzer_beep(unsigned int freq, unsigned int duration);
 
 void buzzer_play_note(int note);
-
-#endif

@@ -229,6 +229,7 @@ class nRF24L01P
       // Write a transmit payload, 1-32 bytes, with ACK disabled.
       // NOTE: enable_no_ack() must be enabled
       void write_tx_payload_no_ack(char const* Buf, int Bytes);
+      void write_tx_payload_no_ack(uint8_t const* Buf, int Bytes);
 
       // flush the transmit FIFO
       void flush_tx_fifo();
@@ -242,9 +243,11 @@ class nRF24L01P
       // read 1-32 bytes from the RX FIFO.  The payload is deleted after it is read.  The user must
       // know how many bytes to read.
       void read_rx_payload(char* Buf, int Bytes);
+      void read_rx_payload(uint8_t* Buf, int Bytes);
       
       // this version reads the complete payload into Buf, and returns the number of bytes in the payload
       int read_rx_payload(char* Buf);
+      int read_rx_payload(uint8_t* Buf);
 
       // flush the receive FIFO
       void flush_rx_fifo();
