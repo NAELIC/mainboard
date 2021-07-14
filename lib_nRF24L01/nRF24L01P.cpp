@@ -504,6 +504,18 @@ nRF24L01P::write_tx_payload_no_ack(char const* Buf, int Bytes)
 }
 
 void
+nRF24L01P::write_tx_payload_no_ack(uint8_t const* Buf, int Bytes)
+{
+   NCS = 0;
+   Spi.write(NRF24L01P_CMD_W_TX_PYLD_NO_ACK);
+   for (int i = 0; i < Bytes; ++i)
+   {
+      Spi.write(*Buf++);
+   }
+   NCS = 1;
+}
+
+void
 nRF24L01P::flush_tx_fifo()
 {
    NCS = 0;
@@ -542,8 +554,27 @@ nRF24L01P::read_rx_payload(char* Buf, int Bytes)
    NCS = 1;
 }
 
+void
+nRF24L01P::read_rx_payload(uint8_t* Buf, int Bytes)
+{
+   NCS = 0;
+   Spi.write(NRF24L01P_CMD_R_RX_PAYLOAD);
+   for (int i = 0; i < Bytes; ++i)
+   {
+      *Buf++ = Spi.write(NRF24L01P_CMD_NOP);
+   }
+   NCS = 1;
+}
+
 int
 nRF24L01P::read_rx_payload(char* Buf)
+{
+   this->read_rx_payload(Buf, this->rx_payload_width());
+   return 0;
+}
+
+int
+nRF24L01P::read_rx_payload(uint8_t* Buf)
 {
    this->read_rx_payload(Buf, this->rx_payload_width());
    return 0;

@@ -5,6 +5,7 @@
 #include <nRF24L01P_PTX.h>
 #include <nRF24L01P_PRX.h>
 #include <common/hardware.h>
+#include <common/network.h>
 
 void com_init();
 void test_radio();
