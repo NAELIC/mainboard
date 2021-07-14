@@ -11,3 +11,11 @@ Platform used :
 ## Documents
 
 You can find datasheet in `docs` folder.
+
+## Cheatseet
+
+```bash
+pio run -t upload -e master
+pio run -t upload -e robot
+pio device monitor
+```

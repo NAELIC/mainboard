@@ -1,15 +1,14 @@
-#include "buzzer.h"
-#include "drivers.h"
-#include "hardware.h"
-#include "mux.h"
-#include "shell.h"
-#include "voltage.h"
-#include "infos.h"
-#include "com.h"
+// #include "buzzer.h"
+// #include "drivers.h"
+// #include "hardware.h"
+// #include "mux.h"
+// #include "voltage.h"
+// #include "infos.h"
+// #include "com.h"
 #include <USBSerial.h>
 #include <mbed.h>
-
-#include "swo.h"
+#include <swo.h>
+#include <shell.h>
 
 uint32_t TIMEOUT_WATCHDOG_MS = 2000;
 DigitalOut led(LED1);
@@ -23,12 +22,12 @@ int main()
 
   // Buzzer
 
-  infos_init();
-  mux_init();
-  voltage_init();
-  buzzer_init();
-  drivers_init();
-  com_init();
+//   infos_init();
+//   mux_init();
+//   voltage_init();
+//   buzzer_init();
+//   drivers_init();
+//   com_init();
   // ir_init();
 
   // melody
@@ -39,10 +38,10 @@ int main()
   led = 1;
   while (true)
   {
-    swo.printf("Begin work !\n");
+    swo.println("Hello i'm Robot !");
     // ir
-    buzzer_tick();
-    voltage_tick();
+    // buzzer_tick();
+    // voltage_tick();
 
     // ir_tick();
 

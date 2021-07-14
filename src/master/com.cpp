@@ -93,8 +93,6 @@ SHELL_COMMAND(test, "")
   wait_us(1000);
 }
 
-SHELL_COMMAND(dbg, "") {}
-
 void com_init()
 {
 
