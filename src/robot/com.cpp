@@ -28,10 +28,6 @@ SHELL_COMMAND(send, "send"){
   shell_println(send(PTX));
 }
 
-SHELL_COMMAND(version, "version") {
-  shell_println("Robot");
-}
-
 int receive(nRF24L01P_PRX PRX)
 {
   int size_packet = -1;
