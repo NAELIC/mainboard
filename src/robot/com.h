@@ -10,6 +10,6 @@
 void com_init();
 void test_radio();
 
-int send(nRF24L01P_PTX PTX, char *buffer, int size);
+int send(nRF24L01P_PTX PTX);
 
-int receive(nRF24L01P_PRX PRX, char *buffer);
+int receive(nRF24L01P_PRX PRX);

@@ -9,7 +9,7 @@
 // #include "mux.h"
 // #include "voltage.h"
 // #include "infos.h"
-// #include "com.h"
+#include "com.h"
 
 // uint32_t TIMEOUT_WATCHDOG_MS = 2000;
 DigitalOut led(LED1);
@@ -28,7 +28,7 @@ int main()
 //   voltage_init();
 //   buzzer_init();
 //   drivers_init();
-//   com_init();
+  com_init();
   // ir_init();
 
   // melody
@@ -47,6 +47,6 @@ int main()
     // ir_tick();
 
     ThisThread::sleep_for(100ms);
-    // test_radio();
+    test_radio();
   }
 }
