@@ -1,4 +1,3 @@
-//include
 #include "buzzer.h"
 
 struct buzzer_note {    //definition of the structure who had for name "buzzer_note"

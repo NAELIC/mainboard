@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include <mbed.h>
 #include <shell.h>
 #include "hardware.h"

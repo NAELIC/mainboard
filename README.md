@@ -17,5 +17,5 @@ You can find datasheet in `docs` folder.
 ```bash
 pio run -t upload -e master
 pio run -t upload -e robot
-pio device monitor
+pio device monitor --eol LF
 ```

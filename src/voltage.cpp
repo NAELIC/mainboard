@@ -41,7 +41,7 @@ float voltage_value()
 }
 
 
-SHELL_COMMAND(Voltage, "Voltage value")
+SHELL_COMMAND(voltage, "Voltage value")
 {
    shell_println(voltage_value());
 }
