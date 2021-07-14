@@ -1,11 +1,4 @@
 #include "com.h"
-#include "nRF24L01P_PRX.h"
-#include "nRF24L01P_PTX.h"
-#include "shell.h"
-#include <USBSerial.h>
-#include <mbed.h>
-#include <hardware.h>
-#include <swo.h>
 
 nRF24L01P Device1(COM_MOSI, COM_MISO, COM_CLK, COM_CS1);
 nRF24L01P Device2(COM_MOSI, COM_MISO, COM_CLK, COM_CS2);

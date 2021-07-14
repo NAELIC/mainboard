@@ -1,6 +1,10 @@
 #pragma once
-#include "nRF24L01P_PRX.h"
-#include "nRF24L01P_PTX.h"
+
+#include <swo.h>
+#include <shell.h>
+#include <nRF24L01P_PTX.h>
+#include <nRF24L01P_PRX.h>
+#include <common/hardware.h>
 
 void com_init();
 void test_radio();

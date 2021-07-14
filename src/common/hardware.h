@@ -1,5 +1,4 @@
-#ifndef _HARDWARE_H
-#define _HARDWARE_H
+#pragma once
 
 #include <mbed.h>
 
@@ -22,7 +21,6 @@
 #define ADDR3       DIO14
 
 // Communication pins
-
 #define COM_MOSI PA_7
 #define COM_MISO PA_6
 #define COM_CLK PA_5
@@ -80,5 +78,3 @@
 #define IR_EMIT         DIO10   // IR_LED 
 #define IR_RECEIVE      ADC_IN3 //IR_DET_A on datasheet
 #define IR_THRESHOLD    700
-
-#endif
