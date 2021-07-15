@@ -44,8 +44,7 @@
 // #define COM_MASTER 0xff
 
 // Buzzer
-#define BUZZER_PIN      DIO12 // Pin Buzer
-#define BUZZER_TIMER    2  // Inutile ?
+#define BUZZER_PIN      DIO12
 
 // Booster
 // #define BOOSTER_PIN     27

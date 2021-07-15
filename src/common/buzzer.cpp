@@ -1,7 +1,7 @@
 #include "buzzer.h"
 
 // Config
-PwmOut buzzer_pin(BUZZER_PIN); // Set the PIN we name BUZZER_PIN in hardware.h as a Pwmout
+PwmOut buzzer_pin(BUZZER_PIN);
 Timer millis;
 
 // Status
@@ -13,30 +13,21 @@ static int melody_st;
 void buzzer_init()
 {
   melody = NULL;
-  buzzer_pin = 0.0; //No sound
-  millis.start();   //start millis timer
-  // make a beep for the initialisation
-  // buzzer_pin.period(1.0/946.0); //set the sonor frequences
-  // buzzer_pin = 0.5; //turn on soud
-  wait_us(100); // delay
-                // buzzer_pin = 0.0; // turn of sound
+  buzzer_pin = 0.0;
+  millis.start(); 
+  wait_us(100);
 }
 
 void buzzer_play_note(int note)
 {
-
-  // shell_println("Buzzer play note");
   if (note == 0)
-  { //if the melody is end
-
-    buzzer_pin = 0.0; //No sound
-                      // shell_println("Buzzer play note coupure du son");
+  {
+    buzzer_pin = 0.0;
   }
   else
   {
-    buzzer_pin.period(float(1.0 / note)); //set the eriod on the buzzer
-    buzzer_pin = 0.5;                     // Activation of soud
-                                          // shell_println("Buzzer play note activation du son");
+    buzzer_pin.period(float(1.0 / note)); 
+    buzzer_pin = BUZZER_POWER;                     
   }
 }
 
@@ -44,8 +35,8 @@ static void buzzer_enter(struct buzzer_note *note)
 {
   buzzer_play_note(note->freq);
   melody = note;
-  melody_st = millis.read_ms(); //melody start take the value of the current time
-
+  melody_st = millis.read_ms(); 
+  
   if (note->freq == 0 && note->duration == 0)
   {
     if (melody_repeat != NULL)
