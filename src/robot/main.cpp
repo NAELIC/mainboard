@@ -21,9 +21,6 @@ int main()
   shell_init_usb();
   // Watchdog &watchdog = Watchdog::get_instance();
   // watchdog.start(TIMEOUT_WATCHDOG_MS);
-
-  // Buzzer
-
   //   infos_init();
   //   mux_init();
   //   voltage_init();
@@ -32,8 +29,6 @@ int main()
   com_init();
   // ir_init();
 
-  // melody
-
   // buzzer_play(11);
   // buzzer_wait_play();
   // wait_us(2000000);
@@ -41,15 +36,10 @@ int main()
   while (true)
   {
     swo.println("Hello i'm Robot !");
-    // ir
     buzzer_tick();
     // voltage_tick();
-
     // ir_tick();
-
     ThisThread::sleep_for(100ms);
     test_radio();
   }
 }
-
-// afficher valeur millis dans le tickn pour changement.

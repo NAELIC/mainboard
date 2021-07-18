@@ -76,7 +76,6 @@ static struct buzzer_note melody_alert_fast[] = {
 static struct buzzer_note melody_warning[] = {
     {800, 200},
     {400, 200},
-    {200, 0},
     {200, 400},
     {0, 0}};
 

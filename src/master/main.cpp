@@ -1,6 +1,4 @@
-#include <USBSerial.h>
 #include <mbed.h>
-#include <shell.h>
 #include <swo.h>
 
 // #include "buzzer.h"
@@ -22,14 +20,11 @@ int main()
   shell_init_usb();
   // Watchdog &watchdog = Watchdog::get_instance();
   // watchdog.start(TIMEOUT_WATCHDOG_MS);
-
-  // Buzzer
-
-//   infos_init();
-//   mux_init();
-//   voltage_init();
-//   buzzer_init();
-//   drivers_init();
+  //   infos_init();
+  //   mux_init();
+  //   voltage_init();
+  //   buzzer_init();
+  //   drivers_init();
   com_init();
   // ir_init();
 
