@@ -70,8 +70,8 @@
 
 // Voltage
 #define BAT_ADDR        5
-#define BAT_R1          10000
-#define BAT_R2          1000
+#define BAT_R1          10000.0
+#define BAT_R2          1000.0
 
 // Infrared
 #define IR_EMIT         DIO10   // IR_LED 

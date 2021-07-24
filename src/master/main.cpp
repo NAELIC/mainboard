@@ -5,10 +5,10 @@
 // #include "drivers.h"
 // #include "hardware.h"
 // #include "mux.h"
-// #include "voltage.h"
 // #include "infos.h"
 #include "com.h"
 
+#include <common/voltage.h>
 #include <common/version.h>
 
 // uint32_t TIMEOUT_WATCHDOG_MS = 2000;
@@ -22,7 +22,7 @@ int main()
   // watchdog.start(TIMEOUT_WATCHDOG_MS);
   //   infos_init();
   //   mux_init();
-  //   voltage_init();
+  voltage_init();
   //   buzzer_init();
   //   drivers_init();
   com_init();
@@ -39,11 +39,11 @@ int main()
     swo.println("Hello World !");
     // ir
     // buzzer_tick();
-    // voltage_tick();
+    voltage_tick();
 
     // ir_tick();
 
     ThisThread::sleep_for(100ms);
-    test_radio();
+    // test_radio();
   }
 }
