@@ -23,7 +23,7 @@ void voltage_tick()
         lastSample = Kernel::Clock::now().time_since_epoch().count();
         float v1 = mux_sample(BAT_ADDR) * 3.3 / (float)(1 << 16);
         bat = v1 * (BAT_R1 + BAT_R2) / BAT_R2;
-        swo.println((int)bat);
+        swo.println(bat);
     }
 }
 

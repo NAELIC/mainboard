@@ -2,7 +2,7 @@
 // #include "drivers.h"
 // #include "hardware.h"
 // #include "mux.h"
-// #include "voltage.h"
+#include <common/voltage.h>
 // #include "infos.h"
 #include "com.h"
 #include <USBSerial.h>
@@ -23,7 +23,7 @@ int main()
   // watchdog.start(TIMEOUT_WATCHDOG_MS);
   //   infos_init();
   //   mux_init();
-  //   voltage_init();
+  voltage_init();
   buzzer_init();
   //   drivers_init();
   com_init();
@@ -35,11 +35,11 @@ int main()
   led = 1;
   while (true)
   {
-    swo.println("Hello i'm Robot !");
+    swo.println(6.6);
     buzzer_tick();
-    // voltage_tick();
+    voltage_tick();
     // ir_tick();
     ThisThread::sleep_for(100ms);
-    test_radio();
+    // test_radio();
   }
 }
