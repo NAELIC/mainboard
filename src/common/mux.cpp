@@ -5,16 +5,9 @@
 
 //pin init    
 AnalogIn mux(MUX);
-DigitalOut addr1(ADDR1);
-DigitalOut addr2(ADDR2);
-DigitalOut addr3(ADDR3);
-
-void mux_init()
-{
-   addr1 = 0;
-   addr2 = 0;
-   addr3 = 0;
-}
+DigitalOut addr1(ADDR1, 0);
+DigitalOut addr2(ADDR2, 0);
+DigitalOut addr3(ADDR3, 0);
 
 int mux_sample(int addr)
 {
