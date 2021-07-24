@@ -1,6 +1,6 @@
 #include "drivers.h"
-#include "buzzer.h"
-#include "hardware.h"
+#include <common/buzzer.h>
+#include <common/hardware.h>
 #include <USBSerial.h>
 #include <mbed.h>
 #include <shell.h>

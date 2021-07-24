@@ -1,7 +1,7 @@
 #include "ir.h"
 #include "mbed.h"
 #include "shell.h"
-#include "hardware.h"
+#include <common/hardware.h>
 
 volatile bool ir_detected = false;
 volatile int ir_value = 0;

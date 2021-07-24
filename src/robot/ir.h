@@ -1,5 +1,4 @@
-#ifndef _IR_H
-#define _IR_H
+#pragma once
 
 void ir_init();
 
@@ -16,5 +15,3 @@ bool ir_present();
 bool ir_present_now();
 
 void ir_diagnostic();
-
-#endif

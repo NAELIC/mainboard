@@ -1,5 +1,4 @@
-#ifndef _DRIVERS_H
-#define _DRIVERS_H
+#pragma once
 
 #include <stdint.h>
 #include <assert.h>
@@ -57,4 +56,3 @@ int drivers_ping(int index);
 bool drivers_is_all_ok();
 void drivers_diagnostic();
 
-#endif

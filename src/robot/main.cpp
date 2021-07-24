@@ -1,5 +1,6 @@
 #include <common/buzzer.h>
-// #include "drivers.h"
+#include "drivers.h"
+#include "ir.h"
 // #include "hardware.h"
 // #include "mux.h"
 #include <common/voltage.h>
@@ -24,7 +25,7 @@ int main()
   //   infos_init();
   //   mux_init();
   buzzer_init();
-  //   drivers_init();
+  // drivers_init();
   com_init();
   // ir_init();
 
