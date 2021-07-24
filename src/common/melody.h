@@ -1,10 +1,12 @@
 #pragma once
 
-struct buzzer_note
+#include <vector>
+
+typedef struct
 {
-    unsigned int freq;
+    uint16_t freq;
     unsigned int duration;
-};
+} buzzer_note;
 
 /**
  * Melodic enumerations.
@@ -40,67 +42,58 @@ struct buzzer_note
 #define C7 2093
 #define B5b 932
 
-/**
+namespace melody
+{
+    /**
  * Melody
  */
-static struct buzzer_note chord_boot[] = {
-    {C5, 50},
-    {E5, 50},
-    {G5, 50},
-    {C6, 200},
-    {0, 0}};
+    static std::vector<buzzer_note> boot = {
+        {C5, 50},
+        {E5, 50},
+        {G5, 50},
+        {C6, 200}};
 
-static struct buzzer_note chord_boot_dev[] = {
-    {C6, 50},
-    {G5, 50},
-    {E5, 50},
-    {C5, 200},
-    {0, 0}};
+    static std::vector<buzzer_note> boot_dev = {
+        {C6, 50},
+        {G5, 50},
+        {E5, 50},
+        {C5, 200}};
 
-static struct buzzer_note melody_alert[] = {
-    {2000, 200},
-    {200, 200},
-    {2000, 200},
-    {200, 200},
-    {0, 0}};
+    static std::vector<buzzer_note> alert = {
+        {2000, 200},
+        {200, 200},
+        {2000, 200},
+        {200, 200}};
 
-static struct buzzer_note melody_alert_fast[] = {
-    {2000, 100},
-    {200, 100},
-    {2000, 100},
-    {200, 100},
-    {2000, 100},
-    {200, 100},
-    {0, 0}};
+    static std::vector<buzzer_note> alert_fast = {
+        {2000, 100},
+        {200, 100},
+        {2000, 100},
+        {200, 100},
+        {2000, 100},
+        {200, 100}};
 
-static struct buzzer_note melody_warning[] = {
-    {800, 200},
-    {400, 200},
-    {200, 400},
-    {0, 0}};
+    static std::vector<buzzer_note> warning = {
+        {800, 200},
+        {400, 200},
+        {200, 400}};
 
-static struct buzzer_note melody_begin[] = {
-    {800, 200},
-    {1000, 200},
-    {0, 0},
-};
+    static std::vector<buzzer_note> begin_motor = {
+        {800, 200},
+        {1000, 200}};
 
-static struct buzzer_note melody_end[] = {
-    {1000, 200},
-    {800, 200},
-    {0, 0},
-};
+    static std::vector<buzzer_note> end_motor = {
+        {1000, 200},
+        {800, 200}};
 
-static struct buzzer_note melody_custom[] = {
-    {0, 0},
-    {0, 0}};
+    static std::vector<buzzer_note> assert = {
+        {2000, 200},
+        {1700, 200},
+        {1400, 200},
+        {1100, 200},
+        {800, 200},
+        {500, 200},
+        {200, 200}};
 
-static struct buzzer_note melody_assert[] = {
-    {2000, 200},
-    {1700, 200},
-    {1400, 200},
-    {1100, 200},
-    {800, 200},
-    {500, 200},
-    {200, 200},
-    {0, 0}};
+    static std::vector<buzzer_note> custom = {{0, 0}};
+}

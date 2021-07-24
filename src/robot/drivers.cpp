@@ -112,7 +112,7 @@ void drivers_set_safe(int index, bool enable, float target, int16_t pwm) {
       }
 
       drivers_is_error = true;
-      buzzer_play(MELODY_WARNING);
+      // buzzer_play(MELODY_WARNING);
       // terminal_io()->println("Error on driver:");
       // terminal_io()->println(index);
       // terminal_io()->println(driver_answers[index].status&0xf);
@@ -124,13 +124,13 @@ void drivers_set_safe(int index, bool enable, float target, int16_t pwm) {
 
 void drivers_tick() {
   if (drivers_is_error) {
-    if (buzzer_is_playing()) {
+    // if (buzzer_is_playing()) {
       for (int k = 0; k < 5; k++) {
         drivers_set(k, false, 0.0);
       }
-    } else {
-      drivers_is_error = false;
-    }
+    // } else {
+    //   drivers_is_error = false;
+    // }
   }
 }
 
@@ -225,7 +225,7 @@ SHELL_COMMAND(set, "Set speed for one driver")
         while (!shell_available()) {
             drivers_set_safe(atoi(argv[0]), true, atof(argv[1]));
             drivers_tick();
-            buzzer_tick();
+            // buzzer_tick();
             wait_us(500);
         }
     }

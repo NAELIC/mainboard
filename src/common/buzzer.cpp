@@ -1,151 +1,92 @@
 #include "buzzer.h"
 
-// Config
-PwmOut buzzer_pin(BUZZER_PIN);
-Timer millis;
+#include <swo.h>
+#include <vector>
 
-// Status
-static struct buzzer_note *note_now;
-static struct buzzer_note *melody;
-static struct buzzer_note *melody_repeat;
-static int melody_st;
+static naelic::SWO swo;
 
-void buzzer_init()
+namespace buzzer
 {
-  melody = NULL;
-  buzzer_pin = 0.0;
-  millis.start(); 
-  wait_us(100);
-}
+  PwmOut pin(BUZZER_PIN);
 
-void buzzer_play_note(int note)
-{
-  if (note == 0)
+  void init()
   {
-    buzzer_pin = 0.0;
+    pin = 0.0;
   }
-  else
-  {
-    buzzer_pin.period(float(1.0 / note)); 
-    buzzer_pin = BUZZER_POWER;                     
-  }
-}
 
-static void buzzer_enter(struct buzzer_note *note)
-{
-  buzzer_play_note(note->freq);
-  melody = note;
-  melody_st = millis.read_ms(); 
-  
-  if (note->freq == 0 && note->duration == 0)
+  std::vector<buzzer_note> find_melody(uint8_t melody_num)
   {
-    if (melody_repeat != NULL)
+    switch (melody_num)
     {
-      buzzer_enter(melody_repeat);
-    }
-    else
-    {
-      melody = NULL;
+    case MELODY_BOOT:
+      return melody::boot;
+    case MELODY_ALERT:
+      return melody::alert;
+    case MELODY_ALERT_FAST:
+      return melody::alert_fast;
+    case MELODY_WARNING:
+      return melody::warning;
+    case MELODY_BEGIN:
+      return melody::begin_motor;
+    case MELODY_END:
+      return melody::end_motor;
+    case MELODY_CUSTOM:
+      return melody::custom;
+    case MELODY_BOOT_DEV:
+      return melody::boot_dev;
+    case MELODY_ASSERT:
+      return melody::assert;
+    default:
+      return melody::boot;
     }
   }
-}
 
-void buzzer_play(unsigned int melody_num, bool repeat)
-{
-  struct buzzer_note *to_play = NULL;
+  void launch()
+  {
+    init();
 
-  if (melody_num == MELODY_BOOT)
-  {
-    // to_play = &melody_boot[0];
-    to_play = &chord_boot[0];
-  }
-  else if (melody_num == MELODY_ALERT)
-  {
-    to_play = &melody_alert[0];
-  }
-  else if (melody_num == MELODY_ALERT_FAST)
-  {
-    to_play = &melody_alert_fast[0];
-  }
-  else if (melody_num == MELODY_WARNING)
-  {
-    to_play = &melody_warning[0];
-  }
-  else if (melody_num == MELODY_BEGIN)
-  {
-    to_play = &melody_begin[0];
-  }
-  else if (melody_num == MELODY_END)
-  {
-    to_play = &melody_end[0];
-  }
-  else if (melody_num == MELODY_CUSTOM)
-  {
-    to_play = &melody_custom[0];
-  }
-  else if (melody_num == MELODY_BOOT_DEV)
-  {
-    to_play = &chord_boot_dev[0];
-  }
-  else
-  {
-    melody = NULL;
-  }
-
-  if (to_play)
-  {
-    melody_repeat = repeat ? to_play : NULL;
-    buzzer_enter(to_play);
-  }
-}
-
-// int instant_melody ;
-void buzzer_tick()
-{
-  if (melody != NULL)
-  {
-    if (millis.read_ms() - melody_st > melody->duration)
+    while (true)
     {
-      buzzer_enter(melody + 1);
+      osEvent evt = queue.get();
+      if (evt.status == osEventMessage)
+      {
+        message_t *msg = (message_t *)evt.value.p;
+
+        std::vector<buzzer_note> melody = find_melody(msg->nb);
+
+        for (buzzer_note note : melody)
+        {
+          swo.println(note.freq);
+          pin.period(float(1.0 / note.freq));
+          pin = 0.5;
+          ThisThread::sleep_for(chrono::milliseconds(note.duration));
+        }
+        pin = 0;
+      }
     }
   }
 }
 
-void buzzer_stop()
-{
-  buzzer_play_note(0);
-  melody = NULL;
-  melody_repeat = NULL;
-}
-
-bool buzzer_is_playing()
-{
-  return melody != NULL;
-}
-
-void buzzer_wait_play()
-{
-  while (buzzer_is_playing())
-  {
-    buzzer_tick();
-    // Watchdog::get_instance().kick();
-  }
-}
-
-void buzzer_beep(unsigned int freq, unsigned int duration)
-{
-  melody_custom[0].freq = freq;
-  melody_custom[0].duration = duration;
-  buzzer_play(MELODY_CUSTOM);
-}
-
-//SHELL Comand
 SHELL_COMMAND(play, "Play a melody")
 {
   int melnum = atoi(argv[0]);
   shell_println("Playing melody ");
   shell_println(melnum);
-  buzzer_play(melnum);
+  MemoryPool<buzzer::message_t, 16> mpool;
+  buzzer::message_t *message = mpool.alloc();
+  message->nb = melnum;
+  buzzer::queue.try_put(message);
+}
+
+void buzzer_beep(unsigned int freq, unsigned int duration)
+{
+  melody::custom[0].freq = freq;
+  melody::custom[0].duration = duration;
+
+  MemoryPool<buzzer::message_t, 16> mpool;
+  buzzer::message_t *message = mpool.alloc();
+  message->nb = MELODY_CUSTOM;
+  buzzer::queue.try_put(message);
 }
 
 SHELL_COMMAND(beep, "Plays a beep")

@@ -4,12 +4,12 @@
 // #include "buzzer.h"
 // #include "drivers.h"
 // #include "hardware.h"
-// #include "mux.h"
 // #include "infos.h"
 #include "com.h"
 
 #include <common/voltage.h>
 #include <common/version.h>
+#include <common/buzzer.h>
 
 // uint32_t TIMEOUT_WATCHDOG_MS = 2000;
 DigitalOut led(LED1);
@@ -21,12 +21,10 @@ int main()
   // Watchdog &watchdog = Watchdog::get_instance();
   // watchdog.start(TIMEOUT_WATCHDOG_MS);
   //   infos_init();
-  //   mux_init();
   //   buzzer_init();
   //   drivers_init();
   com_init();
   // ir_init();
-
   // melody
 
   // buzzer_play(11);
