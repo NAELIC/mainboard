@@ -9,11 +9,6 @@ namespace buzzer
 {
   PwmOut pin(BUZZER_PIN);
 
-  void init()
-  {
-    pin = 0.0;
-  }
-
   std::vector<buzzer_note> find_melody(uint8_t melody_num)
   {
     switch (melody_num)
@@ -43,15 +38,12 @@ namespace buzzer
 
   void launch()
   {
-    init();
-
     while (true)
     {
       osEvent evt = queue.get();
       if (evt.status == osEventMessage)
       {
         message_t *msg = (message_t *)evt.value.p;
-
         std::vector<buzzer_note> melody = find_melody(msg->nb);
 
         for (buzzer_note note : melody)
@@ -61,7 +53,7 @@ namespace buzzer
           pin = 0.5;
           ThisThread::sleep_for(chrono::milliseconds(note.duration));
         }
-        pin = 0;
+        pin = 0.0;
       }
     }
   }

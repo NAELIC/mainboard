@@ -9,7 +9,7 @@ DigitalOut addr1(ADDR1, 0);
 DigitalOut addr2(ADDR2, 0);
 DigitalOut addr3(ADDR3, 0);
 
-int mux_sample(int addr)
+unsigned short mux_sample(int addr)
 {
 
     addr1 = (((addr>>0)&1) ? 1 : 0 );
