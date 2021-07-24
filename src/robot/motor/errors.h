@@ -1,5 +1,4 @@
-#ifndef _DRIVERS_ERROR_H
-#define _DRIVERS_ERROR_H
+#pragma once
 
 #include "security.h"
 
@@ -59,5 +58,3 @@ static inline const char *driver_warning(int code)
     }
     return "?";
 }
-
-#endif

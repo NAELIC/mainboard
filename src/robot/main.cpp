@@ -6,7 +6,7 @@
 #include <common/buzzer.h>
 #include <common/version.h>
 
-#include "drivers.h"
+#include "motor/drivers.h"
 #include "ir.h"
 // #include "infos.h"
 #include "com.h"
@@ -25,17 +25,19 @@ int main()
   Thread voltage_th;
   voltage_th.start(voltage::launch);
 
+  Thread com_th;
+  // com_th.set_priority(osPriorityHigh1);
+  com_th.start(com::launch);
+
   shell_init_usb();
   // Watchdog &watchdog = Watchdog::get_instance();
   // watchdog.start(TIMEOUT_WATCHDOG_MS);
   //   infos_init();
   // drivers_init();
-  com_init();
   // ir_init();
   led = 1;
   while (true)
   {
-    // voltage_tick();
     // ir_tick();
     ThisThread::sleep_for(100ms);
     // test_radio();

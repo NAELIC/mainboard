@@ -7,9 +7,15 @@
 #include <common/hardware.h>
 #include <common/network.h>
 
-void com_init();
-void test_radio();
+// void com_init();
+// void test_radio();
 
-int send(nRF24L01P_PTX PTX);
+// int send(nRF24L01P_PTX PTX);
 
-int receive(nRF24L01P_PRX PRX);
+// int receive(nRF24L01P_PRX PRX);
+
+namespace com {
+    void launch();
+
+    void diag();
+}

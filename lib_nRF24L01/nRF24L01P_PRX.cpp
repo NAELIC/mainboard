@@ -12,7 +12,6 @@
 nRF24L01P_PRX::nRF24L01P_PRX(nRF24L01P& Device_, PinName CE_, PinName Int_)
   : Device(Device_),
     CE(CE_)
-    // ,Int(Int_)
 {
    CE = 0;
    PayloadSize = 0;
@@ -23,8 +22,18 @@ nRF24L01P_PRX::nRF24L01P_PRX(nRF24L01P& Device_, PinName CE_, PinName Int_)
   //  InitializeTimer.attach_us(this, &nRF24L01P_PRX::ReadyInitialize, Tundef2pd_us);
 }
 
+nRF24L01P_PRX::nRF24L01P_PRX(nRF24L01P& Device_, PinName CE_)
+  : Device(Device_),
+    CE(CE_)
+{
+   CE = 0;
+   PayloadSize = 0;
+   Status = STATUS_READY_INIT;
+   wait_us(150000);
+}
+
 void
-nRF24L01P_PRX::Initialize()
+nRF24L01P_PRX::initialize()
 {
   //  PowerOnTimer.detach();
    CE = 0;
@@ -36,13 +45,13 @@ nRF24L01P_PRX::Initialize()
 }
 
 void
-nRF24L01P_PRX::SetChannel(int Channel)
+nRF24L01P_PRX::set_channel(int Channel)
 {
    Device.set_channel(Channel);
 }
 
 void
-nRF24L01P_PRX::SetDataRate(int Rate)
+nRF24L01P_PRX::set_data_rate(int Rate)
 {
    Device.set_air_data_rate(Rate);
 }
@@ -54,14 +63,14 @@ nRF24L01P_PRX::SetAddress(uint64_t Address)
 }
 
 void
-nRF24L01P_PRX::SetPayloadSize(int Size)
+nRF24L01P_PRX::set_payload_size(int Size)
 {
    PayloadSize = Size;
    Device.set_rx_payload_bytes(0, Size);
 }
 
 void
-nRF24L01P_PRX::PowerUp()
+nRF24L01P_PRX::power_up()
 {
    if (Status != STATUS_POWER_DOWN)
    {
@@ -86,7 +95,7 @@ nRF24L01P_PRX::PowerDown()
 }
 
 void
-nRF24L01P_PRX::StartReceive()
+nRF24L01P_PRX::start_receive()
 {
    if (Status == STATUS_UNDEFINED || Status == STATUS_READY_INIT || Status == STATUS_POWER_DOWN)
    {

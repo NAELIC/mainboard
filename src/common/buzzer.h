@@ -15,7 +15,7 @@ namespace buzzer
         uint8_t nb; /* Melody number */
     } message_t;
 
-    static Queue<message_t, 16> queue;
+    static Queue<message_t, 5> queue;
 
     void launch();
 }

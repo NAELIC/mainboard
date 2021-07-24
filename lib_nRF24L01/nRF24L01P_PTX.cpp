@@ -21,7 +21,16 @@ nRF24L01P_PTX::nRF24L01P_PTX(nRF24L01P &Device_, PinName CE_, PinName Int_)
    wait_us(150000);
 }
 
-void nRF24L01P_PTX::Initialize()
+nRF24L01P_PTX::nRF24L01P_PTX(nRF24L01P &Device_, PinName CE_)
+    : Device(Device_),
+      CE(CE_)
+{
+   CE = 0;
+   Status = STATUS_READY_INIT;
+   wait_us(150000);
+}
+
+void nRF24L01P_PTX::initialize()
 {
    //  PowerOnTimer.detach();
    CE = 0;
@@ -31,12 +40,12 @@ void nRF24L01P_PTX::Initialize()
    //  Int.fall(NULL);
 }
 
-void nRF24L01P_PTX::SetChannel(int Channel)
+void nRF24L01P_PTX::set_channel(int Channel)
 {
    Device.set_channel(Channel);
 }
 
-void nRF24L01P_PTX::SetDataRate(int Rate)
+void nRF24L01P_PTX::set_data_rate(int Rate)
 {
    Device.set_air_data_rate(Rate);
 }
@@ -51,7 +60,7 @@ void nRF24L01P_PTX::SetDestinationAddress(uint64_t Address)
    Device.set_tx_address(Address);
 }
 
-void nRF24L01P_PTX::PowerUp()
+void nRF24L01P_PTX::power_up()
 {
    if (Status != STATUS_POWER_DOWN)
    {

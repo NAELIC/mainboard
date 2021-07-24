@@ -11,15 +11,16 @@ class nRF24L01P_PTX
 public:
    nRF24L01P_PTX(nRF24L01P &Device_, PinName CE_, PinName Int_);
 
+   nRF24L01P_PTX(nRF24L01P &Device_, PinName CE_);
    // Initialize the device for transmitting.  There must be a delay of
    // at least 100ms from initial power on before this function is called.
-   void Initialize();
+   void initialize();
 
    // Set the channel number, 0 .. 125
-   void SetChannel(int Channel);
+   void set_channel(int Channel);
 
    // sets the data rate in Kbps, valid values are 250 (nRF24L01+ only), 1000, 2000
-   void SetDataRate(int Rate);
+   void set_data_rate(int Rate);
 
    // Set the transmitter power in dB.  Valid values are -18, -12, -6, 0
    void SetTransmitPower(int Power);
@@ -31,7 +32,7 @@ public:
    // after PowerUp() before a packet can be transmitted.  This
    // is handled automatically with a timer, so that TransmitPacket()
    // will block until the device is ready.
-   void PowerUp();
+   void power_up();
 
    // Powers down the device.  PowerUp must be called before a packet can be transmitted.
    void PowerDown();

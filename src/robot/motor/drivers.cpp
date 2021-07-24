@@ -4,7 +4,6 @@
 #include <USBSerial.h>
 #include <mbed.h>
 #include <shell.h>
-// #include "kicker.h"
 #include "errors.h"
 
 SPI drivers(DRV_MOSI, DRV_MISO, DRV_CLK); // Declaration of SPI
@@ -28,12 +27,9 @@ void drivers_init() // initialisation of the drivers
 
   for (int k = 0; k < 5; k++) {
     bool ret = false;
-    // BOARD_LED_PIN = 1;  // I don't fuckin know what is BOARD_LED_PIN, never
-    // define
     ret = drivers_ping(k);
     wait_us(10);
     //   watchdog_feed();      // for now we don't use the watchdog
-    // BOARD_LED_PIN = 1;
     drivers_present[k] = ret; // make the driver_pins ping
   }
 }
