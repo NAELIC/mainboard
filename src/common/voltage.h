@@ -1,7 +1,5 @@
 #pragma once
 
-void voltage_init();
-
 void voltage_tick();
 
 /**

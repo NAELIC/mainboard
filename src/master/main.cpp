@@ -22,7 +22,6 @@ int main()
   // watchdog.start(TIMEOUT_WATCHDOG_MS);
   //   infos_init();
   //   mux_init();
-  voltage_init();
   //   buzzer_init();
   //   drivers_init();
   com_init();

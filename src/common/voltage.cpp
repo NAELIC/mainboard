@@ -9,11 +9,6 @@ static naelic::SWO swo;
 
 SHELL_PARAMETER_FLOAT(bat, "Battery 1", 0.0);
 
-void voltage_init()
-{
-    bat = 0;
-}
-
 void voltage_tick()
 {
     static int lastSample = Kernel::Clock::now().time_since_epoch().count();
