@@ -3,6 +3,8 @@
 namespace com
 {
   static naelic::SWO swo;
+  static MODE mode;
+
   nRF24L01P Device1(COM_MOSI, COM_MISO, COM_CLK, COM_CS1);
   nRF24L01P Device2(COM_MOSI, COM_MISO, COM_CLK, COM_CS2);
   nRF24L01P Device3(COM_MOSI, COM_MISO, COM_CLK, COM_CS3);
@@ -11,26 +13,31 @@ namespace com
   nRF24L01P_PRX PRX_1(Device2, COM_CE2);
   nRF24L01P_PRX PRX_2(Device3, COM_CE3);
 
+  /** TODO : MOVE IN LIBRARY **/
+  void PRX_init(nRF24L01P_PRX& p, int channel, int size)
+  {
+    p.initialize();
+    p.set_channel(channel);
+    p.set_data_rate(2000);
+    p.set_payload_size(size);
+    p.power_up();
+    p.start_receive();
+  }
+
+  void PTX_init(nRF24L01P_PTX& p, int channel)
+  {
+    p.initialize();
+    p.set_channel(channel);
+    p.set_data_rate(2000);
+    p.power_up();
+  }
+
   void init()
   {
-    PTX.initialize();
-    PTX.set_channel(CHANNEL1);
-    PTX.set_data_rate(2000);
-    PTX.power_up();
-
-    PRX_1.initialize();
-    PRX_1.set_channel(CHANNEL1);
-    PRX_1.set_data_rate(2000);
-    PRX_1.set_payload_size(sizeof(packet_robot));
-    PRX_1.power_up();
-    PRX_1.start_receive();
-
-    PRX_2.initialize();
-    PRX_2.set_channel(CHANNEL1);
-    PRX_2.set_data_rate(2000);
-    PRX_2.set_payload_size(sizeof(packet_robot));
-    PRX_2.power_up();
-    PRX_2.start_receive();
+    mode = MODE::NORMAL;
+    PTX_init(PTX,CHANNEL1);
+    PRX_init(PRX_1,CHANNEL2, sizeof(packet_robot));
+    PRX_init(PRX_2,CHANNEL2, sizeof(packet_robot));
   }
 
   int send(nRF24L01P_PTX PTX)
@@ -54,7 +61,54 @@ namespace com
     {
       swo.println("Got nothing");
     }
+    swo.println(size_packet);
     return size_packet;
+  }
+
+  bool com_is_ok()
+  {
+    bool is_ok = true;
+    int status = send(PTX);
+    swo.print("status :");
+    swo.print(status);
+    if (status != 0)
+      is_ok = false;
+    swo.println("#PRX1");
+    if (receive(PRX_1) != sizeof(packet_robot))
+    {
+      swo.println("ERROR PRX1");
+      is_ok = false;
+    }
+
+    swo.println("#PRX2");
+    if (receive(PRX_2) != sizeof(packet_robot))
+    {
+      swo.println("ERROR PRX2");
+      is_ok = false;
+    }
+
+    return is_ok;
+  }
+
+  void diagnostic()
+  {
+    // swo.println("power_down");
+    // PTX.PowerDown();
+
+    // swo.println("change channel");
+    // PTX.set_channel(CHANNEL2);
+
+    // swo.println("power_up");
+    // PTX.power_up();
+    swo.println("* Com module #");
+    if (com_is_ok())
+    {
+      swo.println(" OK");
+    }
+    else
+    {
+      swo.println(" NOTHING");
+    }
   }
 
   void launch()
@@ -62,19 +116,25 @@ namespace com
     init();
     while (true)
     {
-      diag();
-      ThisThread::sleep_for(5ms);
+      swo.println(mode);
+      switch (mode)
+      {
+      case MODE::NORMAL:
+        diagnostic();
+        break;
+      case MODE::DIAGNOSTIC:
+        diagnostic();
+        break;
+      default:
+        break;
+      }
+      ThisThread::sleep_for(1s);
     }
   }
 
-  void diag()
+  SHELL_COMMAND(diag, "DIAGNOSTIC MODE")
   {
-    send(PTX);
-    swo.println("PRX1");
-    receive(PRX_1);
-
-    swo.println("PRX2");
-    receive(PRX_2);
+    mode = MODE::DIAGNOSTIC;
   }
 }
 

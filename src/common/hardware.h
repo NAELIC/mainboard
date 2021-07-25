@@ -40,7 +40,7 @@
 #define COM_SPI 2
 
 #define CHANNEL1 0
-#define CHANNEL2 10
+#define CHANNEL2 0
 
 // Communication configuration
 // #define COM_ADDR   {0x22, 0x87, 0xe8, 0xf9, 0x00}

@@ -7,6 +7,11 @@
 #include <common/hardware.h>
 #include <common/network.h>
 
+enum MODE {
+    NORMAL,
+    DIAGNOSTIC
+};
+
 // void com_init();
 // void test_radio();
 
