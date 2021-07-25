@@ -76,4 +76,4 @@
 // Infrared
 #define IR_EMIT         DIO10   // IR_LED 
 #define IR_RECEIVE      ADC_IN3 //IR_DET_A on datasheet
-#define IR_THRESHOLD    700
+#define IR_THRESHOLD    0.6

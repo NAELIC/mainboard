@@ -48,7 +48,10 @@ namespace buzzer
 
         for (buzzer_note note : melody)
         {
-          swo.println(note.freq);
+          if (note.freq == 0)
+          {
+            continue;
+          }
           pin.period(float(1.0 / note.freq));
           pin = 0.5;
           ThisThread::sleep_for(chrono::milliseconds(note.duration));
