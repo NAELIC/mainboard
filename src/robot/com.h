@@ -6,6 +6,7 @@
 #include <nRF24L01P_PRX.h>
 #include <common/hardware.h>
 #include <common/network.h>
+#include <common/com/send_and_receive.h>
 
 enum MODE {
     NORMAL,
@@ -22,5 +23,5 @@ enum MODE {
 namespace com {
     void launch();
 
-    void diag();
+    void diagnostic();
 }

@@ -1,144 +1,120 @@
 #include "com.h"
 
-nRF24L01P Device1(COM_MOSI, COM_MISO, COM_CLK, COM_CS1);
-nRF24L01P Device2(COM_MOSI, COM_MISO, COM_CLK, COM_CS2);
-nRF24L01P Device3(COM_MOSI, COM_MISO, COM_CLK, COM_CS3);
-
-nRF24L01P_PTX PTX(Device1, COM_CE1, COM_CE1);
-nRF24L01P_PRX PRX(Device2, COM_CE2, COM_CE1);
-nRF24L01P_PRX PRX2(Device3, COM_CE3, COM_CE1);
-static naelic::SWO swo;
-
-int send(nRF24L01P_PTX PTX)
-{ 
-  struct packet_master packet;
-  
-  packet.x_speed = 4;
-  swo.println("Transmit");
-  int r = PTX.TransmitPacket((char *) &packet, sizeof(struct packet_master));
-  swo.println(r);
-
-  swo.println(Device1.num_lost_packets());
-  swo.println(Device2.num_lost_packets());
-  return r;
-}
-
-SHELL_COMMAND(send, "send"){
-  shell_println(send(PTX));
-}
-
-int receive(nRF24L01P_PRX PRX)
+namespace com
 {
-  int size_packet = -1;
-  if (PRX.IsPacketReady())
-  {
-    
-    struct packet_robot receive;
-    size_packet = PRX.ReadPacket((char *) &receive);
+  static naelic::SWO swo;
+  static MODE mode;
 
-    swo.print("Read: ");
-    swo.print(size_packet);
-    swo.print(" ");
-    swo.println(receive.id);
-    swo.println(receive.xpos);
-  }
-  else
+  nRF24L01P Device1(COM_MOSI, COM_MISO, COM_CLK, COM_CS1);
+  nRF24L01P Device2(COM_MOSI, COM_MISO, COM_CLK, COM_CS2);
+  nRF24L01P Device3(COM_MOSI, COM_MISO, COM_CLK, COM_CS3);
+
+  nRF24L01P_PTX PTX(Device1, COM_CE1);
+  nRF24L01P_PRX PRX_1(Device2, COM_CE2);
+  nRF24L01P_PRX PRX_2(Device3, COM_CE3);
+
+   /** TODO : MOVE IN LIBRARY **/
+  void PRX_init(nRF24L01P_PRX &p, int channel, int size)
   {
-    swo.println("Got nothing");
+    p.initialize();
+    p.set_channel(channel);
+    p.set_data_rate(2000);
+    p.set_payload_size(size);
+    p.power_up();
+    p.start_receive();
   }
 
-  swo.println((int)Device2.debug_read());
+  void PTX_init(nRF24L01P_PTX &p, int channel)
+  {
+    p.initialize();
+    p.set_channel(channel);
+    p.set_data_rate(2000);
+    p.power_up();
+  }
 
-  wait_us(1000);
-  return size_packet;
-}
+  void init()
+  {
+    mode = MODE::NORMAL;
+    PTX_init(PTX, CHANNEL2);
+    PRX_init(PRX_1, CHANNEL1, sizeof(packet_status));
+    PRX_init(PRX_2, CHANNEL1, sizeof(packet_status));
+  }
 
-SHELL_COMMAND(receive, "receive"){
-  shell_println(receive(PRX));
-}
 
-void test_radio()
-{
-  send(PTX);
-  // struct packet_master packet;
-  
-  // packet.x_speed = 4;
-  // swo.println("Transmit");
-  // int r = PTX.TransmitPacket((char *) &packet, sizeof(struct packet_master));
-  // swo.println(r);
+  bool com_is_ok()
+  {
+    bool is_ok = true;
+    packet_status packet;
+    packet.id = 42;
+    int status = sr::send_packet_status(PTX, packet);
+    swo.print("status :");
+    swo.print(status);
+    if (status != 0)
+      is_ok = false;
+    swo.println("#PRX1");
+    packet_status packet1;
+    if (sr::receive_packet_status(PRX_1, packet1) != sizeof(packet_status))
+    {
+      swo.println("ERROR PRX1");
+      is_ok = false;
+    }
 
-  // swo.println(Device1.num_lost_packets());
-  // swo.println(Device2.num_lost_packets());
+    swo.println("#PRX2");
+    packet_status packet2;
+    if (sr::receive_packet_status(PRX_2, packet2) != sizeof(packet_status))
+    {
+      swo.println("ERROR PRX2");
+      is_ok = false;
+    }
 
-  // if (PRX.IsPacketReady())
-  // {
-  //   struct packet_robot receive;
-  //   int r = PRX.ReadPacket((char *) &receive);
+    return is_ok;
+  }
 
-  //   swo.print("Read: ");
-  //   swo.print(r);
-  //   swo.print(" ");
-  //   swo.println(receive.id);
-  //   swo.println(receive.xpos);
-  // }
-  // else
-  // {
-  //   swo.println("Got nothing");
-  // }
+  void diagnostic()
+  {
+    // swo.println("power_down");
+    // PTX.PowerDown();
 
-  // swo.println((int)Device2.debug_read());
+    // swo.println("change channel");
+    // PTX.set_channel(CHANNEL2);
 
-  // wait_us(1000);
-}
+    // swo.println("power_up");
+    // PTX.power_up();
+    swo.println("* Com module [master]#");
+    if (com_is_ok())
+    {
+      swo.println(" OK");
+    }
+    else
+    {
+      swo.println(" NOTHING");
+    }
+  }
 
-SHELL_COMMAND(test, "")
-{
-  // char c = 'a';
-  // shell_println("Transmit");
-  // int r = PTX.TransmitPacket(&c, 1);
-  // shell_println(r);
+  void launch()
+  {
+    init();
 
-  // shell_println(Device1.num_lost_packets());
-  // shell_println(Device2.num_lost_packets());
+    while (true)
+    {
+      swo.println(mode);
+      switch (mode)
+      {
+      case MODE::NORMAL:
+        diagnostic();
+        break;
+      case MODE::DIAGNOSTIC:
+        diagnostic();
+        break;
+      default:
+        break;
+      }
+      ThisThread::sleep_for(1s);
+    }
+  }
 
-  // if (PRX.IsPacketReady())
-  // {
-  //   char d;
-  //   int r = PRX.ReadPacket(&d);
-  //   shell_print("Read: ");
-  //   shell_print(r);
-  //   shell_print(" ");
-  //   shell_println(d);
-  // }
-  // else
-  // {
-  //   shell_println("Got nothing");
-  // }
-
-  // shell_println((int)Device2.debug_read());
-
-  // wait_us(1000);
-}
-
-void com_init()
-{
-
-  PTX.Initialize();
-  PTX.SetChannel(0);
-  PTX.SetDataRate(2000);
-  PTX.PowerUp();
-
-  PRX.Initialize();
-  PRX.SetChannel(0);
-  PRX.SetDataRate(2000);
-  PRX.SetPayloadSize(sizeof(struct packet_robot));
-  PRX.PowerUp();
-  PRX.StartReceive();
-
-  PRX2.Initialize();
-  PRX2.SetChannel(0);
-  PRX2.SetDataRate(2000);
-  PRX2.SetPayloadSize(sizeof(struct packet_robot));
-  PRX2.PowerUp();
-  PRX2.StartReceive();
+  SHELL_COMMAND(diag, "DIAGNOSTIC MODE")
+  {
+    mode = MODE::DIAGNOSTIC;
+  }
 }

@@ -14,7 +14,7 @@ namespace com
   nRF24L01P_PRX PRX_2(Device3, COM_CE3);
 
   /** TODO : MOVE IN LIBRARY **/
-  void PRX_init(nRF24L01P_PRX& p, int channel, int size)
+  void PRX_init(nRF24L01P_PRX &p, int channel, int size)
   {
     p.initialize();
     p.set_channel(channel);
@@ -24,7 +24,7 @@ namespace com
     p.start_receive();
   }
 
-  void PTX_init(nRF24L01P_PTX& p, int channel)
+  void PTX_init(nRF24L01P_PTX &p, int channel)
   {
     p.initialize();
     p.set_channel(channel);
@@ -35,25 +35,18 @@ namespace com
   void init()
   {
     mode = MODE::NORMAL;
-    PTX_init(PTX,CHANNEL1);
-    PRX_init(PRX_1,CHANNEL2, sizeof(packet_robot));
-    PRX_init(PRX_2,CHANNEL2, sizeof(packet_robot));
+    PTX_init(PTX, CHANNEL1);
+    PRX_init(PRX_1, CHANNEL2, sizeof(packet_robot));
+    PRX_init(PRX_2, CHANNEL2, sizeof(packet_robot));
   }
 
-  int send(nRF24L01P_PTX PTX)
-  {
-    packet_robot packet;
-    packet.id = 5;
-    packet.xpos = 125;
-    return PTX.TransmitPacket((char *)&packet, sizeof(packet_robot));
-  }
 
   int receive(nRF24L01P_PRX PRX)
   {
     int size_packet = -1;
     if (PRX.IsPacketReady())
     {
-      struct packet_robot receive;
+      packet_status receive;
       size_packet = PRX.ReadPacket((char *)&receive);
       swo.println(receive.id);
     }
@@ -68,20 +61,24 @@ namespace com
   bool com_is_ok()
   {
     bool is_ok = true;
-    int status = send(PTX);
+    packet_robot packet;
+    packet.id = 42;
+    int status = sr::send_packet_robot(PTX, packet);
     swo.print("status :");
     swo.print(status);
     if (status != 0)
       is_ok = false;
     swo.println("#PRX1");
-    if (receive(PRX_1) != sizeof(packet_robot))
+    packet_robot packet1;
+    if (sr::receive_packet_robot(PRX_1, packet1) != sizeof(packet_robot))
     {
       swo.println("ERROR PRX1");
       is_ok = false;
     }
 
     swo.println("#PRX2");
-    if (receive(PRX_2) != sizeof(packet_robot))
+    packet_robot packet2;
+    if (sr::receive_packet_robot(PRX_2, packet2) != sizeof(packet_robot))
     {
       swo.println("ERROR PRX2");
       is_ok = false;
@@ -92,15 +89,7 @@ namespace com
 
   void diagnostic()
   {
-    // swo.println("power_down");
-    // PTX.PowerDown();
-
-    // swo.println("change channel");
-    // PTX.set_channel(CHANNEL2);
-
-    // swo.println("power_up");
-    // PTX.power_up();
-    swo.println("* Com module #");
+    swo.println("* Com module [robot]#");
     if (com_is_ok())
     {
       swo.println(" OK");
@@ -114,6 +103,7 @@ namespace com
   void launch()
   {
     init();
+
     while (true)
     {
       swo.println(mode);
@@ -137,138 +127,3 @@ namespace com
     mode = MODE::DIAGNOSTIC;
   }
 }
-
-// int send(nRF24L01P_PTX PTX)
-// {
-//   struct packet_robot packet;
-
-//   packet.id = 4;
-//   packet.xpos = 125;
-//   swo.println("Transmit");
-//   int r = PTX.TransmitPacket((char *) &packet, sizeof(struct packet_robot));
-//   swo.println(r);
-
-//   swo.println(Device1.num_lost_packets());
-//   swo.println(Device2.num_lost_packets());
-//   return r;
-// }
-
-// SHELL_COMMAND(send, "send"){
-//   shell_println(send(PTX));
-// }
-
-// int receive(nRF24L01P_PRX PRX)
-// {
-//   int size_packet = -1;
-//   if (PRX.IsPacketReady())
-//   {
-
-//     struct packet_master receive;
-//     size_packet = PRX.ReadPacket((char *) &receive);
-
-//     swo.print("Read: ");
-//     swo.print(size_packet);
-//     swo.print(" ");
-//     swo.println(receive.x_speed);
-//   }
-//   else
-//   {
-//     swo.println("Got nothing");
-//   }
-
-//   swo.println((int)Device2.debug_read());
-
-//   wait_us(1000);
-//   return size_packet;
-// }
-
-// SHELL_COMMAND(receive, "receive"){
-//   shell_println(receive(PRX));
-// }
-
-// void test_radio()
-// {
-//   // struct packet_robot packet;
-
-//   // packet.id = 4;
-//   // packet.xpos = 125;
-//   // swo.println("Transmit");
-//   // int r = PTX.TransmitPacket((char *) &packet, sizeof(struct packet_robot));
-//   // swo.println(r);
-
-//   // swo.println(Device1.num_lost_packets());
-//   // swo.println(Device2.num_lost_packets());
-
-//   // if (PRX.IsPacketReady())
-//   // {
-//   //   struct packet_robot receive;
-//   //   int r = PRX.ReadPacket((char *) &receive);
-
-//   //   swo.print("Read: ");
-//   //   swo.print(r);
-//   //   swo.print(" ");
-//   //   swo.println(receive.id);
-//   //   swo.println(receive.xpos);
-//   // }
-//   // else
-//   // {
-//   //   swo.println("Got nothing");
-//   // }
-
-//   // swo.println((int)Device2.debug_read());
-
-//   // wait_us(1000);
-//   receive(PRX);
-// }
-
-// // SHELL_COMMAND(test, "")
-// // { packet_robot packet_receive;
-// //   char* buffer = "HelloWorld";
-// //   shell_println("Transmit");
-// //   int r = PTX.TransmitPacket(buffer, sizeof(packet_receive));
-// //   shell_println(r);
-
-// //   shell_println(Device1.num_lost_packets());
-// //   shell_println(Device2.num_lost_packets());
-
-// //   if (PRX.IsPacketReady())
-// //   {
-// //     char d[10];
-// //     int r = PRX.ReadPacket(d);
-// //     shell_print("Read: ");
-// //     shell_print(r);
-// //     shell_print(" ");
-// //     shell_println(d);
-// //   }
-// //   else
-// //   {
-// //     shell_println("Got nothing");
-// //   }
-
-// //   shell_println((int)Device2.debug_read());
-
-// //   wait_us(1000);
-// // }
-
-// void com_init()
-// {
-
-//   PTX.Initialize();
-//   PTX.SetChannel(0);
-//   PTX.SetDataRate(2000);
-//   PTX.PowerUp();
-
-//   PRX.Initialize();
-//   PRX.SetChannel(0);
-//   PRX.SetDataRate(2000);
-//   PRX.SetPayloadSize(sizeof(struct packet_master));
-//   PRX.PowerUp();
-//   PRX.StartReceive();
-
-//   PRX2.Initialize();
-//   PRX2.SetChannel(0);
-//   PRX2.SetDataRate(2000);
-//   PRX2.SetPayloadSize(sizeof(struct packet_master));
-//   PRX2.PowerUp();
-//   PRX2.StartReceive();
-// }

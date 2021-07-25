@@ -16,10 +16,13 @@ int main()
 {
   Thread buzzer_th;
   buzzer_th.start(buzzer::launch);
+
+  Thread com_th;
+  com_th.start(com::launch);
+
   shell_init_usb();
   // Watchdog &watchdog = Watchdog::get_instance();
   // watchdog.start(TIMEOUT_WATCHDOG_MS);
-  com_init();
 
   led = 1;
   while (true)

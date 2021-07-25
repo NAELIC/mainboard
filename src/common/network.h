@@ -1,13 +1,15 @@
 #pragma once
 
-struct packet_master
+#define ACTION_ON (1 << 0)
+#define ACTION_KICK1 (1 << 1)
+#define ACTION_KICK2 (1 << 2)
+#define ACTION_DRIBBLE (1 << 3)
+#define ACTION_CHARGE (1 << 5)
+#define ACTION_TARE_ODOM (1 << 7)
+
+typedef struct
 {
-#define ACTION_ON (1 << 0)     
-#define ACTION_KICK1 (1 << 1)     
-#define ACTION_KICK2 (1 << 2)     
-#define ACTION_DRIBBLE (1 << 3)   
-#define ACTION_CHARGE (1 << 5)    
-#define ACTION_TARE_ODOM (1 << 7) 
+    uint8_t id;
     uint8_t actions;
 
     int16_t x_speed; // Kinematic orders [mm/s]
@@ -15,32 +17,23 @@ struct packet_master
     int16_t t_speed; // Rotation in [mrad/s]
 
     uint8_t kickPower; // Kick power (this is a duration in [x25 uS])
-} __attribute__((packed));
-
-typedef struct packet_master packet_master;
-
-struct packet_robot
-{
-    uint8_t id;
+} __attribute__((packed)) packet_robot;
 
 #define STATUS_OK (1 << 0)         // The robot is alive and ok
 #define STATUS_DRIVER_ERR (1 << 1) // Error with drivers
 #define STATUS_IR (1 << 2)         // The infrared barrier detects the ball
+
+// robot -> master
+typedef struct
+{
+    uint8_t id;
     uint8_t status;
-
+    
     uint8_t cap_volt; // Kick capacitor voltage [V]
-
     uint8_t voltage; // Battery voltage [8th of V]
 
     int16_t xpos; // Data planned by odometry
     int16_t ypos; // In mm
     int16_t ang;  // In rad/10000
 
-} __attribute__((packed));
-
-typedef struct packet_robot packet_robot;
-
-// #define INSTRUCTION_PARAMS          0x01
-// struct packet_params {
-//     float kp, ki, kd;               // Servo parameter
-// } __attribute__((packed));
+} __attribute__((packed)) packet_status;
