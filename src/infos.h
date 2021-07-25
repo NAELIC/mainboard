@@ -1,5 +1,4 @@
-#ifndef _INFOS_H
-#define _INFOS_H
+#pragma once
 
 void infos_init();
 
@@ -19,5 +18,3 @@ extern bool developer_mode;
 #define ID_4_HALL 5
 #define ID_5_HALL 9
 #define ID_6_HALL 10
-
-#endif

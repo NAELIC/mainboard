@@ -4,9 +4,9 @@ nRF24L01P Device1(COM_MOSI, COM_MISO, COM_CLK, COM_CS1);
 nRF24L01P Device2(COM_MOSI, COM_MISO, COM_CLK, COM_CS2);
 nRF24L01P Device3(COM_MOSI, COM_MISO, COM_CLK, COM_CS3);
 
-nRF24L01P_PTX PTX(Device1, COM_CE1, COM_CE1);
-nRF24L01P_PRX PRX(Device2, COM_CE2, COM_CE1);
-nRF24L01P_PRX PRX2(Device3, COM_CE3, COM_CE1);
+nRF24L01P_PTX PTX(Device1, COM_CE1);
+nRF24L01P_PRX PRX(Device2, COM_CE2);
+nRF24L01P_PRX PRX2(Device3, COM_CE3);
 static naelic::SWO swo;
 
 int send(nRF24L01P_PTX PTX)
@@ -123,22 +123,22 @@ SHELL_COMMAND(test, "")
 void com_init()
 {
 
-  PTX.Initialize();
-  PTX.SetChannel(0);
-  PTX.SetDataRate(2000);
-  PTX.PowerUp();
+  PTX.initialize();
+  PTX.set_channel(0);
+  PTX.set_data_rate(2000);
+  PTX.power_up();
 
-  PRX.Initialize();
-  PRX.SetChannel(0);
-  PRX.SetDataRate(2000);
-  PRX.SetPayloadSize(sizeof(struct packet_robot));
-  PRX.PowerUp();
-  PRX.StartReceive();
+  PRX.initialize();
+  PRX.set_channel(0);
+  PRX.set_data_rate(2000);
+  PRX.set_payload_size(sizeof(struct packet_robot));
+  PRX.power_up();
+  PRX.start_receive();
 
-  PRX2.Initialize();
-  PRX2.SetChannel(0);
-  PRX2.SetDataRate(2000);
-  PRX2.SetPayloadSize(sizeof(struct packet_robot));
-  PRX2.PowerUp();
-  PRX2.StartReceive();
+  PRX2.initialize();
+  PRX2.set_channel(0);
+  PRX2.set_data_rate(2000);
+  PRX2.set_payload_size(sizeof(struct packet_robot));
+  PRX2.power_up();
+  PRX2.start_receive();
 }
