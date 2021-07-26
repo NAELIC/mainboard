@@ -48,7 +48,10 @@ namespace buzzer
 
         for (buzzer_note note : melody)
         {
-          swo.println(note.freq);
+          if (note.freq == 0)
+          {
+            continue;
+          }
           pin.period(float(1.0 / note.freq));
           pin = 0.5;
           ThisThread::sleep_for(chrono::milliseconds(note.duration));
@@ -65,7 +68,7 @@ SHELL_COMMAND(play, "Play a melody")
   shell_println("Playing melody ");
   shell_println(melnum);
   MemoryPool<buzzer::message_t, 16> mpool;
-  buzzer::message_t *message = mpool.alloc();
+  buzzer::message_t *message = mpool.try_alloc();
   message->nb = melnum;
   buzzer::queue.try_put(message);
 }

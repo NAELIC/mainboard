@@ -29,16 +29,19 @@ int main()
   // com_th.set_priority(osPriorityHigh1);
   com_th.start(com::launch);
 
+  Thread ir_th;
+  ir_th.start(ir::launch);
+
+  Thread engine_th;
+  engine_th.start(drivers::launch);
+
   shell_init_usb();
   // Watchdog &watchdog = Watchdog::get_instance();
   // watchdog.start(TIMEOUT_WATCHDOG_MS);
   //   infos_init();
-  // drivers_init();
-  // ir_init();
   led = 1;
   while (true)
   {
-    // ir_tick();
     ThisThread::sleep_for(100ms);
     // test_radio();
   }

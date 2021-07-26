@@ -1,17 +1,14 @@
 #pragma once
 
-void ir_init();
+#include <mbed.h>
+#include <shell.h>
+#include <swo.h>
 
-void ir_tick();
+#include <common/hardware.h>
 
-/**
- * Is the ball present ?
- */
-bool ir_present();
-
-/**
- * Is something present right now ?
- */
-bool ir_present_now();
-
-void ir_diagnostic();
+namespace ir
+{
+    static double value;
+    void launch();
+    bool present();
+}
