@@ -3,14 +3,14 @@
 #include <swo.h>
 #include <shell.h>
 
-#include <common/buzzer.h>
-#include <common/version.h>
+#include <common/buzzer/buzzer.h>
+#include <common/utils/version.h>
 
-#include "motor/drivers.h"
-#include "ir.h"
+#include "engine/drivers.h"
+#include "ir/ir.h"
 // #include "infos.h"
-#include "com.h"
-#include "voltage.h"
+#include "com/com.h"
+#include "voltage/voltage.h"
 
 
 // uint32_t TIMEOUT_WATCHDOG_MS = 2000;

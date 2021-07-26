@@ -1,7 +1,6 @@
 #pragma once
 
-#include "drivers.h"
-#include <common/buzzer.h>
+#include <common/buzzer/buzzer.h>
 #include <common/hardware.h>
 #include <USBSerial.h>
 #include <mbed.h>

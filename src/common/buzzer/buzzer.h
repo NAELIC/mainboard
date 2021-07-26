@@ -3,7 +3,7 @@
 #include <mbed.h>
 #include <shell.h>
 
-#include "hardware.h"
+#include <common/hardware.h>
 #include "melody.h"
 
 #define BUZZER_POWER 0.5

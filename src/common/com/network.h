@@ -12,9 +12,9 @@ typedef struct
     uint8_t id;
     uint8_t actions;
 
-    int16_t x_speed; // Kinematic orders [mm/s]
-    int16_t y_speed;
-    int16_t t_speed; // Rotation in [mrad/s]
+    float x_speed; // Kinematic orders [mm/s]
+    float y_speed;
+    float t_speed; // Rotation in [mrad/s]
 
     uint8_t kickPower; // Kick power (this is a duration in [x25 uS])
 } __attribute__((packed)) packet_robot;

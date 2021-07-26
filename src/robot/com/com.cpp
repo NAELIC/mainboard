@@ -2,9 +2,6 @@
 
 namespace com
 {
-  static naelic::SWO swo;
-  static MODE mode;
-
   nRF24L01P Device1(COM_MOSI, COM_MISO, COM_CLK, COM_CS1);
   nRF24L01P Device2(COM_MOSI, COM_MISO, COM_CLK, COM_CS2);
   nRF24L01P Device3(COM_MOSI, COM_MISO, COM_CLK, COM_CS3);
@@ -34,12 +31,10 @@ namespace com
 
   void init()
   {
-    mode = MODE::NORMAL;
     PTX_init(PTX, CHANNEL1);
     PRX_init(PRX_1, CHANNEL2, sizeof(packet_robot));
     PRX_init(PRX_2, CHANNEL2, sizeof(packet_robot));
   }
-
 
   int receive(nRF24L01P_PRX PRX)
   {
@@ -48,13 +43,13 @@ namespace com
     {
       packet_status receive;
       size_packet = PRX.ReadPacket((char *)&receive);
-      swo.println(receive.id);
+      common::swo.println(receive.id);
     }
     else
     {
-      swo.println("Got nothing");
+      common::swo.println("Got nothing");
     }
-    swo.println(size_packet);
+    common::swo.println(size_packet);
     return size_packet;
   }
 
@@ -63,24 +58,24 @@ namespace com
     bool is_ok = true;
     packet_robot packet;
     packet.id = 42;
-    int status = sr::send_packet_robot(PTX, packet);
-    swo.print("status :");
-    swo.print(status);
+    int status = send::robot(PTX, packet);
+    common::swo.print("status :");
+    common::swo.print(status);
     if (status != 0)
       is_ok = false;
-    swo.println("#PRX1");
+    common::swo.println("#PRX1");
     packet_robot packet1;
-    if (sr::receive_packet_robot(PRX_1, packet1) != sizeof(packet_robot))
+    if (receive::robot(PRX_1, packet1) != sizeof(packet_robot))
     {
-      swo.println("ERROR PRX1");
+      common::swo.println("ERROR PRX1");
       is_ok = false;
     }
 
-    swo.println("#PRX2");
+    common::swo.println("#PRX2");
     packet_robot packet2;
-    if (sr::receive_packet_robot(PRX_2, packet2) != sizeof(packet_robot))
+    if (receive::robot(PRX_2, packet2) != sizeof(packet_robot))
     {
-      swo.println("ERROR PRX2");
+      common::swo.println("ERROR PRX2");
       is_ok = false;
     }
 
@@ -89,14 +84,14 @@ namespace com
 
   void diagnostic()
   {
-    swo.println("* Com module [robot]#");
+    common::swo.println("* Com module [robot]#");
     if (com_is_ok())
     {
-      swo.println(" OK");
+      common::swo.println(" OK");
     }
     else
     {
-      swo.println(" NOTHING");
+      common::swo.println(" NOTHING");
     }
   }
 
@@ -106,24 +101,21 @@ namespace com
 
     while (true)
     {
-      swo.println(mode);
-      switch (mode)
-      {
-      case MODE::NORMAL:
-        diagnostic();
-        break;
-      case MODE::DIAGNOSTIC:
-        diagnostic();
-        break;
-      default:
-        break;
-      }
-      ThisThread::sleep_for(1s);
+      common::swo.println(common::mode);
+      // if (common::mode == Mode::NORMAL)
+      // {
+      //   common::swo.println("TODO");
+      //   ThisThread::sleep_for(1s);
+      // }
+      // else
+      // {
+        ThisThread::sleep_for(1s);
+      // }
     }
   }
 
   SHELL_COMMAND(diag, "DIAGNOSTIC MODE")
   {
-    mode = MODE::DIAGNOSTIC;
+    diagnostic();
   }
 }

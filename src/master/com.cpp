@@ -46,14 +46,14 @@ namespace com
     bool is_ok = true;
     packet_status packet;
     packet.id = 42;
-    int status = sr::send_packet_status(PTX, packet);
+    int status = send::status(PTX, packet);
     swo.print("status :");
     swo.print(status);
     if (status != 0)
       is_ok = false;
     swo.println("#PRX1");
     packet_status packet1;
-    if (sr::receive_packet_status(PRX_1, packet1) != sizeof(packet_status))
+    if (receive::status(PRX_1, packet1) != sizeof(packet_status))
     {
       swo.println("ERROR PRX1");
       is_ok = false;
@@ -61,7 +61,7 @@ namespace com
 
     swo.println("#PRX2");
     packet_status packet2;
-    if (sr::receive_packet_status(PRX_2, packet2) != sizeof(packet_status))
+    if (receive::status(PRX_2, packet2) != sizeof(packet_status))
     {
       swo.println("ERROR PRX2");
       is_ok = false;
