@@ -68,7 +68,7 @@ SHELL_COMMAND(play, "Play a melody")
   shell_println("Playing melody ");
   shell_println(melnum);
   MemoryPool<buzzer::message_t, 16> mpool;
-  buzzer::message_t *message = mpool.alloc();
+  buzzer::message_t *message = mpool.try_alloc();
   message->nb = melnum;
   buzzer::queue.try_put(message);
 }
