@@ -28,12 +28,16 @@ int main()
   Thread ir_th;
   ir_th.start(ir::launch);
 
+  Thread engine_th;
+  engine_th.start(drivers::launch);
+
   shell_init_usb();
   // Watchdog &watchdog = Watchdog::get_instance();
   // watchdog.start(TIMEOUT_WATCHDOG_MS);
   //   infos_init();
-  // drivers_init();
   com_init();
+  ThisThread::sleep_for(1s);
+  //drivers_init();
   led = 1;
   while (true)
   {
