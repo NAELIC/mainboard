@@ -8,6 +8,8 @@
 #include <shell.h>
 #include "errors.h"
 
+#include <swo.h>
+
 #include <stdint.h>
 #include <assert.h>
 #define cstatic_assert _Static_assert
@@ -34,7 +36,6 @@ extern struct driver_packet_ans driver_answers[5];
 
 namespace drivers
 {
-
     typedef struct
     {
         float x_speed;
