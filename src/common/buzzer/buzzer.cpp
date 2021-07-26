@@ -79,7 +79,7 @@ void buzzer_beep(unsigned int freq, unsigned int duration)
   melody::custom[0].duration = duration;
 
   MemoryPool<buzzer::message_t, 16> mpool;
-  buzzer::message_t *message = mpool.alloc();
+  buzzer::message_t *message = mpool.try_alloc();
   message->nb = MELODY_CUSTOM;
   buzzer::queue.try_put(message);
 }
