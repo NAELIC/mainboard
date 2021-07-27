@@ -1,108 +1,80 @@
 #include <mbed.h>
-// #include <USBSerial.h>
-// #include <swo.h>
-// #include <shell.h>
+#include "rtt.h"
+// #include "swo.h"
 
-// #include <common/buzzer.h>
-// #include <common/version.h>
+naelic::RTT rtt;
 
-// #include "com.h"
-
-#include <SEGGER_RTT.h>
-
-// uint32_t TIMEOUT_WATCHDOG_MS = 2000;
-volatile int _Cnt;
-
-int main()
+FileHandle *mbed::mbed_override_console(int)
 {
-  SEGGER_RTT_ConfigUpBuffer(0, NULL, NULL, 0, SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL);
+  return &rtt;
+}
+DigitalOut led(LED1);
 
-  // SEGGER_RTT_WriteString(0, "SEGGER Real-Time-Terminal Sample\r\n\r\n");
-  // SEGGER_RTT_WriteString(0, "###### Testing SEGGER_printf() ######\r\n");
+int main(void)
+{
 
-  // SEGGER_RTT_printf(0, "printf Test: %%c,         'S' : %c.\r\n", 'S');
-  // SEGGER_RTT_printf(0, "printf Test: %%5c,        'E' : %5c.\r\n", 'E');
-  // SEGGER_RTT_printf(0, "printf Test: %%-5c,       'G' : %-5c.\r\n", 'G');
-  // SEGGER_RTT_printf(0, "printf Test: %%5.3c,      'G' : %-5c.\r\n", 'G');
-  // SEGGER_RTT_printf(0, "printf Test: %%.3c,       'E' : %-5c.\r\n", 'E');
-  // SEGGER_RTT_printf(0, "printf Test: %%c,         'R' : %c.\r\n", 'R');
-
-  // SEGGER_RTT_printf(0, "printf Test: %%s,      \"RTT\" : %s.\r\n", "RTT");
-  // SEGGER_RTT_printf(0, "printf Test: %%s, \"RTT\\r\\nRocks.\" : %s.\r\n", "RTT\r\nRocks.");
-
-  // SEGGER_RTT_printf(0, "printf Test: %%u,       12345 : %u.\r\n", 12345);
-  // SEGGER_RTT_printf(0, "printf Test: %%+u,      12345 : %+u.\r\n", 12345);
-  // SEGGER_RTT_printf(0, "printf Test: %%.3u,     12345 : %.3u.\r\n", 12345);
-  // SEGGER_RTT_printf(0, "printf Test: %%.6u,     12345 : %.6u.\r\n", 12345);
-  // SEGGER_RTT_printf(0, "printf Test: %%6.3u,    12345 : %6.3u.\r\n", 12345);
-  // SEGGER_RTT_printf(0, "printf Test: %%8.6u,    12345 : %8.6u.\r\n", 12345);
-  // SEGGER_RTT_printf(0, "printf Test: %%08u,     12345 : %08u.\r\n", 12345);
-  // SEGGER_RTT_printf(0, "printf Test: %%08.6u,   12345 : %08.6u.\r\n", 12345);
-  // SEGGER_RTT_printf(0, "printf Test: %%0u,      12345 : %0u.\r\n", 12345);
-  // SEGGER_RTT_printf(0, "printf Test: %%-.6u,    12345 : %-.6u.\r\n", 12345);
-  // SEGGER_RTT_printf(0, "printf Test: %%-6.3u,   12345 : %-6.3u.\r\n", 12345);
-  // SEGGER_RTT_printf(0, "printf Test: %%-8.6u,   12345 : %-8.6u.\r\n", 12345);
-  // SEGGER_RTT_printf(0, "printf Test: %%-08u,    12345 : %-08u.\r\n", 12345);
-  // SEGGER_RTT_printf(0, "printf Test: %%-08.6u,  12345 : %-08.6u.\r\n", 12345);
-  // SEGGER_RTT_printf(0, "printf Test: %%-0u,     12345 : %-0u.\r\n", 12345);
-
-  // SEGGER_RTT_printf(0, "printf Test: %%u,      -12345 : %u.\r\n", -12345);
-  // SEGGER_RTT_printf(0, "printf Test: %%+u,     -12345 : %+u.\r\n", -12345);
-  // SEGGER_RTT_printf(0, "printf Test: %%.3u,    -12345 : %.3u.\r\n", -12345);
-  // SEGGER_RTT_printf(0, "printf Test: %%.6u,    -12345 : %.6u.\r\n", -12345);
-  // SEGGER_RTT_printf(0, "printf Test: %%6.3u,   -12345 : %6.3u.\r\n", -12345);
-  // SEGGER_RTT_printf(0, "printf Test: %%8.6u,   -12345 : %8.6u.\r\n", -12345);
-  // SEGGER_RTT_printf(0, "printf Test: %%08u,    -12345 : %08u.\r\n", -12345);
-  // SEGGER_RTT_printf(0, "printf Test: %%08.6u,  -12345 : %08.6u.\r\n", -12345);
-  // SEGGER_RTT_printf(0, "printf Test: %%0u,     -12345 : %0u.\r\n", -12345);
-  // SEGGER_RTT_printf(0, "printf Test: %%-.6u,   -12345 : %-.6u.\r\n", -12345);
-  // SEGGER_RTT_printf(0, "printf Test: %%-6.3u,  -12345 : %-6.3u.\r\n", -12345);
-  // SEGGER_RTT_printf(0, "printf Test: %%-8.6u,  -12345 : %-8.6u.\r\n", -12345);
-  // SEGGER_RTT_printf(0, "printf Test: %%-08u,   -12345 : %-08u.\r\n", -12345);
-  // SEGGER_RTT_printf(0, "printf Test: %%-08.6u, -12345 : %-08.6u.\r\n", -12345);
-  // SEGGER_RTT_printf(0, "printf Test: %%-0u,    -12345 : %-0u.\r\n", -12345);
-
-  // SEGGER_RTT_printf(0, "printf Test: %%d,      -12345 : %d.\r\n", -12345);
-  // SEGGER_RTT_printf(0, "printf Test: %%+d,     -12345 : %+d.\r\n", -12345);
-  // SEGGER_RTT_printf(0, "printf Test: %%.3d,    -12345 : %.3d.\r\n", -12345);
-  // SEGGER_RTT_printf(0, "printf Test: %%.6d,    -12345 : %.6d.\r\n", -12345);
-  // SEGGER_RTT_printf(0, "printf Test: %%6.3d,   -12345 : %6.3d.\r\n", -12345);
-  // SEGGER_RTT_printf(0, "printf Test: %%8.6d,   -12345 : %8.6d.\r\n", -12345);
-  // SEGGER_RTT_printf(0, "printf Test: %%08d,    -12345 : %08d.\r\n", -12345);
-  // SEGGER_RTT_printf(0, "printf Test: %%08.6d,  -12345 : %08.6d.\r\n", -12345);
-  // SEGGER_RTT_printf(0, "printf Test: %%0d,     -12345 : %0d.\r\n", -12345);
-  // SEGGER_RTT_printf(0, "printf Test: %%-.6d,   -12345 : %-.6d.\r\n", -12345);
-  // SEGGER_RTT_printf(0, "printf Test: %%-6.3d,  -12345 : %-6.3d.\r\n", -12345);
-  // SEGGER_RTT_printf(0, "printf Test: %%-8.6d,  -12345 : %-8.6d.\r\n", -12345);
-  // SEGGER_RTT_printf(0, "printf Test: %%-08d,   -12345 : %-08d.\r\n", -12345);
-  // SEGGER_RTT_printf(0, "printf Test: %%-08.6d, -12345 : %-08.6d.\r\n", -12345);
-  // SEGGER_RTT_printf(0, "printf Test: %%-0d,    -12345 : %-0d.\r\n", -12345);
-
-  // SEGGER_RTT_printf(0, "printf Test: %%x,      0x1234ABC : %x.\r\n", 0x1234ABC);
-  // SEGGER_RTT_printf(0, "printf Test: %%+x,     0x1234ABC : %+x.\r\n", 0x1234ABC);
-  // SEGGER_RTT_printf(0, "printf Test: %%.3x,    0x1234ABC : %.3x.\r\n", 0x1234ABC);
-  // SEGGER_RTT_printf(0, "printf Test: %%.6x,    0x1234ABC : %.6x.\r\n", 0x1234ABC);
-  // SEGGER_RTT_printf(0, "printf Test: %%6.3x,   0x1234ABC : %6.3x.\r\n", 0x1234ABC);
-  // SEGGER_RTT_printf(0, "printf Test: %%8.6x,   0x1234ABC : %8.6x.\r\n", 0x1234ABC);
-  // SEGGER_RTT_printf(0, "printf Test: %%08x,    0x1234ABC : %08x.\r\n", 0x1234ABC);
-  // SEGGER_RTT_printf(0, "printf Test: %%08.6x,  0x1234ABC : %08.6x.\r\n", 0x1234ABC);
-  // SEGGER_RTT_printf(0, "printf Test: %%0x,     0x1234ABC : %0x.\r\n", 0x1234ABC);
-  // SEGGER_RTT_printf(0, "printf Test: %%-.6x,   0x1234ABC : %-.6x.\r\n", 0x1234ABC);
-  // SEGGER_RTT_printf(0, "printf Test: %%-6.3x,  0x1234ABC : %-6.3x.\r\n", 0x1234ABC);
-  // SEGGER_RTT_printf(0, "printf Test: %%-8.6x,  0x1234ABC : %-8.6x.\r\n", 0x1234ABC);
-  // SEGGER_RTT_printf(0, "printf Test: %%-08x,   0x1234ABC : %-08x.\r\n", 0x1234ABC);
-  // SEGGER_RTT_printf(0, "printf Test: %%-08.6x, 0x1234ABC : %-08.6x.\r\n", 0x1234ABC);
-  // SEGGER_RTT_printf(0, "printf Test: %%-0x,    0x1234ABC : %-0x.\r\n", 0x1234ABC);
-
-  // SEGGER_RTT_printf(0, "printf Test: %%p,      &_Cnt      : %p.\r\n", &_Cnt);
-
-  SEGGER_RTT_WriteString(0, "###### SEGGER_printf() Tests done. ######\r\n");
+  int i = 0;
   do
   {
-    _Cnt++;
-    SEGGER_RTT_printf(0, "printf Test: %%p,      &_Cnt      : %d.\r\n", _Cnt);
-  
+    i++;
+    // uint64_t later = Kernel::get_ms_count();
+    // uint32_t dhcsr = CoreDebug->DHCSR;
+    // bool debuggerAttached = dhcsr & CoreDebug_DHCSR_C_DEBUGEN_Msk;
+    // naelic::SWO swo;
+    printf("%d\n", i);
+    // if (debuggerAttached)
+    // {
+    led = !led;
+    // }
+    // DeepSleepLock lock;
+    // int j = 0;
+    // while (SEGGER_RTT_HasDataUp(0) != 0)
+    // {
+    //   j++;
+    //   ;
+    // }
+    // printf("Hello World from SEGGER!%d \n", i);
+    // uint64_t elapsed_ms = Kernel::get_ms_count() - later;
+    // printf("Elapsed ms: %u \n", (uint32_t)elapsed_ms);
+    // printf("j :%d \n", j);
+    // _Delay(1);
     ThisThread::sleep_for(1s);
-  } while (1);
-  // return 0;
+  } while (true);
+  return 0;
 }
+
+// static void _Delay(int period)
+// {
+//   int i = 1000 * period;
+//   do
+//   {
+//     printf("%d \n", i);
+//   } while (i--);
+// }
+
+// int main(void)
+// {
+//   SEGGER_RTT_Init();
+//   SEGGER_RTT_ConfigUpBuffer(0, NULL, NULL, 0, SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL);
+//   SEGGER_RTT_printf(0, "test\n");
+//   int i = 0;
+//   do
+//   {
+//     i++;
+//     SEGGER_RTT_printf(0, "Hello World from SEGGER!%d \n", i);
+//     // uint64_t later = Kernel::get_ms_count();
+//     // DeepSleepLock lock;
+//     int j = 0;
+//     while (SEGGER_RTT_HasDataUp(0) != 0)
+//     {
+//       j++;
+//       ;
+//     }
+//     // uint64_t elapsed_ms = Kernel::get_ms_count() - later;
+//     // printf("Elapsed ms: %u \n", (uint32_t)elapsed_ms);
+//     printf("j :%d \n", j);
+//     // _Delay(1);
+//     ThisThread::sleep_for(1s);
+//   } while (true);
+//   return 0;
+// }
