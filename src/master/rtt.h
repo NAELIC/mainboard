@@ -4,8 +4,8 @@
 #include <Stream.h>
 #include <mutex>
 
-#ifndef NON_BLOCKING
-#define NON_BLOCKING TRUE
+#ifndef BLOCKING_MODE
+#define BLOCKING_MODE TRUE
 #endif
 
 namespace naelic
