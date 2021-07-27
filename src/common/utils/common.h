@@ -13,5 +13,5 @@ namespace common
 {
 
     static naelic::SWO swo;
-    static Mode mode;
+    extern Mode mode;
 }

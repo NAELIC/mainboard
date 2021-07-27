@@ -9,12 +9,10 @@ namespace ir
 
   void launch()
   {
-    while(true) {
       ir_emit = 1;
+      // TODO : verify if wait is needed
       value = ir_receive.read();
       ir_emit = 0;
-      ThisThread::sleep_for(500ms);
-    }
   }
 
   bool present() {

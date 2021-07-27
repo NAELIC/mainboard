@@ -17,20 +17,22 @@
 DigitalOut led(LED1);
 static naelic::SWO swo;
 
+EventQueue event_queue;
+
 int main()
 {
   Thread buzzer_th;
   buzzer_th.start(buzzer::launch);
 
-  Thread voltage_th;
+  Thread voltage_th(osPriorityNormal);
   voltage_th.start(voltage::launch);
 
-  Thread com_th;
-  // com_th.set_priority(osPriorityHigh1);
-  com_th.start(com::launch);
+  event_queue.call_every(1s, voltage::launch);
+  event_queue.call_every(1s, ir::launch);
 
-  Thread ir_th;
-  ir_th.start(ir::launch);
+  Thread com_th;
+  com_th.start(com::launch);
+  com_th.set_priority(osPriorityHigh1);
 
   Thread engine_th;
   engine_th.start(drivers::launch);
@@ -40,9 +42,14 @@ int main()
   // watchdog.start(TIMEOUT_WATCHDOG_MS);
   //   infos_init();
   led = 1;
-  while (true)
-  {
-    ThisThread::sleep_for(100ms);
-    // test_radio();
-  }
+
+  event_queue.dispatch_forever();
+  //Thread queue_thread;
+  //queue_thread.start(&event_queue, &EventQueue::dispatch_forever);
+
+  // while (true)
+  // {
+  //   ThisThread::sleep_for(100ms);
+  //   // test_radio();
+  // }
 }
