@@ -31,10 +31,11 @@ namespace naelic
         //         if (!debuggerAttached || !SEGGER_RTT_HasDataUp(0)) {
         //   am_hal_sysctrl_sleep(AM_HAL_SYSCTRL_SLEEP_DEEP);
         // }
-        while (SEGGER_RTT_HasDataUp(0) != 0 && BLOCKING_MODE)
-        {
-            ;
-        }
+        // while (SEGGER_RTT_HasDataUp(0) != 0 && BLOCKING_MODE)
+        // {
+        //     ;
+        // }
+        wait_us(1500);
     }
 
 } // namespace naelic
