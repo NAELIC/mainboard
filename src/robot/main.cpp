@@ -24,11 +24,11 @@ int main()
   Thread buzzer_th;
   buzzer_th.start(buzzer::launch);
 
-  Thread voltage_th(osPriorityNormal);
-  voltage_th.start(voltage::launch);
+  // Thread voltage_th(osPriorityNormal);
+  // voltage_th.start(voltage::launch);
 
-  event_queue.call_every(1s, voltage::launch);
-  event_queue.call_every(1s, ir::launch);
+  event_queue.call_every(1s, voltage::compute);
+  event_queue.call_every(1s, ir::compute);
 
   Thread com_th;
   com_th.start(com::launch);

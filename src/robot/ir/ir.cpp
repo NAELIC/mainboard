@@ -4,10 +4,11 @@ static naelic::SWO swo;
 
 namespace ir
 {
+  float value = 0.0;
   DigitalOut ir_emit(IR_EMIT, 0.0);
   AnalogIn ir_receive(IR_RECEIVE);
 
-  void launch()
+  void compute()
   {
       ir_emit = 1;
       // TODO : verify if wait is needed

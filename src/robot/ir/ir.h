@@ -8,7 +8,7 @@
 
 namespace ir
 {
-    static double value;
-    void launch();
+    extern float value;
+    void compute();
     bool present();
 }

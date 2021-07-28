@@ -8,6 +8,6 @@
 #include <common/mux.h>
 
 namespace voltage {
-    void launch();
+    void compute();
     float value();
 }
