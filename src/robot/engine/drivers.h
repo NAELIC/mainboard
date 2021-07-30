@@ -1,17 +1,13 @@
 #pragma once
 
 #include <common/buzzer/buzzer.h>
-#include <common/hardware.h>
+#include <common/define/hardware.h>
 #include <USBSerial.h>
 #include <mbed.h>
 #include <shell.h>
 #include "errors.h"
 
 #include <swo.h>
-
-#include <stdint.h>
-#include <assert.h>
-#define cstatic_assert _Static_assert
 
 #define DRIVER_PACKET_SET 0x00
 struct driver_packet_set

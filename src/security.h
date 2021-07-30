@@ -1,5 +1,4 @@
-#ifndef _SECURITY_H
-#define _SECURITY_H
+#pragma once
 
 typedef enum {
     SECURITY_NO_ERROR = 0,
@@ -32,5 +31,3 @@ void security_set_warning(SecurityWarning type);
 
 SecurityError security_get_error();
 SecurityWarning security_get_warning();
-
-#endif

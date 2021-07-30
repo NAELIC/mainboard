@@ -1,6 +1,3 @@
-#include <mbed.h>
-#include <shell.h>
-#include "hardware.h"
 #include "mux.h"
 
 //pin init    

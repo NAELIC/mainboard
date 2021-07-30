@@ -4,7 +4,7 @@
 #include <shell.h>
 #include <swo.h>
 
-#include <common/hardware.h>
+#include <common/define/hardware.h>
 
 namespace ir
 {

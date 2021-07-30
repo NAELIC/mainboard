@@ -4,10 +4,10 @@
 #include <shell.h>
 #include <nRF24L01P_PTX.h>
 #include <nRF24L01P_PRX.h>
-#include <common/hardware.h>
+#include <common/define/hardware.h>
 
 #include <common/com/network.h>
-#include <common/utils/common.h>
+#include <common/define/common.h>
 
 namespace send {
     int robot(nRF24L01P_PTX PTX, packet_robot &packet);
