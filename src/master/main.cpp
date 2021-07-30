@@ -3,8 +3,8 @@
 #include <swo.h>
 #include <shell.h>
 
-#include <common/buzzer.h>
-#include <common/version.h>
+#include <common/buzzer/buzzer.h>
+#include <common/utils/version.h>
 
 #include "com.h"
 
