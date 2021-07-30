@@ -102,15 +102,15 @@ namespace com
     while (true)
     {
       common::swo.println(common::mode);
-      // if (common::mode == Mode::NORMAL)
-      // {
-      //   common::swo.println("TODO");
-      //   ThisThread::sleep_for(1s);
-      // }
-      // else
-      // {
+      if (common::mode == Mode::NORMAL)
+      {
+        common::swo.println("TODO");
         ThisThread::sleep_for(1s);
-      // }
+      }
+      else
+      {
+        ThisThread::sleep_for(1s);
+      }
     }
   }
 

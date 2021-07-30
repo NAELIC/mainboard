@@ -5,15 +5,15 @@ static naelic::SWO swo;
 namespace ir
 {
   float value = 0.0;
-  DigitalOut ir_emit(IR_EMIT, 0.0);
-  AnalogIn ir_receive(IR_RECEIVE);
+  DigitalOut emit(IR_EMIT, 0.0);
+  AnalogIn receive(IR_RECEIVE);
 
   void compute()
   {
-      ir_emit = 1;
+      emit = 1;
       // TODO : verify if wait is needed
-      value = ir_receive.read();
-      ir_emit = 0;
+      value = receive.read();
+      emit = 0;
   }
 
   bool present() {
