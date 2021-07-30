@@ -1,0 +1,22 @@
+{
+    "name": "mbed_rtt_segger",
+    "version": "1.0.0",
+    "description": "Allows to declare shell commands to interact with board and add logging with RTT",
+    "keywords": "shell, terminal, logging",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/NAELIC/mbed_rtt_segger.git"
+    },
+    "authors": [
+        {
+            "name": "Etienne SCHMITZ",
+            "email": "contact@etienne-schmitz.com",
+            "url": "https://www.etienne-schmitz.com/"
+        }
+    ],
+    "license": "MIT",
+    "frameworks": [
+        "mbed"
+    ],
+    "platforms": "*"
+}

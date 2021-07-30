@@ -3,7 +3,6 @@
 namespace com
 {
   static naelic::SWO swo;
-  static MODE mode;
 
   nRF24L01P Device1(COM_MOSI, COM_MISO, COM_CLK, COM_CS1);
   nRF24L01P Device2(COM_MOSI, COM_MISO, COM_CLK, COM_CS2);
@@ -13,7 +12,7 @@ namespace com
   nRF24L01P_PRX PRX_1(Device2, COM_CE2);
   nRF24L01P_PRX PRX_2(Device3, COM_CE3);
 
-   /** TODO : MOVE IN LIBRARY **/
+  /** TODO : MOVE IN LIBRARY **/
   void PRX_init(nRF24L01P_PRX &p, int channel, int size)
   {
     p.initialize();
@@ -34,12 +33,10 @@ namespace com
 
   void init()
   {
-    mode = MODE::NORMAL;
     PTX_init(PTX, CHANNEL2);
     PRX_init(PRX_1, CHANNEL1, sizeof(packet_status));
     PRX_init(PRX_2, CHANNEL1, sizeof(packet_status));
   }
-
 
   bool com_is_ok()
   {
@@ -97,24 +94,24 @@ namespace com
 
     while (true)
     {
-      swo.println(mode);
-      switch (mode)
-      {
-      case MODE::NORMAL:
-        diagnostic();
-        break;
-      case MODE::DIAGNOSTIC:
-        diagnostic();
-        break;
-      default:
-        break;
-      }
+      // swo.println(mode);
+      // switch (mode)
+      // {
+      // case MODE::NORMAL:
+      //   diagnostic();
+      //   break;
+      // case MODE::DIAGNOSTIC:
+      //   diagnostic();
+      //   break;
+      // default:
+      //   break;
+      // }
       ThisThread::sleep_for(1s);
     }
   }
 
-  SHELL_COMMAND(diag, "DIAGNOSTIC MODE")
-  {
-    mode = MODE::DIAGNOSTIC;
-  }
+  // SHELL_COMMAND(diag, "DIAGNOSTIC MODE")
+  // {
+  //   // mode = MODE::DIAGNOSTIC;
+  // }
 }
