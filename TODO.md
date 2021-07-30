@@ -1,6 +1,6 @@
-- [ ] Renommer le fichier common/utils/common.h -> common/defines/common.h
-- [ ] Renommer le fichier common/hardware.h -> common/defines/hardware.h
-- [ ] Mode debug pour la com + moteur
+- [x] Renommer le fichier common/utils/common.h -> common/defines/common.h
+- [x] Renommer le fichier common/hardware.h -> common/defines/hardware.h
+- [x] Mode debug pour la com + moteur
 
 MBED-SHELL :
 - [x] Réfléchir à la façon de manipuler le bug (un define)
