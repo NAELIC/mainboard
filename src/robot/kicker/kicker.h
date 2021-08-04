@@ -11,15 +11,35 @@
 
 #include <swo.h>
 
-namespace kicker
-{
-    typedef struct
-    {
-        int id;
-        float power;
-    } kicker_msg;
+void kicker_init();
 
-    static Queue<kicker_msg, 2> queue_drivers;
+void kicker_boost_enable(bool enable);
 
-    void launch();
-}
+/**
+ * Run a kick, power is [us]
+ */
+void kicker_kick(int kicker, int power);
+
+/**
+ * Ticks the kicker
+ */
+void kicker_tick();
+
+/**
+ * Gets the kick capcitor voltage [V]
+ */
+float kicker_cap_voltage();
+
+
+/**
+ * Clear the capacitors
+ */
+void kicker_clear();
+
+bool kicker_is_charging();
+
+
+void pause_boost();
+void resume_boost();
+
+bool is_charging();

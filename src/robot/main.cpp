@@ -6,6 +6,8 @@
 #include <common/buzzer/buzzer.h>
 #include <common/utils/version.h>
 
+#include "kicker/kicker.h"
+
 #include "engine/drivers.h"
 #include "engine/dribbler.h"
 #include "ir/ir.h"
@@ -22,6 +24,7 @@ EventQueue event_queue;
 
 int main()
 {
+  kicker_init();
   Thread buzzer_th;
   buzzer_th.start(buzzer::launch);
 
@@ -38,8 +41,8 @@ int main()
   Thread engine_th;
   engine_th.start(drivers::launch);
 
-  Thread dribbler_th;
-  dribbler_th.start(dribbler::launch);
+  // Thread dribbler_th;
+  // dribbler_th.start(dribbler::launch);
 
   shell_init_usb();
   // Watchdog &watchdog = Watchdog::get_instance();
@@ -47,13 +50,16 @@ int main()
   //   infos_init();
   led = 1;
 
-  event_queue.dispatch_forever();
+  // event_queue.dispatch_forever();
+  while(true) {
+    kicker_tick();
+    ThisThread::sleep_for(100ms);
+  }
   //Thread queue_thread;
   //queue_thread.start(&event_queue, &EventQueue::dispatch_forever);
 
   // while (true)
   // {
-  //   ThisThread::sleep_for(100ms);
   //   // test_radio();
   // }
 }

@@ -52,7 +52,8 @@ static naelic::SWO swo;
 static bool clearing = false;
 static int clear = 0;
 static bool charging = false;
-extern bool developer_mode;
+bool developer_mode = false;
+Timeout kicker_timeout;
 
 #define KICKER_OFF 0
 #define KICKER_ON 1
@@ -70,11 +71,13 @@ bool is_charging()
 }
 void enable_boost()
 {
+  swo.println("BOOOSTR");
   booster.write(BOOST_ON);
 }
 
 void disable_boost()
 {
+  swo.println("BOOOST NOT");
   booster.write(BOOST_OFF);
 }
 
@@ -122,11 +125,13 @@ void kicker_init()
   // Kicker pin
   kicker_1.write(KICKER_OFF);
   kicker_2.write(KICKER_OFF);
+  kicker_1.period_ms(100);
+  kicker_2.period_ms(100);
 
-  if (developer_mode == false)
-  {
-    kicker_boost_enable(true);
-  }
+  // if (developer_mode == false)
+  // {
+  //   kicker_boost_enable(true);
+  // }
 }
 
 void kicker_clear()
@@ -137,6 +142,8 @@ void kicker_clear()
 
 void kicker_boost_enable(bool enable)
 {
+  swo.println(enable);
+  resume_boost();
   charging = enable;
 
   if (enable)
@@ -144,6 +151,12 @@ void kicker_boost_enable(bool enable)
     clearing = false;
   }
   relaunch_charging = true;
+}
+
+void kicker_off()
+{
+  kicker_1.write(0);
+  kicker_2.write(0);
 }
 
 void kicker_kick(int kicker, int power)
@@ -157,14 +170,11 @@ void kicker_kick(int kicker, int power)
     power = 65000;
   }
 
-  if (kicker == 0)
-  {
-    kicker_1.write(KICKER_ON);
-  }
-  else
-  {
-    kicker_2.write(KICKER_ON);
-  }
+  swo.println("test");
+
+  (kicker == 0) ? kicker_1.write(KICKER_ON) : kicker_2.write(KICKER_ON);
+
+  kicker_timeout.attach(kicker_off, std::chrono::microseconds(power));
 
   if (charging)
   {
@@ -200,7 +210,7 @@ void kicker_tick()
     {
       lastClear = Kernel::get_ms_count();
       kicker_kick(0, 150);
-      kicker_kick(1, 150);
+      // kicker_kick(1, 150);
       clear++;
 
       if (clear > 500)
@@ -212,6 +222,7 @@ void kicker_tick()
 
   if (relaunch_charging)
   {
+    
     relaunch_charging = false;
     if (charging)
     {
@@ -248,6 +259,11 @@ float kicker_cap_voltage()
   return cap;
 }
 
+SHELL_COMMAND(cap, "cap")
+{
+  shell_println(kicker_cap_voltage());
+}
+
 SHELL_COMMAND(cd, "Cap debug")
 {
   shell_println(mux_sample(CAP_ADDR));
@@ -275,4 +291,16 @@ SHELL_COMMAND(kick, "Kicks")
   {
     shell_println("Usage: kick [kicker] [power]");
   }
+}
+
+SHELL_COMMAND(em, "Emergency kicker")
+{
+  // if (!com_master) {
+  //     kinematic_stop();
+  //     for (int k=0; k<5; k++) {
+  //         drivers_set(k, false, 0.0);
+  //     }
+  // }
+
+  kicker_boost_enable(false);
 }
