@@ -50,8 +50,7 @@
 #define BUZZER_PIN      DIO12
 
 // Booster
-#define BOOSTER_PIN     27
-#define BOOSTER_TIMER   1
+#define BOOSTER_PIN     DIO18
 #define CAP_ADDR        4
 #define CAP_R1          200000.0
 #define CAP_R2          2000.0
@@ -67,9 +66,8 @@
 #define HALL_THRES     2000
 
 // Kicker
-#define KICKER1_PIN     25
-#define KICKER2_PIN     26
-#define KICKER_TIMER    4
+#define KICKER1_PIN     DIO15
+#define KICKER2_PIN     DIO16
 
 // Voltage
 #define BAT_ADDR        5
