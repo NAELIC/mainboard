@@ -7,6 +7,7 @@
 #include <common/utils/version.h>
 
 #include "engine/drivers.h"
+#include "engine/dribbler.h"
 #include "ir/ir.h"
 // #include "infos.h"
 #include "com/com.h"
@@ -36,6 +37,9 @@ int main()
 
   Thread engine_th;
   engine_th.start(drivers::launch);
+
+  Thread dribbler_th;
+  dribbler_th.start(dribbler::launch);
 
   shell_init_usb();
   // Watchdog &watchdog = Watchdog::get_instance();
