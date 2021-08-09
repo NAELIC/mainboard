@@ -38,8 +38,6 @@ void kicker_clear();
 
 bool kicker_is_charging();
 
-
-void pause_boost();
-void resume_boost();
-
 bool is_charging();
+
+void kicker_off();
