@@ -48,7 +48,7 @@ static naelic::SWO swo;
 /* -------------------------------------------------------------------*/
 
 static bool charging = false;
-float cap = 0.0;
+static float cap = 0.0;
 Timeout kicker_timeout;
 
 DigitalOut booster(BOOSTER_PIN);
@@ -126,20 +126,11 @@ void kicker_kick(int kicker, int power)
   kicker_timeout.attach(kicker_off, std::chrono::microseconds(power));
 }
 
-#define DICHARGE_VOLTAGE 24
+// Rename to kicker::voltage
 void kicker_tick()
 {
-  static int lastClear = Kernel::get_ms_count();
-  static int lastSample = Kernel::get_ms_count();
-
-  // Sampling capacitor voltage
-  if (Kernel::get_ms_count() - lastSample > 5)
-  {
-    lastSample = Kernel::get_ms_count();
-
-    float voltage = 3.3 * mux_sample(CAP_ADDR) / (1 << 16);
-    cap = voltage * (CAP_R1 + CAP_R2) / CAP_R2;
-  }
+  float voltage = 3.3 * mux_sample(CAP_ADDR) / (1 << 16); 
+  cap = voltage * (CAP_R1 + CAP_R2) / CAP_R2;
 }
 
 float kicker_cap_voltage()

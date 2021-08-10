@@ -33,6 +33,7 @@ int main()
 
   event_queue.call_every(1s, voltage::compute);
   event_queue.call_every(1s, ir::compute);
+  event_queue.call_every(100, kicker_tick);
 
   Thread com_th;
   com_th.start(com::launch);
@@ -50,13 +51,9 @@ int main()
   //   infos_init();
   led = 1;
 
-  // event_queue.dispatch_forever();
-  while(true) {
-    kicker_tick();
-    ThisThread::sleep_for(100ms);
-  }
-  //Thread queue_thread;
-  //queue_thread.start(&event_queue, &EventQueue::dispatch_forever);
+  event_queue.dispatch_forever();
+  // Thread queue_thread;
+  // queue_thread.start(&event_queue, &EventQueue::dispatch_forever);
 
   // while (true)
   // {
