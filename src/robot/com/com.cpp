@@ -31,9 +31,9 @@ namespace com
 
   void init()
   {
-    PTX_init(PTX, CHANNEL1);
-    PRX_init(PRX_1, CHANNEL2, sizeof(packet_robot));
-    PRX_init(PRX_2, CHANNEL2, sizeof(packet_robot));
+    PTX_init(PTX, CHANNEL2);
+    PRX_init(PRX_1, CHANNEL1, sizeof(packet_robot));
+    PRX_init(PRX_2, CHANNEL1, sizeof(packet_robot));
   }
 
   int receive(nRF24L01P_PRX PRX)
@@ -55,31 +55,9 @@ namespace com
 
   bool com_is_ok()
   {
-    bool is_ok = true;
-    packet_robot packet;
-    packet.id = 42;
-    int status = send::robot(PTX, packet);
-    common::swo.print("status :");
-    common::swo.print(status);
-    if (status != 0)
-      is_ok = false;
-    common::swo.println("#PRX1");
-    packet_robot packet1;
-    if (receive::robot(PRX_1, packet1) != sizeof(packet_robot))
-    {
-      common::swo.println("ERROR PRX1");
-      is_ok = false;
-    }
+    common::swo.print("TODO");
 
-    common::swo.println("#PRX2");
-    packet_robot packet2;
-    if (receive::robot(PRX_2, packet2) != sizeof(packet_robot))
-    {
-      common::swo.println("ERROR PRX2");
-      is_ok = false;
-    }
-
-    return is_ok;
+    return true;
   }
 
   void diagnostic()
@@ -95,22 +73,47 @@ namespace com
     }
   }
 
+  int receive(nRF24L01P_PRX PRX, packet_robot &buffer)
+  {
+    int size_packet = -1;
+    if (PRX.IsPacketReady())
+    {
+      size_packet = PRX.ReadPacket((char *) &buffer);
+    }
+    else
+    {
+      // common::swo.println("Got nothing : PRX is not ready");
+    }
+    // common::swo.printf("size_packet : %d\n", size_packet);
+    return size_packet;
+  }
+
   void launch()
   {
     init();
 
     while (true)
     {
-      common::swo.println(common::mode);
-      if (common::mode == Mode::NORMAL)
-      {
-        common::swo.println("TODO");
-        ThisThread::sleep_for(1s);
+      packet_robot packet;
+
+      int size_receive = receive(PRX_1, packet);
+
+      // common::swo.println(size_receive);
+
+      if (size_receive == sizeof(packet)) {
+        common::swo.println(packet.id);
       }
-      else
-      {
-        ThisThread::sleep_for(1s);
-      }
+
+      ThisThread::sleep_for(100ms);
+      // common::swo.println(common::mode);
+      // if (common::mode == Mode::NORMAL)
+      // {
+      //   common::swo.println("TODO");
+      // }
+      // else
+      // {
+      //   ThisThread::sleep_for(1s);
+      // }
     }
   }
 

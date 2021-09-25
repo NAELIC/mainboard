@@ -11,6 +11,4 @@
 
 namespace com {
     void launch();
-
-    void diagnostic();
 }

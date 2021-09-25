@@ -34,9 +34,9 @@ namespace wireless
 
     void init()
     {
-        PTX_init(PTX, CHANNEL2);
-        PRX_init(PRX_1, CHANNEL1, sizeof(packet_status));
-        PRX_init(PRX_2, CHANNEL1, sizeof(packet_status));
+        PTX_init(PTX, CHANNEL1);
+        PRX_init(PRX_1, CHANNEL2, sizeof(packet_status));
+        PRX_init(PRX_2, CHANNEL2, sizeof(packet_status));
     }
 
     void send(packet_robot &packet)
