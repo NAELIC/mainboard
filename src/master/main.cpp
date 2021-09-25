@@ -29,12 +29,6 @@ int main()
   led = 1;
   while (true)
   {
-    // swo.println(serial.available());
-    // if(serial.available()) {
-    //   char t = serial.getc();
-    //   swo.print(t);
-    //   serial.putc(t);
-    // }
     ThisThread::sleep_for(100ms);
   }
 }
