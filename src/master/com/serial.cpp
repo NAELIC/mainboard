@@ -11,6 +11,7 @@ namespace serial
     void launch()
     {
         serial.init();
+        wireless::init();
 
         while (true)
         {
@@ -18,10 +19,10 @@ namespace serial
                 packet_robot receive;
                 serial.read(&receive, sizeof(packet_robot));
 
-                swo.println("TODO");
-                swo.println(receive.id);
-                swo.println(receive.x_speed);
+                wireless::send(receive);
             }
+
+            ThisThread::sleep_for(100ms);
         }
     }
 

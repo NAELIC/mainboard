@@ -1,10 +1,5 @@
 #include "send_and_receive.h"
 
-int send::robot(nRF24L01P_PTX PTX, packet_robot &packet)
-{
-    return PTX.TransmitPacket((char *)&packet, sizeof(packet_robot));
-}
-
 int send::status(nRF24L01P_PTX PTX, packet_status &packet)
 {
     return PTX.TransmitPacket((char *)&packet, sizeof(packet_status));

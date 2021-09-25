@@ -10,7 +10,6 @@
 #include <common/define/common.h>
 
 namespace send {
-    int robot(nRF24L01P_PTX PTX, packet_robot &packet);
     int status(nRF24L01P_PTX PTX, packet_status &packet);
 }
 
