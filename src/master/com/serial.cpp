@@ -6,7 +6,7 @@ namespace serial
 {
     static naelic::SWO swo;
 
-    USBSerial serial;
+    USBSerial serial(false);
 
     void launch()
     {
