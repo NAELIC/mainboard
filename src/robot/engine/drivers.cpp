@@ -1,116 +1,424 @@
 #include "drivers.h"
 
+// Include the TMC4671 lib with corresponding SPI transfert function (see end of drivers.cpp)
+extern "C" {
+#include <TMC4671.h>
+uint8_t tmc4671_readwriteByte(uint8_t motor, uint8_t data, uint8_t lastTransfer);
+}
+
 static naelic::SWO swo;
 
-namespace drivers
-{
-	static SPI drivers(DRV_MOSI, DRV_MISO, DRV_CLK);
-	static DigitalOut drivers_out[5] = {DRIVERS_CS1,
-										DRIVERS_CS2,
-										DRIVERS_CS3,
-										DRIVERS_CS4,
-										DRIVERS_CS5};
+namespace drivers {
 
-	void init()
-	{
-		drivers.frequency(250000);
-		for (int k = 0; k < 5; k++)
-		{
-			drivers_out[k] = 1;
-		}
-	}
+    static SPI drivers(DRV_MOSI, DRV_MISO, DRV_CLK);
+    static DigitalOut drivers_out[5] = {DRIVERS_CS1,
+                                        DRIVERS_CS2,
+                                        DRIVERS_CS3,
+                                        DRIVERS_CS4,
+                                        DRIVERS_CS5};
 
-	bool ping(int index)
-	{
-		drivers_out[index] = 0;
-		wait_us(35);
-		drivers.write(0);
-		uint8_t status = drivers.write(0);
-		wait_us(5);
-		drivers_out[index] = 1;
-		swo.println(status);
-		return (status == 0x55 || ((status & 0xf0) == 0x80));
-	}
+    void init() {
+        // Setup SPI frequency to 250kHz (8mHz max for TMC4671-LA)
+        drivers.format(8, 3); // 40 bits datagram (datasheet TMC4671 p.16), but 16 max for TMC4671 module, so 8x5=40
+        drivers.frequency(250000);
 
-	void set_speed(int id_motor, float target)
-	{
-		driver_packet_set packet;
-		packet.enable = true;
-		packet.pwm = 0;
-		packet.targetSpeed = target;
-		packet.padding1 = 0;
-		packet.padding2 = 0;
+        // Be sure all SS are high
+        for (int k = 0; k < NUM_OF_TRINAMIC; k++) {
+            drivers_out[k] = 1;
+        }
 
-		driver_packet_ans ans;
+        //Init all motors (ROBOT MUST BE UPSIDE DOWN AT START)
+        for (int k = 0; k < NUM_OF_TRINAMIC; k++) {
+            tmc4671_init(k);
+        }
 
-		drivers_out[id_motor] = 0;
-		wait_us(35);
-		drivers.write(DRIVER_PACKET_SET);
-		drivers.write((char *)&packet, sizeof(driver_packet_set), (char *)&ans, sizeof(driver_packet_ans));
-		wait_us(5);
-		drivers_out[id_motor] = 1;
-	}
+        //start all motors
+        for (int k = 0; k < NUM_OF_TRINAMIC; k++) {
+            start_motor(k);
+        }
+    }
 
-	/* relationship between the wheels speed v0, v1, v2 and v3, with the robot speeds x, y and t
+    bool ping(int motor) {
+
+        tmc4671_writeInt(motor, TMC4671_CHIPINFO_ADDR, CHIPINFO_ADDR_SI_TYPE);
+        uint32_t test = tmc4671_readInt(motor, TMC4671_CHIPINFO_DATA);
+
+        if (test == 0x34363731) // "4671"
+            return true;
+        else
+            return false;
+    }
+
+    void set_speed(int id_motor, float target) {
+
+        // Calculate the right TMC4671 speed target; according to float target [m/s]
+        int32_t speed = (int32_t)(target * 100.0f); //debug, TODO: calcul
+
+        if(speed > DEBUG_MAX_TRINAMIC_SPEED){
+            speed = DEBUG_MAX_TRINAMIC_SPEED;
+        } else if (speed < -DEBUG_MAX_TRINAMIC_SPEED){
+            speed = -DEBUG_MAX_TRINAMIC_SPEED;
+        }
+
+        tmc4671_writeInt(id_motor, TMC4671_PID_VELOCITY_TARGET, speed);
+    }
+
+    /* relationship between the wheels speed v0, v1, v2 and v3, with the robot speeds x, y and t
 | v0(t) |   | 0  1  d |    
 | v1(t) |   |-1  0  d |   | x_speed(t) |
 | v2(t) | = | 0 -1  d | * | y_speed(t) |
 | v3(t) |	| 1  0  d |   | t_speed(t) |
 */
-	float *com_packet_to_driver_packet(engine_msg packet)
-	{ //TODO: change name of function, change variable 'd'
-		float speed_for_drivers[4];
-		float d = 9.0; /* is distance between center of robot and wheel */
-		speed_for_drivers[0] = packet.y_speed + d * packet.t_speed;
-		speed_for_drivers[1] = d * packet.t_speed - packet.x_speed;
-		speed_for_drivers[2] = d * packet.t_speed - packet.y_speed;
-		speed_for_drivers[3] = packet.x_speed + d * packet.t_speed;
-		return speed_for_drivers;
-	}
+//    float *com_packet_to_driver_packet(engine_msg packet) { //TODO: change name of function, change variable 'd'
+//        float speed_for_drivers[4];
+//        float d = 9.0; /* is distance between center of robot and wheel */
+//        speed_for_drivers[0] = packet.y_speed + d * packet.t_speed;
+//        speed_for_drivers[1] = d * packet.t_speed - packet.x_speed;
+//        speed_for_drivers[2] = d * packet.t_speed - packet.y_speed;
+//        speed_for_drivers[3] = packet.x_speed + d * packet.t_speed;
+//        return speed_for_drivers;
+//    }
 
-	void launch()
-	{
-		init();
-		while (true)
-		{
-			// Tâche de fond pour les erreurs
-			// Pilotage des moteurs en fonction des messages reçus
-			// si on est pas en débug.
-			ThisThread::sleep_for(100ms);
-		}
-	}
+    void launch() {
+        init();
+        while (true) {
+            // Tâche de fond pour les erreurs
+            // Pilotage des moteurs en fonction des messages reçus
+            // si on est pas en débug.
+            ThisThread::sleep_for(100ms);
+        }
+    }
 
-	SHELL_COMMAND(scan, "Scan for drivers")
-	{
-		for (int k = 0; k < 5; k++)
-		{
-			shell_print("Driver #");
-			shell_print(k);
-			shell_print(": ");
-			if (ping(k))
-			{
-				shell_println("Present!");
-			}
-			else
-			{
-				shell_println("-");
-			}
-		}
-	}
+    SHELL_COMMAND(scan, "Scan for drivers") {
+        for (int k = 0; k < 5; k++) {
+            shell_print("Driver #");
+            shell_print(k);
+            shell_print(": ");
+            if (ping(k)) {
+                shell_println("Present!");
+            } else {
+                shell_println("-");
+            }
+        }
+    }
 
-	SHELL_COMMAND(set, "Set speed for one driver")
-	{
-		if (argc != 2)
-		{
-			shell_println("Usage: set [driver] [speed]");
-		}
-		else
-		{
-			while (!shell_available())
-			{
-				drivers::set_speed(atoi(argv[0]), atof(argv[1]));
-				wait_us(500);
-			}
-		}
-	}
+    SHELL_COMMAND(set, "Set speed for one driver") {
+        if (argc != 2) {
+            shell_println("Usage: set [driver] [speed]");
+        } else {
+            while (!shell_available()) {
+                drivers::set_speed(atoi(argv[0]), atof(argv[1]));
+                wait_us(500);
+            }
+        }
+    }
+
+    SHELL_COMMAND(start, "Start a driver") {
+        if (argc != 1) {
+            shell_println("Usage: start [driver]");
+        } else {
+            while (!shell_available()) {
+                drivers::start_motor(atoi(argv[0]));
+                wait_us(500);
+            }
+        }
+    }
+
+    SHELL_COMMAND(stop, "Stop a driver") {
+        if (argc != 1) {
+            shell_println("Usage: stop [driver]");
+        } else {
+            while (!shell_available()) {
+                drivers::stop_motor(atoi(argv[0]));
+                wait_us(500);
+            }
+        }
+    }
+
+    void start_motor(uint8_t motor) {
+        tmc4671_writeInt(motor, TMC4671_PWM_SV_CHOP, 0x00000007); // Enable PWM Output
+        tmc4671_writeInt(motor, TMC4671_MODE_RAMP_MODE_MOTION, 0x00000002); // Velocity mode
+    }
+
+    void stop_motor(uint8_t motor, bool freewheel) {
+
+        if (freewheel) {
+            tmc4671_writeInt(motor, TMC4671_PWM_SV_CHOP, 0x00000000); // 0 = PWM Disabled -> free running
+        } else {
+            tmc4671_writeInt(motor, TMC4671_MODE_RAMP_MODE_MOTION, 0x00000000); // STOP MODE
+            tmc4671_writeInt(motor, TMC4671_PID_VELOCITY_TARGET, 0); // ensure no velocity
+        }
+    }
+
+
+    // Setup for averaging ADC values to calculate offset
+    const int numReadings = 20;
+    uint16_t readings_I0[numReadings], readings_I1[numReadings];
+    uint16_t index_I0 = 0, index_I1 = 0, average_I0 = 0, average_I1 = 0;
+    int32_t total_I0 = 0, total_I1 = 0;
+
+    // Use to averaging value of ADC to get proper offset (TODO: Improve this averaging function)
+    void smooth_ADCs(uint16_t I0, uint16_t I1) {
+        total_I0 = total_I0 - readings_I0[index_I0];
+        readings_I0[index_I0] = I0;
+        total_I0 = total_I0 + readings_I0[index_I0];
+        index_I0++;
+        if (index_I0 >= numReadings) {
+            index_I0 = 0;
+        }
+        average_I0 = (uint16_t) (((uint32_t) total_I0) / ((uint32_t) numReadings));
+
+        total_I1 = total_I1 - readings_I1[index_I1];
+        readings_I1[index_I1] = I1;
+        total_I1 = total_I1 + readings_I1[index_I1];
+        index_I1++;
+        if (index_I1 >= numReadings) {
+            index_I1 = 0;
+        }
+        average_I1 = (uint16_t) (((uint32_t) total_I1) / ((uint32_t) numReadings));
+    }
+
+    void tmc4671_init(uint8_t motor) {
+        uint8 is_tmc_4671 = 0;
+        /*
+         * ============ CHIP VERIFICATION ==============
+         */
+        tmc4671_writeInt(motor, TMC4671_CHIPINFO_ADDR, CHIPINFO_ADDR_SI_TYPE);
+        uint32_t test = tmc4671_readInt(motor, TMC4671_CHIPINFO_DATA);
+
+        if (test == 0x34363731)
+            is_tmc_4671++;
+
+        uint8_t a = (test >> 24) & 0xFF;
+        uint8_t b = (test >> 16) & 0xFF;
+        uint8_t c = (test >> 8) & 0xFF;
+        uint8_t d = (test) & 0xFF;
+
+        printf("Chip info type : 0x%08lx (TMC-%c%c%c%c).\n", test, a, b, c, d);
+
+        tmc4671_writeInt(motor, TMC4671_CHIPINFO_ADDR, CHIPINFO_ADDR_SI_VERSION);
+        test = tmc4671_readInt(motor, TMC4671_CHIPINFO_DATA);
+
+        uint16_t e = (test >> 16) & 0xFFFF;
+        uint16_t f = test & 0xFFFF;
+
+        string rev;
+        if ((e == 1) && (f == 0)) { // rev 1.0 => TMC4671-ES
+            rev = "-ES";
+            is_tmc_4671++;
+        } else if ((e == 1) && (f == 3)) {  // rev 1.3 => TMC4671-LA
+            rev = "-LA";
+            is_tmc_4671++;
+        } else
+            rev = "-??";
+
+        printf("Chip info version : 0x%08lx (rev %d.%d \"%s\").\n", test, e, f, rev.c_str());
+
+        tmc4671_writeInt(motor, TMC4671_CHIPINFO_ADDR, CHIPINFO_ADDR_SI_DATA);
+        test = tmc4671_readInt(motor, TMC4671_CHIPINFO_DATA);
+
+        printf("Chip info data : 0x%08lx .\n", test);
+
+        tmc4671_writeInt(motor, TMC4671_CHIPINFO_ADDR, CHIPINFO_ADDR_SI_TIME);
+        test = tmc4671_readInt(motor, TMC4671_CHIPINFO_DATA);
+
+        printf("Chip info time : 0x%08lx .\n", test);
+
+        tmc4671_writeInt(motor, TMC4671_CHIPINFO_ADDR, CHIPINFO_ADDR_SI_VARIANT);
+        test = tmc4671_readInt(motor, TMC4671_CHIPINFO_DATA);
+
+        printf("Chip info variant : 0x%08lx .\n", test);
+
+        tmc4671_writeInt(motor, TMC4671_CHIPINFO_ADDR, CHIPINFO_ADDR_SI_BUILD);
+        test = tmc4671_readInt(motor, TMC4671_CHIPINFO_DATA);
+
+        printf("Chip info build : 0x%08lx .\n", test);
+
+        if (is_tmc_4671 != 2) {
+            printf("It seems that the chip is not a TMC4671-ES or a TMC4671-LA, program can't continue.\n");
+            printf("stopping...");
+            while (true);
+        } else
+            printf("TMC4671 detected, configuring registers for SSL_Brushless motor control...\n");
+
+        tmc4671_writeInt(motor, TMC4671_MODE_RAMP_MODE_MOTION, 0x00000000); // Ensure motion is OFF (no PWM)
+
+        /*
+         * ============ motor TYPE & PWM ==============
+         */
+
+        tmc4671_writeInt(motor, TMC4671_MOTOR_TYPE_N_POLE_PAIRS,
+                         0x00030008); // 0x0003 = BLDC, 0x0008 = number of pole pairs
+        tmc4671_writeInt(motor, TMC4671_PWM_POLARITIES, 0x00000000); // default
+        tmc4671_writeInt(motor, TMC4671_PWM_MAXCNT, 3999); // 25kHz
+        tmc4671_writeInt(motor, TMC4671_PWM_BBM_H_BBM_L, 0x00001919); // default (25 BBM)
+        // This line could be used as an enable function :
+        tmc4671_writeInt(motor, TMC4671_PWM_SV_CHOP,
+                         0x00000007); // 7 = centered PWM for FOC, 0 (bit8) = Space Vector PWM disabled
+
+        /*
+         * ============ ADC CONFIGURATION ==============
+         */
+
+        tmc4671_writeInt(motor, TMC4671_ADC_I_SELECT, 0x24000100); // default
+        tmc4671_writeInt(motor, TMC4671_dsADC_MCFG_B_MCFG_A, 0x00100010);  // default
+        tmc4671_writeInt(motor, TMC4671_dsADC_MCLK_A, 0x20000000);
+        tmc4671_writeInt(motor, TMC4671_dsADC_MCLK_B, 0x00000000);
+        tmc4671_writeInt(motor, TMC4671_dsADC_MDEC_B_MDEC_A, 0x014E014E); // default
+
+        ThisThread::sleep_for(100ms); //just in case
+
+        // Setup ADC_RAW_ADDR to show I0 and I1 ADC
+        tmc4671_writeInt(motor, TMC4671_ADC_RAW_ADDR, ADC_RAW_ADDR_ADC_I1_RAW_ADC_I0_RAW);
+        uint32_t ADCs_raw;
+        uint16_t ADC_I0, ADC_I1;
+
+        // Do an averaging of ADC values to get proper offset (different for each board)
+        for (int i = 0; i < numReadings; i++) {
+
+            // get raw ADC data
+            ADCs_raw = tmc4671_readInt(motor, TMC4671_ADC_RAW_DATA);
+            ADC_I0 = (uint16_t) (ADCs_raw & 0x0000FFFF);
+            ADC_I1 = (uint16_t) ((ADCs_raw & 0xFFFF0000) >> 16);
+
+            smooth_ADCs(ADC_I0, ADC_I1);
+
+            ThisThread::sleep_for(20ms);
+        }
+
+        // Debug
+        printf("ADC OFFSET of I0 : %d\n", average_I0);
+        printf("ADC OFFSET of I1 : %d\n", average_I1);
+
+        // Write new offset.
+        // Scale has been decreased (instead of default 256) to get better response from PID, because hardware shunt amplifier have "too much" gain.
+        tmc4671_writeInt(motor, TMC4671_ADC_I0_SCALE_OFFSET,
+                         0x003C0000 | ((int32_t) average_I0)); // scale 60, offset = calculated average before
+        tmc4671_writeInt(motor, TMC4671_ADC_I1_SCALE_OFFSET,
+                         0x003C0000 | ((int32_t) average_I1)); // scale 60, offset = calculated average before
+
+        // Reset for next motor (TODO: Improve this averaging function)
+        for (int i = 0; i < numReadings; i++) {
+            readings_I0[i] = 0;
+            readings_I1[i] = 0;
+        }
+        index_I0 = 0;
+        index_I1 = 0;
+        average_I0 = 0;
+        average_I1 = 0;
+        total_I0 = 0;
+        total_I1 = 0;
+
+        /*
+         * ============ HALL CONFIGURATION ==============
+         */
+
+        // nothing to do, all is good by default
+        tmc4671_writeInt(motor, TMC4671_HALL_MODE, 0x00000000); // normal, all default
+
+        /*
+         * ============ PID LIMITS CONFIGURATION ==============
+         */
+
+        tmc4671_writeInt(motor, TMC4671_PIDOUT_UQ_UD_LIMITS, 0x00004E20); // 20 000 (arbitrary value from live tests)
+        tmc4671_writeInt(motor, TMC4671_PID_TORQUE_FLUX_LIMITS,
+                         0x00002710); // 10 000 (arbitrary value from live tests, direct impact on torque at fewer speed. Can be increase.)
+        tmc4671_writeInt(motor, TMC4671_PID_ACCELERATION_LIMIT, 0x00002710); // 10 000, does not seems to work
+        tmc4671_writeInt(motor, TMC4671_PID_VELOCITY_LIMIT,
+                         0x00005DC0); // 24 000 (DO NOT INCREASE, MAX SPEED OF THE motor)
+        tmc4671_writeInt(motor, TMC4671_PID_POSITION_LIMIT_LOW, 0x80000001); // no limit
+        tmc4671_writeInt(motor, TMC4671_PID_POSITION_LIMIT_HIGH, 0x7FFFFFFF); // no limit
+
+        /*
+         * ============ PID VALUES TORQUE/FLUX CONFIGURATION ==============
+         */
+
+        tmc4671_writeInt(motor, TMC4671_PID_FLUX_P_FLUX_I, 0x01000100); // P=256 & I=256 (default)
+        tmc4671_writeInt(motor, TMC4671_PID_TORQUE_P_TORQUE_I, 0x01000100); // P=256 & I=256 (default)
+
+
+        /*
+         * ============ ABn ENCODER CONFIGURATION ==============
+         */
+
+        tmc4671_writeInt(motor, TMC4671_ABN_DECODER_MODE, 0x00000000); // normal, all default
+        tmc4671_writeInt(motor, TMC4671_ABN_DECODER_PPR, 0x000007D0); // Encoder PPR = 2000
+        tmc4671_writeInt(motor, TMC4671_VELOCITY_SELECTION, 0x00000000); // phi_e selected from PHI_E_SELECTION
+        tmc4671_writeInt(motor, TMC4671_POSITION_SELECTION, 0x00000000); // phi_e selected from PHI_E_SELECTION
+        tmc4671_writeInt(motor, TMC4671_PHI_E_SELECTION,
+                         0x00000003); // PHI_E_SELECTION = phi_e_abn (the motor ABn encoder)
+
+        /*
+         *  ============ ABn ENCODER OFFSET INITIALISATION ==============
+         */
+
+
+        // Hack the lib to force a encoder initialisation using motor Halls
+        uint8_t mode = 2; // use hall sensor signals to do initialisation
+        uint8_t initMode = 0;
+        uint8_t initState = 0; // nothing to do
+        tmc4671_startEncoderInitialization(mode, &initMode, &initState);
+
+        // Begin the periodic job one time to start the initialisation
+        uint16_t actualInitWaitTime = 0;
+        int16_t hall_phi_e_old, hall_phi_e_new, hall_actual_coarse_offset, last_PHI_E_EXT;
+        uint16_t last_Phi_E_Selection;
+        uint32_t last_UQ_UD_EXT;
+        tmc4671_periodicJob(motor, 0, initMode, &initState, 0, &actualInitWaitTime, 0, &hall_phi_e_old, &hall_phi_e_new,
+                            &hall_actual_coarse_offset, &last_Phi_E_Selection, &last_UQ_UD_EXT, &last_PHI_E_EXT);
+
+        // Move the motor a bit using HALL
+        tmc4671_writeInt(motor, TMC4671_PID_VELOCITY_P_VELOCITY_I, 0x012C0050); // P=300 & I=80 (only when using halls)
+        tmc4671_writeInt(motor, TMC4671_MODE_RAMP_MODE_MOTION, 0x00000002); // Velocity mode
+        tmc4671_writeInt(motor, TMC4671_PID_VELOCITY_TARGET, 100); //move the motor a bit
+
+        // Call the periodicJob until hall angle change to set the right phi E offset (see comments in TMC4671 library)
+        uint16_t enc_init_loop = 0;
+        uint16_t timeout = 20000;
+        while (initState != 0) {
+            tmc4671_periodicJob(motor, 0, initMode, &initState, 0, &actualInitWaitTime, 0, &hall_phi_e_old,
+                                &hall_phi_e_new, &hall_actual_coarse_offset, &last_Phi_E_Selection, &last_UQ_UD_EXT,
+                                &last_PHI_E_EXT);
+            enc_init_loop++;
+
+            if (enc_init_loop > timeout) {
+                printf("Error while trying to init ABn encoder, motor didn't move (Halls not wired ?).\nStopping program.");
+                initState = 0;
+                tmc4671_writeInt(motor, TMC4671_PWM_SV_CHOP, 0x00000000); // 0 = PWM Disabled -> free running
+                while (1);
+            }
+        }
+
+        tmc4671_writeInt(motor, TMC4671_MODE_RAMP_MODE_MOTION, 0x00000000); // STOP MODE
+        tmc4671_writeInt(motor, TMC4671_PID_VELOCITY_TARGET, 0);
+        printf("ABn offset has been set to : %d\n",
+               (int16_t) tmc4671_readRegister16BitValue(motor, TMC4671_ABN_DECODER_PHI_E_PHI_M_OFFSET, BIT_16_TO_31));
+        printf("Number of loop to get the offset : %d\n", enc_init_loop);
+
+
+        /*
+         * ============ PID VALUES CONFIGURATION ==============
+        */
+
+        // VALUE FOR VELOCITY CONTROL
+        tmc4671_writeInt(motor, TMC4671_PID_VELOCITY_P_VELOCITY_I,
+                         0x0BB80320); // P=3000 & I=800 (arbitrary from live test, good results)
+        tmc4671_writeInt(motor, TMC4671_PID_POSITION_P_POSITION_I, 0x00000000); // P=0 & I=0
+
+
+    }
 }
+
+
+// This function can't be in "drivers" namespace
+uint8_t tmc4671_readwriteByte(uint8_t motor, uint8_t data, uint8_t lastTransfer) {
+
+    drivers::drivers_out[motor] = 0; //select the right TMC4671
+    uint8_t temp = drivers::drivers.write(data);
+
+    if (lastTransfer) {
+        drivers::drivers_out[motor] = 1; //deselect TMC4671
+    }
+    return temp;
+}
+

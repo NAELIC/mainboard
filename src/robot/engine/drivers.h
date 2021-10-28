@@ -10,6 +10,10 @@
 #include <swo.h>
 
 #define DRIVER_PACKET_SET 0x00
+#define NUM_OF_TRINAMIC     4
+
+#define DEBUG_MAX_TRINAMIC_SPEED    1000
+
 struct driver_packet_set
 {
     bool enable;
@@ -40,5 +44,8 @@ namespace drivers
 
     static Queue<engine_msg, 2> queue_drivers;
 
+    void tmc4671_init(uint8_t motor);
+    void start_motor(uint8_t motor);
+    void stop_motor(uint8_t motor, bool freewheel = false);
     void launch();
 }

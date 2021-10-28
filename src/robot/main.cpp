@@ -19,6 +19,12 @@
 // uint32_t TIMEOUT_WATCHDOG_MS = 2000;
 DigitalOut led(LED1);
 static naelic::SWO swo;
+// Override mbed printf implementation
+FileHandle *mbed::mbed_override_console(int)
+{
+    return &swo;
+}
+
 
 EventQueue event_queue;
 
