@@ -52,7 +52,7 @@ namespace drivers {
     void set_speed(int id_motor, float target) {
 
         // Calculate the right TMC4671 speed target; according to float target [m/s]
-        int32_t speed = (int32_t)(target * 100.0f); //debug, TODO: calcul
+        int32_t speed = (int32_t)(target * (500000.0f/56.0f)); // wheel diameter is 56mm, encoder is 500
 
         if(speed > DEBUG_MAX_TRINAMIC_SPEED){
             speed = DEBUG_MAX_TRINAMIC_SPEED;
@@ -342,7 +342,7 @@ namespace drivers {
          */
 
         tmc4671_writeInt(motor, TMC4671_ABN_DECODER_MODE, 0x00000000); // normal, all default
-        tmc4671_writeInt(motor, TMC4671_ABN_DECODER_PPR, 0x000007D0); // Encoder PPR = 2000
+        tmc4671_writeInt(motor, TMC4671_ABN_DECODER_PPR, 0x000007D0); // Encoder PPR = 2000 for
         tmc4671_writeInt(motor, TMC4671_VELOCITY_SELECTION, 0x00000000); // phi_e selected from PHI_E_SELECTION
         tmc4671_writeInt(motor, TMC4671_POSITION_SELECTION, 0x00000000); // phi_e selected from PHI_E_SELECTION
         tmc4671_writeInt(motor, TMC4671_PHI_E_SELECTION,

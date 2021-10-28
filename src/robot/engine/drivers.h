@@ -12,7 +12,8 @@
 #define DRIVER_PACKET_SET 0x00
 #define NUM_OF_TRINAMIC     4
 
-#define DEBUG_MAX_TRINAMIC_SPEED    1000
+// For debug, max speed is 1m/s
+#define DEBUG_MAX_TRINAMIC_SPEED    8928
 
 struct driver_packet_set
 {
