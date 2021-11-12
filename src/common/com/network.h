@@ -37,3 +37,46 @@ typedef struct
     int16_t ang;  // In rad/10000
 
 } __attribute__((packed)) packet_status;
+
+#define CARD_STATUS 0
+#define CARD_ORDER  1
+#define CARD_ICMP   2
+
+// ICMP protocol
+namespace icmp 
+{
+constexpr uint8_t ADDRESSE_WIDTH = 5;
+constexpr uint8_t addr_for_icmp[ADDRESSE_WIDTH] = {0xA1,0xA3,0xB6,0xE4,0xB6};
+
+enum Type : uint8_t {
+  ICMP_ECHO = 0x01,
+  ICMP_DHCP_REQUEST = 0x02,
+  ICMP_DHCP_REPLY =  0x03,
+  ICMP_NOREPLY =  0x04
+};
+
+enum Status : uint8_t {
+  ICMP_FULL = 0x01,
+  ICMP_OK   = 0x02
+};
+
+constexpr uint8_t CHANNEL = 120;
+
+inline bool card_status_ok = false;
+inline bool card_order_ok  = false;
+inline bool card_icmp_ok   = false;
+
+struct Order{
+    Type icmp_type;
+    Status arg; // ICMP_FULL or ICMP_OK
+    uint8_t icmp_addr[ADDRESSE_WIDTH]; // for DHCP_REQUEST: the address where to send the ICMP reply and orders
+                                       // for DHCP_REPLY: the adddress of the pipe for status
+    struct Order &operator=(const struct Order &o){
+        icmp_type = o.icmp_type;
+        arg=o.arg;
+        for(int i=0;i<5;++i)
+            icmp_addr[i]=o.icmp_addr[i];
+        return *this;
+    }
+};
+} // namespace icmp

@@ -10,5 +10,12 @@
 #include <common/define/common.h>
 
 namespace com {
+
+    enum State {
+        INIT, 
+        WAIT_DHCP,
+        RUNNING,
+        WAIT_AND_INIT
+    };
     void launch();
 }
