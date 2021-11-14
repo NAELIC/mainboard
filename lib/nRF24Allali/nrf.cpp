@@ -36,15 +36,6 @@ DigitalOut cs[3] = {{COM_CS1, HIGH}, {COM_CS2, HIGH}, {COM_CS3, HIGH}};
 
 DigitalOut ce[3] = {{COM_CE1, LOW}, {COM_CE2, LOW}, {COM_CE3, LOW}};
 
-#define PAYLOAD_SIZE 5
-
-int com_csn_pins[3] = {
-    COM_CS1, COM_CS2, COM_CS3  // dont't touch this !
-};
-int com_ce_pins[3] = {
-    COM_CE1, COM_CE2, COM_CE3  // dont't touch this !
-};
-
 ComState com_current_state[3] = {OFF, OFF, OFF};
 
 ComState com_get_state(int card) {
@@ -664,7 +655,6 @@ void com_get_rx_addr(int index, int pipe, uint8_t addr[5]) {
 }
 void com_ce_enable(int index) {
     //    shell_println("enable ce");
-    //    shell_println("set ce");
     ce[index] = HIGH;
     wait_us(10);
 }
@@ -676,7 +666,6 @@ void com_ce_disable(int index) {
     // keep com cards in standby II mode
 
     //    shell_println("disable ce");
-    //    shell_println("unset ce");
 }
 
 bool com_is_ok(int card) {
@@ -702,7 +691,8 @@ bool com_is_ok(int card) {
 bool com_is_all_ok() { return com_is_ok(0) && com_is_ok(1) && com_is_ok(2); }
 
 void com_init() {
-    com.frequency(2500000);  // com.begin(SPI_2_25MHZ, MSBFIRST, 0);
+    com.format(8,0);
+    com.frequency(2250000);  // com.begin(SPI_2_25MHZ, MSBFIRST, 0);
 
     // set default state for all cards:
     // this setup is a copy from arduino rf24l01+ library
