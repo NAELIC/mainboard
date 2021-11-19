@@ -536,7 +536,9 @@ bool com_send(int card, uint8_t *payload, int size) {
     com_tx(card, payload, size);
 
     uint8_t s, f;
-    int d = timer.read_us();
+    timer.reset();
+    timer.start();
+    
     do {
         s = com_read_reg(card, REG_STATUS);
         // watchdog_feed();
@@ -544,9 +546,11 @@ bool com_send(int card, uint8_t *payload, int size) {
         //        shell_print("status is: ");
         //        shell_println(s);
     } while (
-        ((timer.read_us() - d) < 15000) &&
+        ((timer.read_us()) < 15000) &&
         (((f & REG_FSTAT_TX_EMPTY) != 0) ||
          (((s & REG_STATUS_TX_DS) == 0) && ((s & REG_STATUS_MAX_RT) == 0))));
+    
+    timer.stop();
 
     if ((f & REG_FSTAT_TX_EMPTY) != 0) {
         com_flush_tx(card);
@@ -1360,8 +1364,7 @@ SHELL_COMMAND(com_diag, "diag com cards") {
             for (int cardB = 0; cardB < 3; cardB++) {
                 if (cardA != cardB) {
                     acked = not_acked = received = 0;
-                    shell_print("diag from card");
-                        com_self_diag(cardA, cardB, acked, not_acked, received);
+                    com_self_diag(cardA, cardB, acked, not_acked, received);
                     shell_print("diag from card ");
                     shell_print(cardA);
                     shell_print(" => ");
