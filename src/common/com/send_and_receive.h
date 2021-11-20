@@ -14,6 +14,6 @@ namespace send {
 }
 
 namespace receive {
-    int robot(nRF24L01P_PRX PRX, packet_robot &buffer_receive);
+    int robot(nRF24L01P_PRX PRX, packet_master &buffer_receive);
     int status(nRF24L01P_PRX PRX, packet_status &buffer_receive); 
 }

@@ -1,8 +1,8 @@
 #include "infos.h"
 #include <common/define/hardware.h>
 #include <common/mux.h>
+#include <common/flash.h>
 #include "shell.h"
-#include "flash.h"
 #include <mbed.h>
 #include <stdlib.h>
 

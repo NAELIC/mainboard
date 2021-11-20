@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdint.h>
+
 #define ACTION_ON (1 << 0)
 #define ACTION_KICK1 (1 << 1)
 #define ACTION_KICK2 (1 << 2)
@@ -12,12 +14,13 @@ typedef struct
     uint8_t id;
     uint8_t actions;
 
-    float x_speed; // Kinematic orders [mm/s]
-    float y_speed;
-    float t_speed; // Rotation in [mrad/s]
+    int16_t x_speed; // Kinematic orders [mm/s]
+    int16_t y_speed;
+    int16_t t_speed; // Rotation in [mrad/s]
 
     uint8_t kickPower; // Kick power (this is a duration in [x25 uS])
-} __attribute__((packed)) packet_robot;
+    uint16_t order_id;
+} __attribute__((packed)) packet_master;
 
 #define STATUS_OK (1 << 0)         // The robot is alive and ok
 #define STATUS_DRIVER_ERR (1 << 1) // Error with drivers
@@ -35,7 +38,7 @@ typedef struct
     int16_t xpos; // Data planned by odometry
     int16_t ypos; // In mm
     int16_t ang;  // In rad/10000
-
+    uint16_t last_order_id;
 } __attribute__((packed)) packet_status;
 
 #define CARD_STATUS 0
@@ -49,22 +52,23 @@ constexpr uint8_t ADDRESSE_WIDTH = 5;
 constexpr uint8_t addr_for_icmp[ADDRESSE_WIDTH] = {0xA1,0xA3,0xB6,0xE4,0xB6};
 
 enum Type : uint8_t {
-  ICMP_ECHO = 0x01,
-  ICMP_DHCP_REQUEST = 0x02,
-  ICMP_DHCP_REPLY =  0x03,
-  ICMP_NOREPLY =  0x04
+  ECHO = 0x01,
+  DHCP_REQUEST = 0x02,
+  DHCP_REPLY =  0x03,
+  NOREPLY =  0x04
 };
 
 enum Status : uint8_t {
-  ICMP_FULL = 0x01,
-  ICMP_OK   = 0x02
+  INIT = 0x00,
+  FULL = 0x01,
+  OK   = 0x02
 };
 
-constexpr uint8_t CHANNEL = 120;
+#define CHANNEL (uint8_t)120;
 
-inline bool card_status_ok = false;
-inline bool card_order_ok  = false;
-inline bool card_icmp_ok   = false;
+extern bool card_status_ok;
+extern bool card_order_ok ;
+extern bool card_icmp_ok  ;
 
 struct Order{
     Type icmp_type;
@@ -79,4 +83,5 @@ struct Order{
         return *this;
     }
 };
+
 } // namespace icmp

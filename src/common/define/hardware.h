@@ -39,9 +39,6 @@
 
 #define COM_SPI 2
 
-#define CHANNEL1 0
-#define CHANNEL2 0
-
 // Communication configuration
 // #define COM_ADDR   {0x22, 0x87, 0xe8, 0xf9, 0x00}
 // #define COM_MASTER 0xff
@@ -58,10 +55,10 @@
 #define KICKER_CHARGING_VALUE 150.0
 
 // Hall sensor
-// #define HALL1_ADDR      0
-// #define HALL2_ADDR      1
-// #define HALL3_ADDR      2
-// #define HALL4_ADDR      3
+#define HALL1_ADDR      0
+#define HALL2_ADDR      1
+#define HALL3_ADDR      2
+#define HALL4_ADDR      3
 
 #define HALL_THRES     2000
 
@@ -78,3 +75,5 @@
 #define IR_EMIT         DIO10   // IR_LED 
 #define IR_RECEIVE      ADC_IN3 //IR_DET_A on datasheet
 #define IR_THRESHOLD    0.6
+
+void get_uid(uint8_t id[12]);

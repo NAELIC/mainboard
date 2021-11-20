@@ -15,9 +15,9 @@ namespace serial
 
         while (true)
         {
-            if(serial.available() >= sizeof(packet_robot)) {
-                packet_robot receive;
-                serial.read(&receive, sizeof(packet_robot));
+            if(serial.available() >= sizeof(packet_master)) {
+                packet_master receive;
+                serial.read(&receive, sizeof(packet_master));
 
                 wireless::send(receive);
             }

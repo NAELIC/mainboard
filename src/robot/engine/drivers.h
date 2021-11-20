@@ -49,4 +49,5 @@ namespace drivers
     void start_motor(uint8_t motor);
     void stop_motor(uint8_t motor, bool freewheel = false);
     void launch();
+    void set_speed(int id_motor, float target);
 }

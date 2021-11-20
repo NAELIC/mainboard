@@ -18,4 +18,5 @@ namespace com {
         WAIT_AND_INIT
     };
     void launch();
+    void robot_init();
 }
