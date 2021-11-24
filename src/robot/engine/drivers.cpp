@@ -33,7 +33,7 @@ namespace drivers {
         drivers.frequency(1000000);
 
         // Be sure all SS are high
-        for (int k = 0; k < NUM_OF_TRINAMIC; k++) {
+        for (int k = 0; k < NUM_OF_TRINAMIC + 1; k++) {
             drivers_out[k] = 1;
         }
 
@@ -366,14 +366,14 @@ namespace drivers {
          */
 
         tmc4671_writeInt_verif(motor, TMC4671_PIDOUT_UQ_UD_LIMITS,
-                               0x00004E20); // 20 000 (arbitrary value from live tests)
+                               0x00001200); // 20 000 (arbitrary value from live tests)
         tmc4671_writeInt_verif(motor, TMC4671_PID_TORQUE_FLUX_LIMITS,
-                               0x00002710); // 10 000 (arbitrary value from live tests, direct impact on torque at fewer speed. Can be increase.)
+                               0x00001200); // 10 000 (arbitrary value from live tests, direct impact on torque at fewer speed. Can be increase.)
         tmc4671_writeInt_verif(motor, TMC4671_PID_ACCELERATION_LIMIT, 0x00002710); // 10 000, does not seems to work
-//    tmc4671_writeInt_verif(motor, TMC4671_PID_VELOCITY_LIMIT,
-//                           0x00005DC0); // 24 000 (DO NOT INCREASE, MAX SPEED OF THE MOTOR)
-        tmc4671_writeInt_verif(motor, TMC4671_PID_VELOCITY_LIMIT,
-                               0x0000FFFF); // 24 000 (DO NOT INCREASE, MAX SPEED OF THE MOTOR)
+   tmc4671_writeInt_verif(motor, TMC4671_PID_VELOCITY_LIMIT,
+                          0x00005DC0); // 24 000 (DO NOT INCREASE, MAX SPEED OF THE MOTOR)
+        // tmc4671_writeInt_verif(motor, TMC4671_PID_VELOCITY_LIMIT,
+                            //    0x0000FFFF); // 24 000 (DO NOT INCREASE, MAX SPEED OF THE MOTOR)
         tmc4671_writeInt_verif(motor, TMC4671_PID_POSITION_LIMIT_LOW, 0x80000001); // no limit
         tmc4671_writeInt_verif(motor, TMC4671_PID_POSITION_LIMIT_HIGH, 0x7FFFFFFF); // no limit
 
