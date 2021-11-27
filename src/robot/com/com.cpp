@@ -71,6 +71,7 @@ namespace com
 
     while (true)
     {
+      if(isComAvailable())
       switch (state)
       {
       case INIT:

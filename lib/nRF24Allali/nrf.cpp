@@ -38,10 +38,25 @@ DigitalOut ce[3] = {{COM_CE1, LOW}, {COM_CE2, LOW}, {COM_CE3, LOW}};
 
 ComState com_current_state[3] = {OFF, OFF, OFF};
 
+bool com_available = false;
+
+bool isComAvailable() {
+  return core_util_atomic_load_bool(&com_available);
+}
+
+void disableComAccess() {
+   core_util_atomic_store_bool(&com_available, false);
+}
+
+void enableComAccess() {
+   core_util_atomic_store_bool(&com_available, true);
+}
+
 ComState com_get_state(int card) {
     assert(card >= 0 && card < 3);
     return com_current_state[card];
 }
+
 bool com_check_state(int card) {
     assert(card >= 0 && card < 3);
     uint8_t c = com_read_reg(card, REG_CONFIG);
@@ -723,6 +738,8 @@ void com_init() {
         com_power(k, false);  // turn off the card
         com_current_state[k] = OFF;
     }
+
+    enableComAccess();
 }
 
 void com_power(int card, bool up) {
@@ -1342,6 +1359,7 @@ void com_full_diag(float cards[3]) {
 }
 
 SHELL_COMMAND(com_diag, "diag com cards") {
+    disableComAccess();
     int acked, not_acked, received;
     if (argc == 2) {
         shell_print("diag from card");
@@ -1377,4 +1395,5 @@ SHELL_COMMAND(com_diag, "diag com cards") {
                     shell_println(received);
                 }
             }
+    enableComAccess();
 }

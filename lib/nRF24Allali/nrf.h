@@ -106,3 +106,8 @@ void com_ce_enable(int index);
 void com_ce_disable(int index);
 
 int com_cmp_addr(uint8_t dst[5], uint8_t src[5]);
+
+
+bool isComAvailable();
+
+

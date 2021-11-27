@@ -50,6 +50,7 @@ int main()
   // int id=infos_get_id();
   // swo.println(id);
 
+  
   com::robot_init();
 
   // Thread voltage_th(osPriorityNormal);
