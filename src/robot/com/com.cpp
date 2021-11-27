@@ -6,6 +6,8 @@
 #include "../ir/ir.h"
 #include "../kicker/kicker.h"
 #include "../voltage/voltage.h"
+#include "../engine/kinematic.h"
+#include "common/define/common.h"
 
 constexpr long SPI_COM_FREQUENCY = 2250000;
 
@@ -42,6 +44,9 @@ namespace com
   icmp::Order dhcp_request;
   packet_master order={0,ACTION_ON,0,0,0,0};
     
+
+  void apply_order(packet_master &master_packet);
+
   void build_status(packet_status &packet, int last_order_id)
   {
       packet.id = infos_get_id();
@@ -66,8 +71,7 @@ namespace com
 
   void launch()
   {
-    com_init();
-    // init();
+    robot_init();
 
     while (true)
     {
@@ -75,6 +79,7 @@ namespace com
       switch (state)
       {
       case INIT:
+        common::swo.println("[com] INIT");
        // Send a DHCP Request and wait for answer
         if (com_send(CARD_ICMP,(uint8_t *)&dhcp_request, sizeof(dhcp_request))){
             com_set_state(CARD_ICMP,RX);
@@ -93,6 +98,7 @@ namespace com
             state=INIT;
         break;
       case WAIT_DHCP:
+        common::swo.println("[com] WAIT DHCP");
         if ((Kernel::get_ms_count() - icmp_stamp)>ICMP_TIMEOUT_MS){
             //buzzer_play(MELODY_WARNING, false);
             dhcp_failure+=1;
@@ -133,6 +139,7 @@ namespace com
         }
         break;
       case RUNNING:
+        common::swo.println("[com] RUNNING");
 
 //        static int counter=0;
 //        if (counter<10){
@@ -142,9 +149,22 @@ namespace com
 //        counter=0;
 
         if (com_has_data(CARD_ORDER)!=-1){
+            common::swo.println("data received");
             first_order_timeout=true;
             last_order_received = Kernel::get_ms_count();
             com_receive(CARD_ORDER,(uint8_t *)&order,order_payload_size);
+            common::swo.println("order receive: action");
+            
+            // common::swo.print(" | kickpow: ");
+            // common::swo.print(order.kickPower);
+            common::swo.print(" | x : ");
+            common::swo.print(order.x_speed);
+            common::swo.print(" | y : ");
+            common::swo.print(order.y_speed);
+            common::swo.print(" | t : ");
+            common::swo.print(order.t_speed);
+            common::swo.println("");
+
 
 //            SerialUSB.print("order receive: action:");
 //            print_byte_as_hex(order.actions);
@@ -157,7 +177,8 @@ namespace com
 //            SerialUSB.print(" | t : ");
 //            SerialUSB.print(order.t_speed);
 //            SerialUSB.println();
-
+            kinematic::apply_order(order.x_speed/1000.0, order.y_speed/1000.0,
+                          order.t_speed/1000.0);
             com_flush_rx(CARD_ORDER);
             com_clear_status(CARD_ORDER);
 
@@ -170,29 +191,36 @@ namespace com
             status_send_ok+=1;
         } else status_send_lost+=1;
 
-        if ((Kernel::get_ms_count()-last_order_received)>ORDER_TIMEOUT_MS){
-            if (first_order_timeout){
-                //buzzer_play(MELODY_ALERT_FAST, false);
-                first_order_timeout=false;
-            }
-            //state=INIT;
-            order.id = infos_get_id();
-            order.actions=0;
-            order.t_speed=0;
-            order.x_speed=0;
-            order.y_speed=0;
-            order.kickPower=0;
-        }
-        if ((Kernel::get_ms_count()-last_status_ack)>STATUS_TIMEOUT_MS){
-            //buzzer_play(MELODY_ALERT_FAST, false);
-            state=INIT;
-            order.actions=0;
-            order.t_speed=0;
-            order.x_speed=0;
-            order.y_speed=0;
-            order.kickPower=0;
-        }
-        // apply_order(order);
+        // if ((Kernel::get_ms_count()-last_order_received)>ORDER_TIMEOUT_MS){
+        //     if (first_order_timeout){
+        //         //buzzer_play(MELODY_ALERT_FAST, false);
+        //         first_order_timeout=false;
+        //     }
+        //     //state=INIT;
+        //     order.id = infos_get_id();
+        //     order.actions=0;
+        //     order.t_speed=0;
+        //     order.x_speed=0;
+        //     order.y_speed=0;
+        //     order.kickPower=0;
+        // }
+        // if ((Kernel::get_ms_count()-last_status_ack)>STATUS_TIMEOUT_MS){
+        //     //buzzer_play(MELODY_ALERT_FAST, false);
+        //     state=INIT;
+        //     order.actions=0;
+        //     order.t_speed=0;
+        //     order.x_speed=0;
+        //     order.y_speed=0;
+        //     order.kickPower=0;
+        // }
+
+        // if ( order.id == infos_get_id()) {
+          // ensure there is at least 4ms between two order (250Hz order freq)
+          //if ((Kernel::get_ms_count()-last_order_received) > 4) {
+            //   if (!kinematic::isManualControl())
+                // apply_order(order);
+         // }
+        //  }
         break;
       }
      
@@ -315,4 +343,53 @@ namespace com
       com::last_order_received = Kernel::get_ms_count()-4;
   //    apply_order(master_packet);
   }
+
+/**
+ * @brief INCOMPLETE : only applying command from com for the moment
+ */
+  void apply_order(packet_master &master_packet)
+  {
+    last_order_id=max(master_packet.order_id,last_order_id);
+    // Driving wheels
+    if ((master_packet.actions & ACTION_ON)) {
+        if(master_packet.actions & ACTION_TARE_ODOM) {
+            // odometry_tare((master_packet.x_speed)/1000.0, (master_packet.y_speed)/1000.0, (master_packet.t_speed)/10000.0);
+            //odometry_tare(0.0, 0.0, 0.0);
+
+        }else{
+            kinematic::apply_order(master_packet.x_speed/1000.0, master_packet.y_speed/1000.0,
+                          master_packet.t_speed/1000.0);
+        }
+    } else {
+        for (uint8_t i = 0; i < 4; i++)
+            drivers::set_speed(i, 0.0);
+    }
+}
+//    else if (com_master_frame[0] == MUSIC_PARAMS){
+//         struct packet_music *music_params;
+//         music_params = (struct packet_music*)(com_master_frame + 1);
+
+//        if(music_params->instrument & SOUND_ON){
+//            if(music_params->instrument & BEEPER){
+//                buzzer_beep(music_params->note, music_params->duration);
+//                buzzer_wait_play();
+//            }
+//            if(music_params->instrument & KICK){
+//                kicker_kick(1,1000);
+//            }
+//            if(music_params->instrument & CHIP_KICK){
+//                kicker_kick(0,1000);
+//            }
+//            if(music_params->instrument & DRIBBLER){
+//                drivers_set(4, true, 1000);
+//            }
+//            else
+//            {
+//                drivers_set(4, false, 0);
+//            }
+
+//        }
+
+//     }
+
 }

@@ -74,32 +74,6 @@ namespace drivers {
         tmc4671_writeInt(id_motor, TMC4671_PID_VELOCITY_TARGET, speed);
     }
 
-    /* relationship between the wheels speed v0, v1, v2 and v3, with the robot speeds x, y and t
-| v0(t) |   | 0  1  d |    
-| v1(t) |   |-1  0  d |   | x_speed(t) |
-| v2(t) | = | 0 -1  d | * | y_speed(t) |
-| v3(t) |	| 1  0  d |   | t_speed(t) |
-*/
-//    float *com_packet_to_driver_packet(engine_msg packet) { //TODO: change name of function, change variable 'd'
-//        float speed_for_drivers[4];
-//        float d = 9.0; /* is distance between center of robot and wheel */
-//        speed_for_drivers[0] = packet.y_speed + d * packet.t_speed;
-//        speed_for_drivers[1] = d * packet.t_speed - packet.x_speed;
-//        speed_for_drivers[2] = d * packet.t_speed - packet.y_speed;
-//        speed_for_drivers[3] = packet.x_speed + d * packet.t_speed;
-//        return speed_for_drivers;
-//    }
-
-    void launch() {
-        init();
-        while (true) {
-            // Tâche de fond pour les erreurs
-            // Pilotage des moteurs en fonction des messages reçus
-            // si on est pas en débug.
-            ThisThread::sleep_for(100ms);
-        }
-    }
-
     SHELL_COMMAND(scan, "Scan for drivers") {
         for (int k = 0; k < 5; k++) {
             shell_print("Driver #");

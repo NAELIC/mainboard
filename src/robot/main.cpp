@@ -50,8 +50,7 @@ int main()
   // int id=infos_get_id();
   // swo.println(id);
 
-  
-  com::robot_init();
+  drivers::init();
 
   // Thread voltage_th(osPriorityNormal);
   // voltage_th.start(voltage::launch);
@@ -63,9 +62,6 @@ int main()
   Thread com_th;
   com_th.start(com::launch);
   com_th.set_priority(osPriorityHigh1);
-
-  Thread engine_th;
-  engine_th.start(drivers::launch);
 
   // Thread dribbler_th;
   // dribbler_th.start(dribbler::launch);

@@ -1,83 +1,139 @@
 #include "kinematic.h"
 
-#define MAX_ACCELERATION (0.001)
+#include <common/define/common.h>
+
+#include "drivers.h"
+#include <math.h>
+
+#define MAX_MOTOR_ACCELERATION (0.01)
+
+#define DEG2RAD(deg) (deg*M_PI/180.0)
+#define WHEEL_RADIUS (0.06/2.0)
+#define ROBOT_RADIUS (0.17/2.0)
+#define ANGLE_REAR   DEG2RAD(45)
+#define ANGLE_FRONT  DEG2RAD(120)
+
+#define FRONT_LEFT_X     -sin(ANGLE_FRONT)
+#define FRONT_LEFT_Y     -cos(ANGLE_FRONT)
+#define FRONT_RIGHT_X    -sin(-ANGLE_FRONT)
+#define FRONT_RIGHT_Y    -cos(-ANGLE_FRONT)
+#define REAR_LEFT_X      -sin(ANGLE_REAR)
+#define REAR_LEFT_Y      -cos(ANGLE_REAR)
+#define REAR_RIGHT_X     -sin(-ANGLE_REAR)
+#define REAR_RIGHT_Y     -cos(-ANGLE_REAR)
 
 namespace kinematic
 {
-    time_t enabled_since;
-    bool enabled = false;
+    bool manual_control = false;
 
-    void set_target(float target_x, float target_y, float target_t)
-    {
-        enabled = true;
-        x = target_x;
-        y = target_y;
-        t = target_t;
+    bool isManualControl() {
+      return core_util_atomic_load_bool(&manual_control);
     }
 
-    void init()
-    {
-        enabled_since = time(NULL);
+    void disableManualControl() {
+       core_util_atomic_store_bool(&manual_control, false);
     }
 
-    void launch()
-    {
-        if (enabled)
-        {
-            return;
+    void enableManualControl() {
+       core_util_atomic_store_bool(&manual_control, true);
+    }
+
+    #define FRONT_LEFT_ID  0
+    #define REAR_LEFT_ID   1
+    #define REAR_RIGHT_ID  2
+    #define FRONT_RIGHT_ID 3
+    #define NB_MOTORS 4
+
+    constexpr float ROTATION_DRIVE_COEF = ROBOT_RADIUS/(2*M_PI*WHEEL_RADIUS);
+
+    float motors_drive_x[NB_MOTORS] =  { FRONT_LEFT_X, REAR_LEFT_X, REAR_RIGHT_X, FRONT_RIGHT_X };
+    float motors_drive_y[NB_MOTORS] =  { FRONT_LEFT_Y, REAR_LEFT_Y, REAR_RIGHT_Y, FRONT_RIGHT_Y };
+    float motors_drive_t[NB_MOTORS] =  { ROTATION_DRIVE_COEF, ROTATION_DRIVE_COEF, ROTATION_DRIVE_COEF, ROTATION_DRIVE_COEF };
+    float motors_speed_m_s[NB_MOTORS]  =  { 0.0, 0.0, 0.0, 0.0 };
+
+    // speed limitation 
+    float last_motors_speed_m_s[NB_MOTORS]  =  { 0.0, 0.0, 0.0, 0.0 };
+    uint64_t last_speed_applied_timestamp_ms = Kernel::get_ms_count();
+    
+    float limitation_speed_factor[NB_MOTORS]  =  { 1.0, 1.0, 1.0, 1.0 };
+    float acc_motors_m_s_s[NB_MOTORS]  =  { 0.0, 0.0, 0.0, 0.0 };
+    /**
+     * @brief Applies a given order directly while preserving the integrity of the robot
+     * 
+     * (Xavier): for the moment we applying the command directly, 
+     *           the timing is direcly related to the communication speed given by the controlling computer.
+     *           This is bad but it's interesting to see if the robot can be controlled in such situation.  
+     *
+     * @param x in m/s
+     * @param y in m/s
+     * @param t in rad/s
+     */
+    void apply_order(float x, float y, float t) {
+
+        common::swo.print("x: ");
+        common::swo.println(x);
+        common::swo.print("y: ");
+        common::swo.println(y);
+        common::swo.print("t: ");
+        common::swo.println(t);
+        common::swo.println("----");
+        // Apply kinematic
+        auto speed_applyed_timestamp_ms = Kernel::get_ms_count();
+
+        float max_motor_acc = 0.0;
+        for(uint8_t i = 0; i < NB_MOTORS; i++ ) {
+          motors_speed_m_s[i] = motors_drive_x[i] * x + motors_drive_y[i] * y + motors_drive_t[i] * t;
+          // get max acc
+          acc_motors_m_s_s[i] = motors_speed_m_s[i] - last_motors_speed_m_s[i];
+          if ( fabs(max_motor_acc) < fabs(acc_motors_m_s_s[i]))
+            max_motor_acc = acc_motors_m_s_s[i];
         }
-
-        if (time(NULL) - enabled_since > 100)
-        {
-            enabled = false;
-            x = 0;
-            y = 0;
-            t = 0;
-            return;
+        
+        if ( max_motor_acc > MAX_MOTOR_ACCELERATION) {
+            float acc_limitation_ratio = MAX_MOTOR_ACCELERATION / max_motor_acc;
+            for(uint8_t i = 0; i < NB_MOTORS; i++ ) {
+                motors_speed_m_s[i] =  last_motors_speed_m_s[i] + acc_limitation_ratio *  acc_motors_m_s_s[i];
+                last_motors_speed_m_s[i] = motors_speed_m_s[i];
+                drivers::set_speed(i, motors_speed_m_s[i]);
+            }
+        } else {
+            for(uint8_t i = 0; i < NB_MOTORS; i++ ) {
+                last_motors_speed_m_s[i] = motors_speed_m_s[i];
+             
+                drivers::set_speed(i, motors_speed_m_s[i]);
+            }
         }
+        last_speed_applied_timestamp_ms =  speed_applyed_timestamp_ms;
+    }
 
-        float new_front_left = (FRONT_LEFT_X * x + FRONT_LEFT_Y * y +
-                                ROBOT_RADIUS * t) /
-                               (2 * M_PI * WHEEL_RADIUS);
+    SHELL_COMMAND(manual, "send motor order: x (m/s), y(m/s), t(rad/s)")
+    {   
+        enableManualControl();
+        float x = atof(argv[0]);
+        float y = atof(argv[1]);
+        float t = atof(argv[2]);
+        shell_print("x: ");
+        shell_println(x);
 
-        float new_front_right = (FRONT_RIGHT_X * x + FRONT_RIGHT_Y * y +
-                                 ROBOT_RADIUS * t) /
-                                (2 * M_PI * WHEEL_RADIUS);
+        shell_print("y: ");
+        shell_println(y);
 
-        float new_rear_left = (REAR_LEFT_X * x + REAR_LEFT_Y * y +
-                               ROBOT_RADIUS * t) /
-                              (2 * M_PI * WHEEL_RADIUS);
+        shell_print("t: ");
+        shell_println(t);
+        shell_println("----");
 
-        float new_rear_right = (REAR_RIGHT_X * x + REAR_RIGHT_Y * y +
-                                ROBOT_RADIUS * t) /
-                               (2 * M_PI * WHEEL_RADIUS);
+        kinematic::apply_order(x, y, t);
 
-        float delta1 = fabs(new_front_left - front_left);
-        float delta2 = fabs(new_front_right - front_right);
-        float delta3 = fabs(new_rear_left - rear_left);
-        float delta4 = fabs(new_rear_right - rear_right);
-
-        if (delta2 > delta1)
-            delta1 = delta2;
-        if (delta3 > delta1)
-            delta1 = delta3;
-        if (delta4 > delta1)
-            delta1 = delta4;
-
-        if (delta1 > MAX_ACCELERATION)
-        {
-            float alpha = MAX_ACCELERATION / delta1;
-            front_left = front_left + alpha * (new_front_left - front_left);
-            front_right = front_right + alpha * (new_front_right - front_right);
-            rear_left = rear_left + alpha * (new_rear_left - rear_left);
-            rear_right = rear_right + alpha * (new_rear_right - rear_right);
+        for(uint8_t i = 0; i < 4; i++) {
+            shell_print("Speed motor ");
+            shell_print(i);
+            shell_print(": ");
+            shell_println(motors_speed_m_s[i]);
         }
-        else
-        {
-            front_left = new_front_left;
-            front_right = new_front_right;
-            rear_left = new_rear_left;
-            rear_right = new_rear_right;
-        }
+    }
+
+    SHELL_COMMAND(stop_manual, "active robot manual control")
+    {   
+        disableManualControl();
     }
 }

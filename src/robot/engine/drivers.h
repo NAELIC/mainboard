@@ -48,6 +48,10 @@ namespace drivers
     void tmc4671_init(uint8_t motor);
     void start_motor(uint8_t motor);
     void stop_motor(uint8_t motor, bool freewheel = false);
-    void launch();
     void set_speed(int id_motor, float target);
+
+    void init();
+
+    bool ping(int motor);
+
 }
