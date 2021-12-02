@@ -3,13 +3,14 @@
 #include <common/define/common.h>
 
 #include "drivers.h"
+#include "trinamics.h"
 #include <math.h>
 
 #define MAX_MOTOR_ACCELERATION (0.01)
 
 #define DEG2RAD(deg) (deg*M_PI/180.0)
 #define WHEEL_RADIUS (0.06/2.0)
-#define ROBOT_RADIUS (0.17/2.0)
+#define ROBOT_RADIUS  (0.17/2.0)
 #define ANGLE_REAR   DEG2RAD(45)
 #define ANGLE_FRONT  DEG2RAD(120)
 
@@ -94,13 +95,13 @@ namespace kinematic
             for(uint8_t i = 0; i < NB_MOTORS; i++ ) {
                 motors_speed_m_s[i] =  last_motors_speed_m_s[i] + acc_limitation_ratio *  acc_motors_m_s_s[i];
                 last_motors_speed_m_s[i] = motors_speed_m_s[i];
-                drivers::set_speed(i, motors_speed_m_s[i]);
+                trinamics::set_speed(i, motors_speed_m_s[i]);
             }
         } else {
             for(uint8_t i = 0; i < NB_MOTORS; i++ ) {
                 last_motors_speed_m_s[i] = motors_speed_m_s[i];
              
-                drivers::set_speed(i, motors_speed_m_s[i]);
+                trinamics::set_speed(i, motors_speed_m_s[i]);
             }
         }
         last_speed_applied_timestamp_ms =  speed_applyed_timestamp_ms;

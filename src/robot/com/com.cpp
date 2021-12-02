@@ -2,6 +2,7 @@
 #include <nrf.h>
 #include "../infos.h"
 #include "../engine/drivers.h"
+#include "../engine/trinamics.h"
 #include <common/buzzer/buzzer.h>
 #include "../ir/ir.h"
 #include "../kicker/kicker.h"
@@ -308,7 +309,7 @@ namespace com
   {
     //kinematic_stop();
     for (int k=0; k<5; k++) {
-      drivers::set_speed(k, 0.0);
+      trinamics::set_speed(k, 0.0);
     }
   
     kicker_boost_enable(false);
@@ -362,7 +363,7 @@ namespace com
         }
     } else {
         for (uint8_t i = 0; i < 4; i++)
-            drivers::set_speed(i, 0.0);
+            trinamics::set_speed(i, 0.0);
     }
 }
 //    else if (com_master_frame[0] == MUSIC_PARAMS){

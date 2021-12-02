@@ -10,6 +10,7 @@
 // #include "kicker/kicker.h"
 
 #include "engine/drivers.h"
+#include "engine/trinamics.h"
 // #include "engine/dribbler.h"
 // #include "ir/ir.h"
 #include <nrf.h>
@@ -46,6 +47,8 @@ int main() {
     // swo.println(id);
 
     drivers::init();
+
+    trinamics::init();
 
     // Thread voltage_th(osPriorityNormal);
     // voltage_th.start(voltage::launch);
