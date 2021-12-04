@@ -5,7 +5,7 @@
 #include "drivers.h"
 #include <math.h>
 
-#define MAX_MOTOR_ACCELERATION (0.01)
+#define MAX_MOTOR_ACCELERATION (1.0)
 
 #define DEG2RAD(deg) (deg*M_PI/180.0)
 #define WHEEL_RADIUS (0.06/2.0)
@@ -69,7 +69,6 @@ namespace kinematic
      * @param t in rad/s
      */
     void apply_order(float x, float y, float t) {
-
         common::swo.print("x: ");
         common::swo.println(x);
         common::swo.print("y: ");
@@ -92,9 +91,13 @@ namespace kinematic
         if ( max_motor_acc > MAX_MOTOR_ACCELERATION) {
             float acc_limitation_ratio = MAX_MOTOR_ACCELERATION / max_motor_acc;
             for(uint8_t i = 0; i < NB_MOTORS; i++ ) {
-                motors_speed_m_s[i] =  last_motors_speed_m_s[i] + acc_limitation_ratio *  acc_motors_m_s_s[i];
-                last_motors_speed_m_s[i] = motors_speed_m_s[i];
-                drivers::set_speed(i, motors_speed_m_s[i]);
+                if ( fabs(motors_speed_m_s[i]) < 0.001) {
+                    drivers::set_speed(i, 0);
+                } else {
+                    motors_speed_m_s[i] =  last_motors_speed_m_s[i] + acc_limitation_ratio *  acc_motors_m_s_s[i];
+                    last_motors_speed_m_s[i] = motors_speed_m_s[i];
+                    drivers::set_speed(i, motors_speed_m_s[i]);
+                }   
             }
         } else {
             for(uint8_t i = 0; i < NB_MOTORS; i++ ) {
@@ -104,6 +107,19 @@ namespace kinematic
             }
         }
         last_speed_applied_timestamp_ms =  speed_applyed_timestamp_ms;
+    }
+
+
+    SHELL_COMMAND(gain, "conf gain all motor")
+    {   
+        uint16_t P = atoi(argv[0]);
+        uint16_t I = atoi(argv[1]);
+        shell_print("P : ");
+        shell_println(P);
+        shell_print("I: ");
+        shell_println(I);
+    
+        drivers::setVelocityGain(P, I);
     }
 
     SHELL_COMMAND(manual, "send motor order: x (m/s), y(m/s), t(rad/s)")

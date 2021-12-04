@@ -1,5 +1,7 @@
 #include "drivers.h"
 
+#include <common/define/common.h>
+
 #define MAX_READING_VERIF 5
 
 // Include the TMC4671 lib with corresponding SPI transfert function (see end of drivers.cpp)
@@ -60,7 +62,6 @@ namespace drivers {
     }
 
     void set_speed(int id_motor, float target) {
-
         // Calculate the right TMC4671 speed target; according to float target [m/s]
         int32_t speed = (int32_t) (target *
                                    (500000.0f / 176.0f)); // wheel diameter is 56mm, speed target is 500 to get one rps
@@ -320,10 +321,10 @@ namespace drivers {
                 // Write new offset.
                 // Scale has been decreased (instead of default 256) to get better response from PID, because hardware shunt amplifier have "too much" gain.
                 tmc4671_writeInt_verif(motor, TMC4671_ADC_I0_SCALE_OFFSET,
-                                       0x003C0000 |
+                                       49 | 
                                        ((int32_t) average_I0)); // scale 60, offset = calculated average before
                 tmc4671_writeInt_verif(motor, TMC4671_ADC_I1_SCALE_OFFSET,
-                                       0x003C0000 |
+                                       49 |
                                        ((int32_t) average_I1)); // scale 60, offset = calculated average before
             }
         }
@@ -340,10 +341,10 @@ namespace drivers {
          */
 
         tmc4671_writeInt_verif(motor, TMC4671_PIDOUT_UQ_UD_LIMITS,
-                               0x00001200); // 20 000 (arbitrary value from live tests)
+                               9500); // 9500 == 1.9A max
         tmc4671_writeInt_verif(motor, TMC4671_PID_TORQUE_FLUX_LIMITS,
-                               0x00001200); // 10 000 (arbitrary value from live tests, direct impact on torque at fewer speed. Can be increase.)
-        tmc4671_writeInt_verif(motor, TMC4671_PID_ACCELERATION_LIMIT, 0x00002710); // 10 000, does not seems to work
+                               1200); // 10 000 (arbitrary value from live tests, direct impact on torque at fewer speed. Can be increase.)
+        tmc4671_writeInt_verif(motor, TMC4671_PID_ACCELERATION_LIMIT, 0xFFFFFFFF); // 10 000, does not seems to work
    tmc4671_writeInt_verif(motor, TMC4671_PID_VELOCITY_LIMIT,
                           0x00005DC0); // 24 000 (DO NOT INCREASE, MAX SPEED OF THE MOTOR)
         // tmc4671_writeInt_verif(motor, TMC4671_PID_VELOCITY_LIMIT,
@@ -488,13 +489,30 @@ namespace drivers {
 
         // VALUE FOR VELOCITY CONTROL
         tmc4671_writeInt_verif(motor, TMC4671_PID_VELOCITY_P_VELOCITY_I,
-                               0x0BB80320); // P=3000 & I=800 (arbitrary from live test, good results)
+                            5000 + ( 5000 << 16));
+                            //    0x0BB80320); // P=3000 & I=800 (arbitrary from live test, good results)
         tmc4671_writeInt_verif(motor, TMC4671_PID_POSITION_P_POSITION_I, 0x00000000); // P=0 & I=0
 
         // VALUE FOR POSITION CONTROL
         // tmc4671_writeInt_verif(motor, TMC4671_PID_VELOCITY_P_VELOCITY_I, 0x01F40028); // P=500 & I=40 (arbitrary from live test, good results)
         // tmc4671_writeInt_verif(motor, TMC4671_PID_POSITION_P_POSITION_I , 0x00500000); // P=80 & I=0 (arbitrary from live test, good results)
     }
+
+    void setVelocityGain(uint16_t P, uint16_t I) {
+        for(uint8_t i = 0; i < 4; i++) {
+            tmc4671_writeInt_verif(i, TMC4671_PID_VELOCITY_P_VELOCITY_I, (uint32_t) I + (P << 16) );
+        }
+        common::swo.print("GAIN: P:");
+        common::swo.println((int) P << 16);
+        common::swo.print("GAIN: I:");
+        common::swo.println((int) I);
+    }
+    
+    // void setTorqueGain(uint16_t P, uint16_t I) {
+    //     for(uint8_t i = 0; i < 4; i++) {
+    //         tmc4671_writeInt_verif(i, TMC4671_PID_FLUX_P_FLUX_I, (uint32_t) (P << 16) | I);
+    //     }
+    // }
 
     void tmc4671_writeInt_verif(uint8_t motor, uint8_t address, int32_t value) {
 
