@@ -167,6 +167,17 @@ SHELL_COMMAND(kick, "Kicks")
   }
 }
 
+
+SHELL_COMMAND(kick_info, "Kicks")
+{
+  shell_print("kicker 1: ");
+  shell_println(kicker_1.read());
+  shell_print("kicker 2: ");
+  shell_println(kicker_2.read());
+  shell_print("boost flag: ");
+  shell_println(booster.read());
+}
+
 SHELL_COMMAND(em, "Emergency kicker")
 {
   // if (!com_master) {

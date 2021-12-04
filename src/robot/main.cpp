@@ -7,11 +7,11 @@
 #include <swo.h>
 // #include <common/utils/version.h>
 
-// #include "kicker/kicker.h"
+#include "kicker/kicker.h"
 
 #include "engine/drivers.h"
 // #include "engine/dribbler.h"
-// #include "ir/ir.h"
+#include "ir/ir.h"
 #include <nrf.h>
 
 #include "com/com.h"
@@ -27,12 +27,12 @@ FileHandle *mbed::mbed_override_console(int) { return &swo; }
 EventQueue event_queue;
 
 int main() {
-    // kicker_init();
+    kicker_init();
 
     // infos_init();
 
-    Thread buzzer_th;
-    buzzer_th.start(buzzer::launch);
+    // Thread buzzer_th;
+    // buzzer_th.start(buzzer::launch);
 
     // bool h1=get_hall(HALL1_ADDR);
     //   // delay_us(1000);
@@ -47,12 +47,9 @@ int main() {
 
     drivers::init();
 
-    // Thread voltage_th(osPriorityNormal);
-    // voltage_th.start(voltage::launch);
-
-    // event_queue.call_every(1s, voltage::compute);
-    // event_queue.call_every(1s, ir::compute);
-    // event_queue.call_every(100, kicker_tick);
+    event_queue.call_every(1s, voltage::compute);
+    event_queue.call_every(100ms, ir::compute);
+    event_queue.call_every(100ms, kicker_tick);
 
     Thread com_th;
     com_th.start(com::launch);
@@ -66,10 +63,8 @@ int main() {
     // watchdog.start(TIMEOUT_WATCHDOG_MS);
     led = 1;
 
-    while (true) {
-        ThisThread::sleep_for(100s);
-    }
-    // event_queue.dispatch_forever();
-    // Thread queue_thread;
-    // queue_thread.start(&event_queue, &EventQueue::dispatch_forever);
+    // while (true) {
+    //     ThisThread::sleep_for(100s);
+    // }
+    event_queue.dispatch_forever();
 }
