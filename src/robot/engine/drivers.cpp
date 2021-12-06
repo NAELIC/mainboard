@@ -2,6 +2,10 @@
 
 #include <common/define/common.h>
 
+//#define DRIVER_LOG
+#include <stdarg.h> //used for driver_log()
+#include <stdio.h> //used for driver_log()
+
 #define MAX_READING_VERIF 5
 
 // Include the TMC4671 lib with corresponding SPI transfert function (see end of drivers.cpp)
@@ -11,6 +15,16 @@ uint8_t tmc4671_readwriteByte(uint8_t motor, uint8_t data, uint8_t lastTransfer)
 }
 
 static naelic::SWO swo;
+
+void driver_log(const char *fmt, ...) {
+#ifdef DRIVER_LOG
+    va_list args;
+    va_start(args, fmt);
+    vprintf(fmt, args);
+    va_end(args);
+#endif
+}
+
 
 namespace drivers {
 
@@ -32,7 +46,7 @@ namespace drivers {
     void init() {
         // Setup SPI frequency to 1Mhz (8mHz max for TMC4671-LA, but robot cables must be very good)
         drivers.format(8, 3); // 40 bits datagram (datasheet TMC4671 p.16), but 16 max for TMC4671 module, so 8x5=40
-        drivers.frequency(1000000);
+        drivers.frequency(500000);
 
         // Be sure all SS are high
         for (int k = 0; k < NUM_OF_TRINAMIC + 1; k++) {
@@ -41,6 +55,7 @@ namespace drivers {
 
         //Init all motors (ROBOT MUST BE UPSIDE DOWN AT START)
         for (int k = 0; k < NUM_OF_TRINAMIC; k++) {
+            ThisThread::sleep_for(100ms);
             tmc4671_init(k);
         }
 
@@ -133,8 +148,8 @@ namespace drivers {
     }
 
     void start_motor(uint8_t motor) {
-        tmc4671_writeInt(motor, TMC4671_PWM_SV_CHOP, 0x00000007); // Enable PWM Output
-        tmc4671_writeInt(motor, TMC4671_MODE_RAMP_MODE_MOTION, 0x00000002); // Velocity mode
+        tmc4671_writeInt_verif(motor, TMC4671_PWM_SV_CHOP, 0x00000007); // Enable PWM Output
+        tmc4671_writeInt_verif(motor, TMC4671_MODE_RAMP_MODE_MOTION, 0x00000002); // Velocity mode
     }
 
     void stop_motor(uint8_t motor, bool freewheel) {
@@ -191,7 +206,7 @@ namespace drivers {
         uint8_t c = (test >> 8) & 0xFF;
         uint8_t d = (test) & 0xFF;
 
-        printf("Chip info type : 0x%08lx (TMC-%c%c%c%c).\n", test, a, b, c, d);
+        driver_log("Chip info type : 0x%08lx (TMC-%c%c%c%c).\n", test, a, b, c, d);
 
         tmc4671_writeInt_verif(motor, TMC4671_CHIPINFO_ADDR, CHIPINFO_ADDR_SI_VERSION);
         test = tmc4671_readInt(motor, TMC4671_CHIPINFO_DATA);
@@ -209,33 +224,33 @@ namespace drivers {
         } else
             rev = "-??";
 
-        printf("Chip info version : 0x%08lx (rev %d.%d \"%s\").\n", test, e, f, rev.c_str());
+        driver_log("Chip info version : 0x%08lx (rev %d.%d \"%s\").\n", test, e, f, rev.c_str());
 
         tmc4671_writeInt_verif(motor, TMC4671_CHIPINFO_ADDR, CHIPINFO_ADDR_SI_DATA);
         test = tmc4671_readInt(motor, TMC4671_CHIPINFO_DATA);
 
-        printf("Chip info data : 0x%08lx .\n", test);
+        driver_log("Chip info data : 0x%08lx .\n", test);
 
         tmc4671_writeInt_verif(motor, TMC4671_CHIPINFO_ADDR, CHIPINFO_ADDR_SI_TIME);
         test = tmc4671_readInt(motor, TMC4671_CHIPINFO_DATA);
 
-        printf("Chip info time : 0x%08lx .\n", test);
+        driver_log("Chip info time : 0x%08lx .\n", test);
 
         tmc4671_writeInt_verif(motor, TMC4671_CHIPINFO_ADDR, CHIPINFO_ADDR_SI_VARIANT);
         test = tmc4671_readInt(motor, TMC4671_CHIPINFO_DATA);
 
-        printf("Chip info variant : 0x%08lx .\n", test);
+        driver_log("Chip info variant : 0x%08lx .\n", test);
 
         tmc4671_writeInt_verif(motor, TMC4671_CHIPINFO_ADDR, CHIPINFO_ADDR_SI_BUILD);
         test = tmc4671_readInt(motor, TMC4671_CHIPINFO_DATA);
 
-        printf("Chip info build : 0x%08lx .\n", test);
+        driver_log("Chip info build : 0x%08lx .\n", test);
 
         if (is_tmc_4671 != 2) {
-            printf("It seems that the chip is not a TMC4671-ES or a TMC4671-LA, program can't continue.\n");
+            driver_log("It seems that the chip is not a TMC4671-ES or a TMC4671-LA, program can't continue.\n");
             return;
         } else
-            printf("TMC4671 detected, configuring registers for SSL_Brushless motor control...\n");
+            driver_log("TMC4671 detected, configuring registers for SSL_Brushless motor control...\n");
 
         tmc4671_writeInt_verif(motor, TMC4671_MODE_RAMP_MODE_MOTION, 0x00000000); // Ensure motion is OFF (no PWM)
 
@@ -300,7 +315,7 @@ namespace drivers {
                     }
                 }
 
-                printf("* (i=%d) ADC_I0 = %d\tADC_I1 = %d\n", i, ADC_I0, ADC_I1);
+                driver_log("* (i=%d) ADC_I0 = %d\tADC_I1 = %d\n", i, ADC_I0, ADC_I1);
 
                 smooth_ADCs(ADC_I0, ADC_I1);
 
@@ -309,14 +324,14 @@ namespace drivers {
 
             int32_t delta_average = abs(int32_t(average_I0) - int32_t(average_I1));
             if (delta_average > 3000) {
-                printf("Error while computing average I0, too much delta (%ld), trying again ...\n", delta_average);
+                driver_log("Error while computing average I0, too much delta (%ld), trying again ...\n", delta_average);
 
             } else {
                 adc_to_be_configured = false;
 
                 // Debug
-                printf("ADC OFFSET of I0 : %d\n", average_I0);
-                printf("ADC OFFSET of I1 : %d\n", average_I1);
+                driver_log("ADC OFFSET of I0 : %d\n", average_I0);
+                driver_log("ADC OFFSET of I1 : %d\n", average_I1);
 
                 // Write new offset.
                 // Scale has been decreased (instead of default 256) to get better response from PID, because hardware shunt amplifier have "too much" gain.
@@ -374,7 +389,7 @@ namespace drivers {
         /*
          *  ============ ABn ENCODER OFFSET INITIALISATION ==============
          */
-        printf("init encoder PHI E offset using halls ...\n");
+        driver_log("init encoder PHI E offset using halls ...\n");
 
 
         // Hack the lib to force a encoder initialisation using motor Halls
@@ -466,7 +481,7 @@ namespace drivers {
             enc_init_loop++;
 
             if (enc_init_loop > 20000) {
-                printf("Error while trying to init ABn encoder, motor didn't move (Halls not wired ?).\nStopping program.");
+                driver_log("Error while trying to init ABn encoder, motor didn't move (Halls not wired ?).\nStopping program.");
                 initState = 0;
                 tmc4671_writeInt_verif(motor, TMC4671_PWM_SV_CHOP, 0x00000000); // 0 = PWM Disabled -> free running
                 return;
@@ -475,9 +490,9 @@ namespace drivers {
 
         tmc4671_writeInt_verif(motor, TMC4671_MODE_RAMP_MODE_MOTION, 0x00000000); // STOP MODE
         tmc4671_writeInt_verif(motor, TMC4671_PID_VELOCITY_TARGET, 0);
-        printf("ABn offset has been set to : %d\n",
+        driver_log("ABn offset has been set to : %d\n",
                (int16_t) tmc4671_readRegister16BitValue(motor, TMC4671_ABN_DECODER_PHI_E_PHI_M_OFFSET, BIT_16_TO_31));
-        printf("Number of loop to get the offset : %d\n", enc_init_loop);
+        driver_log("Number of loop to get the offset : %d\n", enc_init_loop);
 
 
 
@@ -522,7 +537,7 @@ namespace drivers {
             int32_t verif = tmc4671_readInt(motor, address);
 
             if (verif != value) {
-                printf("---Error SPI while writing 0x%08lx to register 0x%04x , trying again ...\n", value, address);
+                driver_log("---Error SPI while writing 0x%08lx to register 0x%04x , trying again ...\n", value, address);
                 ThisThread::sleep_for(10ms);
             } else {
                 loop = false;
@@ -545,7 +560,7 @@ namespace drivers {
             reading_not_good = false;
 
             for (int i = 0; i < MAX_READING_VERIF; i++) {
-                printf("* (i=%d) SPI INT READ =  %ld\n", i, reading[i]);
+                driver_log("* (i=%d) SPI INT READ =  %ld\n", i, reading[i]);
                 if (i == (MAX_READING_VERIF - 1)) {
                     if (reading[i] != reading[0]) {
                         reading_not_good = true;
@@ -559,7 +574,7 @@ namespace drivers {
             }
 
             if (reading_not_good) {
-                printf("---Error SPI while reading register 0x%04x , trying again ...\n", address);
+                driver_log("---Error SPI while reading register 0x%04x , trying again ...\n", address);
 //            ThisThread::sleep_for(10ms);
             }
         }
@@ -622,7 +637,7 @@ namespace drivers {
             reading_not_good = false;
 
             for (int i = 0; i < MAX_READING_VERIF; i++) {
-                printf("* (i=%d) SPI FIELD READ =  %hd\n", i, reading[i]);
+                driver_log("* (i=%d) SPI FIELD READ =  %hd\n", i, reading[i]);
                 if (i == (MAX_READING_VERIF - 1)) {
                     if (reading[i] != reading[0]) {
                         reading_not_good = true;
@@ -636,7 +651,7 @@ namespace drivers {
             }
 
             if (reading_not_good) {
-                printf("---Error SPI while reading register 0x%04x , trying again ...\n", address);
+                driver_log("---Error SPI while reading register 0x%04x , trying again ...\n", address);
 //            ThisThread::sleep_for(10ms);
             }
         }
