@@ -67,7 +67,7 @@ namespace drivers {
 
     bool ping(int motor) {
 
-        tmc4671_writeInt(motor, TMC4671_CHIPINFO_ADDR, CHIPINFO_ADDR_SI_TYPE);
+        tmc4671_writeInt_verif(motor, TMC4671_CHIPINFO_ADDR, CHIPINFO_ADDR_SI_TYPE);
         uint32_t test = tmc4671_readInt(motor, TMC4671_CHIPINFO_DATA);
 
         if (test == 0x34363731) // "4671"
@@ -87,7 +87,7 @@ namespace drivers {
             speed = -DEBUG_MAX_TRINAMIC_SPEED;
         }
 
-        tmc4671_writeInt(id_motor, TMC4671_PID_VELOCITY_TARGET, speed);
+        tmc4671_writeInt_verif(id_motor, TMC4671_PID_VELOCITY_TARGET, speed);
     }
 
     SHELL_COMMAND(scan, "Scan for drivers") {
@@ -155,10 +155,10 @@ namespace drivers {
     void stop_motor(uint8_t motor, bool freewheel) {
 
         if (freewheel) {
-            tmc4671_writeInt(motor, TMC4671_PWM_SV_CHOP, 0x00000000); // 0 = PWM Disabled -> free running
+            tmc4671_writeInt_verif(motor, TMC4671_PWM_SV_CHOP, 0x00000000); // 0 = PWM Disabled -> free running
         } else {
-            tmc4671_writeInt(motor, TMC4671_MODE_RAMP_MODE_MOTION, 0x00000000); // STOP MODE
-            tmc4671_writeInt(motor, TMC4671_PID_VELOCITY_TARGET, 0); // ensure no velocity
+            tmc4671_writeInt_verif(motor, TMC4671_MODE_RAMP_MODE_MOTION, 0x00000000); // STOP MODE
+            tmc4671_writeInt_verif(motor, TMC4671_PID_VELOCITY_TARGET, 0); // ensure no velocity
         }
     }
 
@@ -253,7 +253,7 @@ namespace drivers {
             driver_log("TMC4671 detected, configuring registers for SSL_Brushless motor control...\n");
 
         tmc4671_writeInt_verif(motor, TMC4671_MODE_RAMP_MODE_MOTION, 0x00000000); // Ensure motion is OFF (no PWM)
-
+        ThisThread::sleep_for(200ms);
         /*
          * ============ MOTOR TYPE & PWM ==============
          */
@@ -358,12 +358,10 @@ namespace drivers {
         tmc4671_writeInt_verif(motor, TMC4671_PIDOUT_UQ_UD_LIMITS,
                                9500); // 9500 == 1.9A max
         tmc4671_writeInt_verif(motor, TMC4671_PID_TORQUE_FLUX_LIMITS,
-                               1200); // 10 000 (arbitrary value from live tests, direct impact on torque at fewer speed. Can be increase.)
+                               12000); // 12 000
         tmc4671_writeInt_verif(motor, TMC4671_PID_ACCELERATION_LIMIT, 0xFFFFFFFF); // 10 000, does not seems to work
-   tmc4671_writeInt_verif(motor, TMC4671_PID_VELOCITY_LIMIT,
-                          0x00005DC0); // 24 000 (DO NOT INCREASE, MAX SPEED OF THE MOTOR)
-        // tmc4671_writeInt_verif(motor, TMC4671_PID_VELOCITY_LIMIT,
-                            //    0x0000FFFF); // 24 000 (DO NOT INCREASE, MAX SPEED OF THE MOTOR)
+        tmc4671_writeInt_verif(motor, TMC4671_PID_VELOCITY_LIMIT,
+                          24000); // 24 000
         tmc4671_writeInt_verif(motor, TMC4671_PID_POSITION_LIMIT_LOW, 0x80000001); // no limit
         tmc4671_writeInt_verif(motor, TMC4671_PID_POSITION_LIMIT_HIGH, 0x7FFFFFFF); // no limit
 
@@ -438,9 +436,9 @@ namespace drivers {
 
         // Move the motor a bit using HALL
         tmc4671_writeInt_verif(motor, TMC4671_PID_VELOCITY_P_VELOCITY_I,
-                               0x012C0050); // P=300 & I=80 (only when using halls)
+                               50<<16 | 50); // P=50 & I=50 (only when using halls)
         tmc4671_writeInt_verif(motor, TMC4671_MODE_RAMP_MODE_MOTION, 0x00000002); // Velocity mode
-        tmc4671_writeInt_verif(motor, TMC4671_PID_VELOCITY_TARGET, 100); //move the motor a bit
+        tmc4671_writeInt_verif(motor, TMC4671_PID_VELOCITY_TARGET, 50); //move the motor a bit
 
         // Call the periodicJob until hall angle change to set the right phi E offset (see comments in TMC4671 library)
         uint16_t enc_init_loop = 0;
@@ -461,8 +459,8 @@ namespace drivers {
 
                 // read actual abn_decoder angle and consider last set abn_decoder_offset
                 int16_t abn_phi_e_actual =
-                        (int16_t) tmc4671_readRegister16BitValue_verif(motor, TMC4671_ABN_DECODER_PHI_E_PHI_M,
-                                                                       BIT_16_TO_31) - hall_actual_coarse_offset;
+                        ((int16_t) tmc4671_readRegister16BitValue_verif(motor, TMC4671_ABN_DECODER_PHI_E_PHI_M,
+                                                                        BIT_16_TO_31)) - hall_actual_coarse_offset;
 
                 // set ABN_DECODER_PHI_E_OFFSET to actual estimated angle - abn_phi_e_actual difference
                 tmc4671_writeRegister16BitValue_verif(motor, TMC4671_ABN_DECODER_PHI_E_PHI_M_OFFSET, BIT_16_TO_31,
@@ -488,8 +486,10 @@ namespace drivers {
             }
         }
 
+        tmc4671_writeInt_verif(motor, TMC4671_PWM_SV_CHOP, 0x00000000); // 0 = PWM Disabled -> free running
         tmc4671_writeInt_verif(motor, TMC4671_MODE_RAMP_MODE_MOTION, 0x00000000); // STOP MODE
         tmc4671_writeInt_verif(motor, TMC4671_PID_VELOCITY_TARGET, 0);
+        ThisThread::sleep_for(200ms);
         driver_log("ABn offset has been set to : %d\n",
                (int16_t) tmc4671_readRegister16BitValue(motor, TMC4671_ABN_DECODER_PHI_E_PHI_M_OFFSET, BIT_16_TO_31));
         driver_log("Number of loop to get the offset : %d\n", enc_init_loop);
@@ -503,9 +503,7 @@ namespace drivers {
         */
 
         // VALUE FOR VELOCITY CONTROL
-        tmc4671_writeInt_verif(motor, TMC4671_PID_VELOCITY_P_VELOCITY_I,
-                            5000 + ( 5000 << 16));
-                            //    0x0BB80320); // P=3000 & I=800 (arbitrary from live test, good results)
+        tmc4671_writeInt_verif(motor, TMC4671_PID_VELOCITY_P_VELOCITY_I,5000 + ( 5000 << 16));
         tmc4671_writeInt_verif(motor, TMC4671_PID_POSITION_P_POSITION_I, 0x00000000); // P=0 & I=0
 
         // VALUE FOR POSITION CONTROL
