@@ -6,7 +6,7 @@
 #include <stdarg.h> //used for driver_log()
 #include <stdio.h> //used for driver_log()
 
-#define MAX_READING_VERIF 5
+#define MAX_READING_VERIF 3
 
 // Include the TMC4671 lib with corresponding SPI transfert function (see end of drivers.cpp)
 extern "C" {
@@ -436,9 +436,9 @@ namespace drivers {
 
         // Move the motor a bit using HALL
         tmc4671_writeInt_verif(motor, TMC4671_PID_VELOCITY_P_VELOCITY_I,
-                               50<<16 | 50); // P=50 & I=50 (only when using halls)
+                               50<<16 | 0); // P=50 & I=50 (only when using halls)
         tmc4671_writeInt_verif(motor, TMC4671_MODE_RAMP_MODE_MOTION, 0x00000002); // Velocity mode
-        tmc4671_writeInt_verif(motor, TMC4671_PID_VELOCITY_TARGET, 50); //move the motor a bit
+        tmc4671_writeInt_verif(motor, TMC4671_PID_VELOCITY_TARGET, 40); //move the motor a bit
 
         // Call the periodicJob until hall angle change to set the right phi E offset (see comments in TMC4671 library)
         uint16_t enc_init_loop = 0;
@@ -453,6 +453,7 @@ namespace drivers {
 
             // wait until hall angle changed
             if (hall_phi_e_old != hall_phi_e_new) {
+                tmc4671_writeInt_verif(motor, TMC4671_MODE_RAMP_MODE_MOTION, 0x00000000); // STOP MODE
                 // estimated value = old value + diff between old and new (handle int16_t overrun)
                 int16_t hall_phi_e_estimated =
                         hall_phi_e_old + tmc4671_getS16CircleDifference(hall_phi_e_new, hall_phi_e_old) / 2;
@@ -503,7 +504,7 @@ namespace drivers {
         */
 
         // VALUE FOR VELOCITY CONTROL
-        tmc4671_writeInt_verif(motor, TMC4671_PID_VELOCITY_P_VELOCITY_I,5000 + ( 5000 << 16));
+        tmc4671_writeInt_verif(motor, TMC4671_PID_VELOCITY_P_VELOCITY_I,100 + ( 500 << 16));
         tmc4671_writeInt_verif(motor, TMC4671_PID_POSITION_P_POSITION_I, 0x00000000); // P=0 & I=0
 
         // VALUE FOR POSITION CONTROL
