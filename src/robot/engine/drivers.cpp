@@ -390,114 +390,168 @@ namespace drivers {
         driver_log("init encoder PHI E offset using halls ...\n");
 
 
-        // Hack the lib to force a encoder initialisation using motor Halls
-        uint8_t mode = 2; // use hall sensor signals to do initialisation
-        uint8_t initMode = 0;
-        uint8_t initState = 0; // nothing to do
-        tmc4671_startEncoderInitialization(mode, &initMode, &initState);
+        // -------------- OLD METHOD -----------------
+
+//        // Hack the lib to force a encoder initialisation using motor Halls
+//        uint8_t mode = 2; // use hall sensor signals to do initialisation
+//        uint8_t initMode = 0;
+//        uint8_t initState = 0; // nothing to do
+//        tmc4671_startEncoderInitialization(mode, &initMode, &initState);
+//
+//        // Begin the periodic job one time to start the initialisation
+//        int16_t hall_phi_e_old, hall_phi_e_new, hall_actual_coarse_offset;
+//        uint16_t last_Phi_E_Selection;
+//
+//        // save actual set value for PHI_E_SELECTION
+//        last_Phi_E_Selection = (uint16_t) tmc4671_readRegister16BitValue_verif(motor, TMC4671_PHI_E_SELECTION,
+//                                                                               BIT_0_TO_15);
+//
+//        // turn hall_mode interpolation off (read, clear bit 8, write back)
+//        tmc4671_writeInt_verif(motor, TMC4671_HALL_MODE, tmc4671_readInt_verif(motor, TMC4671_HALL_MODE) & 0xFFFFFEFF);
+//
+//        // set ABN_DECODER_PHI_E_OFFSET to zero
+//        tmc4671_writeRegister16BitValue_verif(motor, TMC4671_ABN_DECODER_PHI_E_PHI_M_OFFSET, BIT_16_TO_31, 0);
+//
+//        // read actual hall angle
+//        hall_phi_e_old = tmc4671_field_read_verif(motor, TMC4671_HALL_PHI_E_INTERPOLATED_PHI_E, TMC4671_HALL_PHI_E_MASK,
+//                                                  TMC4671_HALL_PHI_E_SHIFT);
+//
+//        // read actual abn_decoder angle and compute difference to actual hall angle
+//        hall_actual_coarse_offset = tmc4671_getS16CircleDifference(hall_phi_e_old,
+//                                                                   (int16_t) tmc4671_readRegister16BitValue_verif(motor,
+//                                                                                                                  TMC4671_ABN_DECODER_PHI_E_PHI_M,
+//                                                                                                                  BIT_16_TO_31));
+//
+//        // set ABN_DECODER_PHI_E_OFFSET to actual hall-abn-difference, to use the actual hall angle for coarse initialization
+//        tmc4671_writeRegister16BitValue_verif(motor, TMC4671_ABN_DECODER_PHI_E_PHI_M_OFFSET, BIT_16_TO_31,
+//                                              hall_actual_coarse_offset);
+//
+//        // normally MOTION_MODE_UQ_UD_EXT is only used by e.g. a wizard, not in normal operation
+//        if (tmc4671_field_read_verif(motor, TMC4671_MODE_RAMP_MODE_MOTION, TMC4671_MODE_MOTION_MASK,
+//                                     TMC4671_MODE_MOTION_SHIFT) !=
+//            TMC4671_MOTION_MODE_UQ_UD_EXT) {
+//            // select the use of phi_e_hall to start motor with hall signals
+//            tmc4671_writeRegister16BitValue_verif(motor, TMC4671_PHI_E_SELECTION, BIT_0_TO_15, TMC4671_PHI_E_HALL);
+//        }
+//
+//        initState = 2;
+//
+//        // Move the motor a bit using HALL
+//        tmc4671_writeInt_verif(motor, TMC4671_PID_VELOCITY_P_VELOCITY_I,
+//                               50<<16 | 0); // P=50 & I=50 (only when using halls)
+//        tmc4671_writeInt_verif(motor, TMC4671_MODE_RAMP_MODE_MOTION, 0x00000002); // Velocity mode
+//        tmc4671_writeInt_verif(motor, TMC4671_PID_VELOCITY_TARGET, 40); //move the motor a bit
+//
+//        // Call the periodicJob until hall angle change to set the right phi E offset (see comments in TMC4671 library)
+//        uint16_t enc_init_loop = 0;
+//        while (initState != 0) {
+////        tmc4671_periodicJob(motor, 0, initMode, &initState, 0, &actualInitWaitTime, 0, &hall_phi_e_old, &hall_phi_e_new,
+////                            &hall_actual_coarse_offset, &last_Phi_E_Selection, &last_UQ_UD_EXT, &last_PHI_E_EXT);
+//
+//            // read actual hall angle
+//            hall_phi_e_new = tmc4671_field_read_verif(motor, TMC4671_HALL_PHI_E_INTERPOLATED_PHI_E,
+//                                                      TMC4671_HALL_PHI_E_MASK,
+//                                                      TMC4671_HALL_PHI_E_SHIFT);
+//
+//            // wait until hall angle changed
+//            if (hall_phi_e_old != hall_phi_e_new) {
+//                tmc4671_writeInt_verif(motor, TMC4671_MODE_RAMP_MODE_MOTION, 0x00000000); // STOP MODE
+//                // estimated value = old value + diff between old and new (handle int16_t overrun)
+//                int16_t hall_phi_e_estimated =
+//                        hall_phi_e_old + tmc4671_getS16CircleDifference(hall_phi_e_new, hall_phi_e_old) / 2;
+//
+//                // read actual abn_decoder angle and consider last set abn_decoder_offset
+//                int16_t abn_phi_e_actual =
+//                        ((int16_t) tmc4671_readRegister16BitValue_verif(motor, TMC4671_ABN_DECODER_PHI_E_PHI_M,
+//                                                                        BIT_16_TO_31)) - hall_actual_coarse_offset;
+//
+//                // set ABN_DECODER_PHI_E_OFFSET to actual estimated angle - abn_phi_e_actual difference
+//                tmc4671_writeRegister16BitValue_verif(motor, TMC4671_ABN_DECODER_PHI_E_PHI_M_OFFSET, BIT_16_TO_31,
+//                                                      tmc4671_getS16CircleDifference(hall_phi_e_estimated,
+//                                                                                     abn_phi_e_actual));
+//
+//                // switch back to last used PHI_E_SELECTION setting
+//                tmc4671_writeRegister16BitValue_verif(motor, TMC4671_PHI_E_SELECTION, BIT_0_TO_15,
+//                                                      last_Phi_E_Selection);
+//
+//                // go to ready state
+//                initState = 0;
+//            }
+//
+//
+//            enc_init_loop++;
+//
+//            if (enc_init_loop > 20000) {
+//                driver_log("Error while trying to init ABn encoder, motor didn't move (Halls not wired ?).\nStopping program.");
+//                initState = 0;
+//                tmc4671_writeInt_verif(motor, TMC4671_PWM_SV_CHOP, 0x00000000); // 0 = PWM Disabled -> free running
+//                return;
+//            }
+//        }
+//
+//        tmc4671_writeInt_verif(motor, TMC4671_PWM_SV_CHOP, 0x00000000); // 0 = PWM Disabled -> free running
+//        tmc4671_writeInt_verif(motor, TMC4671_MODE_RAMP_MODE_MOTION, 0x00000000); // STOP MODE
+//        tmc4671_writeInt_verif(motor, TMC4671_PID_VELOCITY_TARGET, 0);
+//        ThisThread::sleep_for(200ms);
+//        driver_log("ABn offset has been set to : %d\n",
+//               (int16_t) tmc4671_readRegister16BitValue(motor, TMC4671_ABN_DECODER_PHI_E_PHI_M_OFFSET, BIT_16_TO_31));
+//        driver_log("Number of loop to get the offset : %d\n", enc_init_loop);
+
+
+
+        // -------------- NEW METHOD-----------------
 
         // Begin the periodic job one time to start the initialisation
-        int16_t hall_phi_e_old, hall_phi_e_new, hall_actual_coarse_offset;
+        uint16_t startVoltage = 4000;
+        int16_t last_PHI_E_EXT;
         uint16_t last_Phi_E_Selection;
+        uint32_t last_UQ_UD_EXT;
 
-        // save actual set value for PHI_E_SELECTION
-        last_Phi_E_Selection = (uint16_t) tmc4671_readRegister16BitValue_verif(motor, TMC4671_PHI_E_SELECTION,
-                                                                               BIT_0_TO_15);
-
-        // turn hall_mode interpolation off (read, clear bit 8, write back)
-        tmc4671_writeInt_verif(motor, TMC4671_HALL_MODE, tmc4671_readInt_verif(motor, TMC4671_HALL_MODE) & 0xFFFFFEFF);
+        // save actual set values for PHI_E_SELECTION, UQ_UD_EXT, and PHI_E_EXT
+        last_Phi_E_Selection = (uint16_t) tmc4671_readRegister16BitValue_verif(motor, TMC4671_PHI_E_SELECTION, BIT_0_TO_15);
+        last_UQ_UD_EXT = (uint32_t) tmc4671_readInt_verif(motor, TMC4671_UQ_UD_EXT);
+        last_PHI_E_EXT = (int16_t) tmc4671_readRegister16BitValue_verif(motor, TMC4671_PHI_E_EXT, BIT_0_TO_15);
 
         // set ABN_DECODER_PHI_E_OFFSET to zero
         tmc4671_writeRegister16BitValue_verif(motor, TMC4671_ABN_DECODER_PHI_E_PHI_M_OFFSET, BIT_16_TO_31, 0);
 
-        // read actual hall angle
-        hall_phi_e_old = tmc4671_field_read_verif(motor, TMC4671_HALL_PHI_E_INTERPOLATED_PHI_E, TMC4671_HALL_PHI_E_MASK,
-                                                  TMC4671_HALL_PHI_E_SHIFT);
+        // select phi_e_ext
+        tmc4671_writeRegister16BitValue_verif(motor, TMC4671_PHI_E_SELECTION, BIT_0_TO_15, 1);
 
-        // read actual abn_decoder angle and compute difference to actual hall angle
-        hall_actual_coarse_offset = tmc4671_getS16CircleDifference(hall_phi_e_old,
-                                                                   (int16_t) tmc4671_readRegister16BitValue_verif(motor,
-                                                                                                                  TMC4671_ABN_DECODER_PHI_E_PHI_M,
-                                                                                                                  BIT_16_TO_31));
+        // Make sure PWM is enable.
+        tmc4671_writeInt_verif(motor, TMC4671_PWM_SV_CHOP, 0x00000007);
+        tmc4671_writeInt_verif(motor, TMC4671_MODE_RAMP_MODE_MOTION, 0x00000008); // MODE Uq_Ud EXT
 
-        // set ABN_DECODER_PHI_E_OFFSET to actual hall-abn-difference, to use the actual hall angle for coarse initialization
-        tmc4671_writeRegister16BitValue_verif(motor, TMC4671_ABN_DECODER_PHI_E_PHI_M_OFFSET, BIT_16_TO_31,
-                                              hall_actual_coarse_offset);
+        // set an initialization voltage on UD_EXT (to the flux, not the torque!)
+        tmc4671_writeRegister16BitValue_verif(motor, TMC4671_UQ_UD_EXT, BIT_16_TO_31, 0);
+        tmc4671_writeRegister16BitValue_verif(motor, TMC4671_UQ_UD_EXT, BIT_0_TO_15, startVoltage);
 
-        // normally MOTION_MODE_UQ_UD_EXT is only used by e.g. a wizard, not in normal operation
-        if (tmc4671_field_read_verif(motor, TMC4671_MODE_RAMP_MODE_MOTION, TMC4671_MODE_MOTION_MASK,
-                                     TMC4671_MODE_MOTION_SHIFT) !=
-            TMC4671_MOTION_MODE_UQ_UD_EXT) {
-            // select the use of phi_e_hall to start motor with hall signals
-            tmc4671_writeRegister16BitValue_verif(motor, TMC4671_PHI_E_SELECTION, BIT_0_TO_15, TMC4671_PHI_E_HALL);
-        }
+        // set the "zero" angle
+        tmc4671_writeRegister16BitValue_verif(motor, TMC4671_PHI_E_EXT, BIT_0_TO_15, 0);
 
-        initState = 2;
+        // wait until initialization time is over (until no more vibration on the motor)
+        ThisThread::sleep_for(1s);
 
-        // Move the motor a bit using HALL
-        tmc4671_writeInt_verif(motor, TMC4671_PID_VELOCITY_P_VELOCITY_I,
-                               50<<16 | 0); // P=50 & I=50 (only when using halls)
-        tmc4671_writeInt_verif(motor, TMC4671_MODE_RAMP_MODE_MOTION, 0x00000002); // Velocity mode
-        tmc4671_writeInt_verif(motor, TMC4671_PID_VELOCITY_TARGET, 40); //move the motor a bit
+        // set internal encoder value to zero
+        tmc4671_writeInt_verif(motor, TMC4671_ABN_DECODER_COUNT, 0);
 
-        // Call the periodicJob until hall angle change to set the right phi E offset (see comments in TMC4671 library)
-        uint16_t enc_init_loop = 0;
-        while (initState != 0) {
-//        tmc4671_periodicJob(motor, 0, initMode, &initState, 0, &actualInitWaitTime, 0, &hall_phi_e_old, &hall_phi_e_new,
-//                            &hall_actual_coarse_offset, &last_Phi_E_Selection, &last_UQ_UD_EXT, &last_PHI_E_EXT);
+        // switch back to last used UQ_UD_EXT setting
+        tmc4671_writeInt_verif(motor, TMC4671_UQ_UD_EXT, last_UQ_UD_EXT);
 
-            // read actual hall angle
-            hall_phi_e_new = tmc4671_field_read_verif(motor, TMC4671_HALL_PHI_E_INTERPOLATED_PHI_E,
-                                                      TMC4671_HALL_PHI_E_MASK,
-                                                      TMC4671_HALL_PHI_E_SHIFT);
+        // set PHI_E_EXT back to last value
+        tmc4671_writeRegister16BitValue_verif(motor, TMC4671_PHI_E_EXT, BIT_0_TO_15, last_PHI_E_EXT);
 
-            // wait until hall angle changed
-            if (hall_phi_e_old != hall_phi_e_new) {
-                tmc4671_writeInt_verif(motor, TMC4671_MODE_RAMP_MODE_MOTION, 0x00000000); // STOP MODE
-                // estimated value = old value + diff between old and new (handle int16_t overrun)
-                int16_t hall_phi_e_estimated =
-                        hall_phi_e_old + tmc4671_getS16CircleDifference(hall_phi_e_new, hall_phi_e_old) / 2;
+        // switch back to last used PHI_E_SELECTION setting
+        tmc4671_writeRegister16BitValue_verif(motor, TMC4671_PHI_E_SELECTION, BIT_0_TO_15, last_Phi_E_Selection);
 
-                // read actual abn_decoder angle and consider last set abn_decoder_offset
-                int16_t abn_phi_e_actual =
-                        ((int16_t) tmc4671_readRegister16BitValue_verif(motor, TMC4671_ABN_DECODER_PHI_E_PHI_M,
-                                                                        BIT_16_TO_31)) - hall_actual_coarse_offset;
-
-                // set ABN_DECODER_PHI_E_OFFSET to actual estimated angle - abn_phi_e_actual difference
-                tmc4671_writeRegister16BitValue_verif(motor, TMC4671_ABN_DECODER_PHI_E_PHI_M_OFFSET, BIT_16_TO_31,
-                                                      tmc4671_getS16CircleDifference(hall_phi_e_estimated,
-                                                                                     abn_phi_e_actual));
-
-                // switch back to last used PHI_E_SELECTION setting
-                tmc4671_writeRegister16BitValue_verif(motor, TMC4671_PHI_E_SELECTION, BIT_0_TO_15,
-                                                      last_Phi_E_Selection);
-
-                // go to ready state
-                initState = 0;
-            }
-
-
-            enc_init_loop++;
-
-            if (enc_init_loop > 20000) {
-                driver_log("Error while trying to init ABn encoder, motor didn't move (Halls not wired ?).\nStopping program.");
-                initState = 0;
-                tmc4671_writeInt_verif(motor, TMC4671_PWM_SV_CHOP, 0x00000000); // 0 = PWM Disabled -> free running
-                return;
-            }
-        }
-
+        // Stop Motor
         tmc4671_writeInt_verif(motor, TMC4671_PWM_SV_CHOP, 0x00000000); // 0 = PWM Disabled -> free running
         tmc4671_writeInt_verif(motor, TMC4671_MODE_RAMP_MODE_MOTION, 0x00000000); // STOP MODE
         tmc4671_writeInt_verif(motor, TMC4671_PID_VELOCITY_TARGET, 0);
         ThisThread::sleep_for(200ms);
-        driver_log("ABn offset has been set to : %d\n",
-               (int16_t) tmc4671_readRegister16BitValue(motor, TMC4671_ABN_DECODER_PHI_E_PHI_M_OFFSET, BIT_16_TO_31));
-        driver_log("Number of loop to get the offset : %d\n", enc_init_loop);
 
 
-
-        // ---- END OF ENOCDER INIT -----
+        // ---- END OF ENCoDER INIT -----
 
         /*
          * ============ PID VALUES CONFIGURATION ==============
