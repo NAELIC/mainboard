@@ -5,7 +5,7 @@
 #include "drivers.h"
 #include <math.h>
 
-#define MAX_MOTOR_ACCELERATION (1.0)
+#define MAX_MOTOR_ACCELERATION (0.2)
 
 #define DEG2RAD(deg) (deg*M_PI/180.0)
 #define WHEEL_RADIUS (0.06/2.0)
@@ -91,7 +91,7 @@ namespace kinematic
         if ( max_motor_acc > MAX_MOTOR_ACCELERATION) {
             float acc_limitation_ratio = MAX_MOTOR_ACCELERATION / max_motor_acc;
             for(uint8_t i = 0; i < NB_MOTORS; i++ ) {
-                if ( fabs(motors_speed_m_s[i]) < 0.001) {
+                if ( fabs(motors_speed_m_s[i]) < 0.005) {
                     drivers::set_speed(i, 0);
                 } else {
                     motors_speed_m_s[i] =  last_motors_speed_m_s[i] + acc_limitation_ratio *  acc_motors_m_s_s[i];
