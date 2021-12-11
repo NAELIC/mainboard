@@ -1,6 +1,7 @@
 #include "kicker.h"
 
 static naelic::SWO swo;
+#include "../engine/kinematic.h"
 
 /*namespace kicker
 {
@@ -180,12 +181,8 @@ SHELL_COMMAND(kick_info, "Kicks")
 
 SHELL_COMMAND(em, "Emergency kicker")
 {
-  // if (!com_master) {
-  //     kinematic_stop();
-  //     for (int k=0; k<5; k++) {
-  //         drivers_set(k, false, 0.0);
-  //     }
-  // }
+
+  kinematic::stopRobotAndDisable();
 
   disable_boost();
   kicker_clear();

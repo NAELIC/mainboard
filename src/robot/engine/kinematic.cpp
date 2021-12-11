@@ -38,6 +38,15 @@ namespace kinematic
        core_util_atomic_store_bool(&manual_control, true);
     }
 
+    void stopRobotAndDisable() {
+        enableManualControl();
+        apply_order(0,0,0);   
+    }
+
+    void enable() {
+        disableManualControl();
+    }
+
     #define FRONT_LEFT_ID  0
     #define REAR_LEFT_ID   1
     #define REAR_RIGHT_ID  2
