@@ -181,7 +181,6 @@ SHELL_COMMAND(kick_info, "Kicks")
 
 SHELL_COMMAND(em, "Emergency kicker")
 {
-
   kinematic::stopRobotAndDisable();
 
   disable_boost();

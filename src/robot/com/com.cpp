@@ -304,16 +304,6 @@ namespace com
     shell_println((int)(com::dhcp_failure));
   }
   
-  SHELL_COMMAND(em, "Emergency")
-  {
-    //kinematic_stop();
-    for (int k=0; k<5; k++) {
-      drivers::set_speed(k, 0.0);
-    }
-  
-    kicker_boost_enable(false);
-  }
-  
   SHELL_COMMAND(rdiag,"")
   {
     robot_init();
