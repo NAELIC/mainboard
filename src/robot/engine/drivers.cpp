@@ -78,8 +78,9 @@ namespace drivers {
 
     void set_speed(int id_motor, float target) {
         // Calculate the right TMC4671 speed target; according to float target [m/s]
-        int32_t speed = (int32_t) (target *
-                                   (500000.0f / 176.0f)); // wheel diameter is 56mm, speed target is 500 to get one rps
+        // int32_t speed = (int32_t) (target *
+        //                            (500000.0f / 176.0f)); // wheel diameter is 56mm, speed target is 500 to get one rps
+        int32_t speed = target / 0.175924 * 60; // wheel diameter is 56mm, speed target is 500 to get one rps
 
         if (speed > DEBUG_MAX_TRINAMIC_SPEED) {
             speed = DEBUG_MAX_TRINAMIC_SPEED;
@@ -336,11 +337,11 @@ namespace drivers {
                 // Write new offset.
                 // Scale has been decreased (instead of default 256) to get better response from PID, because hardware shunt amplifier have "too much" gain.
                 tmc4671_writeInt_verif(motor, TMC4671_ADC_I0_SCALE_OFFSET,
-                                       49 | 
-                                       ((int32_t) average_I0)); // scale 60, offset = calculated average before
+                                       (49 << 16) | 
+                                       ((int32_t) average_I0)); // scale = 49 (0x0031) for one SHUNT resistor, and 98 (0x0062) for two SHUNT resistors (2x49), offset = calculated average before
                 tmc4671_writeInt_verif(motor, TMC4671_ADC_I1_SCALE_OFFSET,
-                                       49 |
-                                       ((int32_t) average_I1)); // scale 60, offset = calculated average before
+                                       (49 << 16) |
+                                       ((int32_t) average_I1)); // scale = 49 (0x0031) for one SHUNT resistor, and 98 (0x0062) for two SHUNT resistors (2x49)
             }
         }
 
@@ -356,21 +357,24 @@ namespace drivers {
          */
 
         tmc4671_writeInt_verif(motor, TMC4671_PIDOUT_UQ_UD_LIMITS,
-                               9500); // 9500 == 1.9A max
+                               12500); // 9500 == 1.9A max
         tmc4671_writeInt_verif(motor, TMC4671_PID_TORQUE_FLUX_LIMITS,
-                               12000); // 12 000
-        tmc4671_writeInt_verif(motor, TMC4671_PID_ACCELERATION_LIMIT, 0xFFFFFFFF); // 10 000, does not seems to work
+                               5200); // 600mA/700mA by motor safe for now, DO NOT INCREASE, BECAUSE IT NEED A SECOND SHUNT RESISTOR TO WORK); // 12 000
+        tmc4671_writeInt_verif(motor, TMC4671_PID_ACCELERATION_LIMIT, 1000000); // 10 000, does not seems to work
         tmc4671_writeInt_verif(motor, TMC4671_PID_VELOCITY_LIMIT,
-                          24000); // 24 000
+                          1704); // 5m/s max
         tmc4671_writeInt_verif(motor, TMC4671_PID_POSITION_LIMIT_LOW, 0x80000001); // no limit
         tmc4671_writeInt_verif(motor, TMC4671_PID_POSITION_LIMIT_HIGH, 0x7FFFFFFF); // no limit
 
         /*
          * ============ PID VALUES TORQUE/FLUX CONFIGURATION ==============
          */
+        // tmc4671_writeInt_verif(motor, TMC4671_PID_FLUX_P_FLUX_I, 0x01000100); // P=256 & I=256 (default)
+        // tmc4671_writeInt_verif(motor, TMC4671_PID_TORQUE_P_TORQUE_I, 0x01000100); // P=256 & I=256 (default)
 
-        tmc4671_writeInt_verif(motor, TMC4671_PID_FLUX_P_FLUX_I, 0x01000100); // P=256 & I=256 (default)
-        tmc4671_writeInt_verif(motor, TMC4671_PID_TORQUE_P_TORQUE_I, 0x01000100); // P=256 & I=256 (default)
+        tmc4671_writeInt_verif(motor, TMC4671_PID_FLUX_P_FLUX_I, (1200 /*P*/ << 16) | 22000 /*I*/);
+        tmc4671_writeInt_verif(motor, TMC4671_PID_TORQUE_P_TORQUE_I, (1000 /*P*/ << 16) | 18000 /*I*/); 
+
 
 
         /*
@@ -379,7 +383,7 @@ namespace drivers {
 
         tmc4671_writeInt_verif(motor, TMC4671_ABN_DECODER_MODE, 0x00000000); // normal, all default
         tmc4671_writeInt_verif(motor, TMC4671_ABN_DECODER_PPR, 0x000007D0); // Encoder PPR = 2000
-        tmc4671_writeInt_verif(motor, TMC4671_VELOCITY_SELECTION, 0x00000000); // phi_e selected from PHI_E_SELECTION
+        tmc4671_writeInt_verif(motor, TMC4671_VELOCITY_SELECTION, 0x09); // phi_m selected (VERY IMPORTANT)
         tmc4671_writeInt_verif(motor, TMC4671_POSITION_SELECTION, 0x00000000); // phi_e selected from PHI_E_SELECTION
         tmc4671_writeInt_verif(motor, TMC4671_PHI_E_SELECTION,
                                0x00000003); // PHI_E_SELECTION = phi_e_abn (the motor ABn encoder)
@@ -558,7 +562,7 @@ namespace drivers {
         */
 
         // VALUE FOR VELOCITY CONTROL
-        tmc4671_writeInt_verif(motor, TMC4671_PID_VELOCITY_P_VELOCITY_I,100 + ( 500 << 16));
+        tmc4671_writeInt_verif(motor, TMC4671_PID_VELOCITY_P_VELOCITY_I, ((4000 /*P*/ << 16) | 20000 /*I*/));
         tmc4671_writeInt_verif(motor, TMC4671_PID_POSITION_P_POSITION_I, 0x00000000); // P=0 & I=0
 
         // VALUE FOR POSITION CONTROL
