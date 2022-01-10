@@ -9,6 +9,10 @@
 #define ACTION_CHARGE (1 << 5)
 #define ACTION_TARE_ODOM (1 << 7)
 
+/**
+ * @brief struct of packet master in master -> robot communication
+ * 
+ */
 typedef struct
 {
     uint8_t id;
@@ -26,7 +30,10 @@ typedef struct
 #define STATUS_DRIVER_ERR (1 << 1) // Error with drivers
 #define STATUS_IR (1 << 2)         // The infrared barrier detects the ball
 
-// robot -> master
+/**
+ * @brief struct of packet robot in robot -> master communication
+ * 
+ */
 typedef struct
 {
     uint8_t id;
