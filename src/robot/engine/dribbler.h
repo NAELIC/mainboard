@@ -1,42 +1,38 @@
-// #pragma once
+#pragma once
+
+#include <mbed.h>
+#include "drivers.h"
 
 // #include <common/buzzer/buzzer.h>
 // #include <common/define/hardware.h>
 // #include <USBSerial.h>
-// #include <mbed.h>
 // #include <shell.h>
 // #include "errors.h"
 
-// #include <swo.h>
+#include <swo.h>
+
+
 
 // #define DRIBBLER_PACKET_SET 0x00
-// struct dribbler_packet_set
-// {
-//     bool enable;
-//     float targetSpeed;
-//     int16_t pwm;
-//     uint32_t padding1;
-//     uint8_t padding2;
-// } __attribute__((packed));
+typedef struct
+{
+    uint32_t targetSpeed;
+    // int16_t pwm;
+    // uint32_t padding1;
+    // uint8_t padding2;
+} __attribute__((packed)) dribbler_packet_set;
 
-// struct drivbbler_packet_ans
-// {
-//     uint8_t status;
-//     float speed;
-//     int16_t pwm;
-//     uint32_t enc_cnt;
-// } __attribute__((packed));
+typedef struct {
+    uint8_t status;
+    uint32_t speed;
+    // int16_t pwm;
+    // uint32_t enc_cnt;
+} __attribute__((packed)) dribbler_packet_ans;
 
-// extern struct dribbler_packet_ans dribbler_answers;
+namespace dribbler
+{
 
-// namespace dribbler
-// {
-//     typedef struct
-//     {
-//         float speed;
-//     } dribbler_msg;
-
-//     static Queue<dribbler_msg, 2> queue_dribbler;
+    void set_speed(uint32_t speed);
 
 //     void launch();
-// }
+}

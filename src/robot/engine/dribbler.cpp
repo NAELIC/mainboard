@@ -1,16 +1,36 @@
-// #include "dribbler.h"
+#include "dribbler.h"
 
-// #define DRIBBLER_CS DRIVERS_CS5
-// #define DRIBBLER_MOSI DRV_MOSI
-// #define DRIBBLER_MISO DRV_MISO
-// #define DRIBBLER_CLK DRV_CLK
+static naelic::SWO swo;
 
-// static naelic::SWO swo;
+namespace dribbler {
+    void send(uint8_t *data, size_t len) {
+        drivers::drivers_out[4] = 0;  // Select the dribbler
+        for (int i = 0; i < len; i++) {
+            int temp = drivers::drivers.write(data[i]);
+            swo.println(temp);
+        }
 
-// namespace dribbler
-// {
-//   static SPI dribbler(DRIBBLER_MOSI, DRIBBLER_MISO, DRIBBLER_CLK);
-//   static DigitalOut dribbler_out = DRIBBLER_CS;
+        drivers::drivers_out[4] = 1;  // Deselect dribbler
+    }
+
+    void set_speed(uint32_t speed) {
+        dribbler_packet_set packet;
+        packet.targetSpeed = speed;
+
+        send((uint8_t*) &packet, sizeof(dribbler_packet_set));
+    }
+}  // namespace dribbler
+
+SHELL_COMMAND(set_dribbler, "Set speed for dribbler") {
+    if (argc != 1) {
+        shell_println("Usage: set_dribbler [speed]");
+    } else {
+        while (!shell_available()) {
+            dribbler::set_speed(atof(argv[0]));
+            wait_us(500);
+        }
+    }
+}
 
 //   void init()
 //   {
@@ -44,9 +64,8 @@
 //     dribbler_out = 0;
 //     wait_us(35);
 //     dribbler.write(DRIBBLER_PACKET_SET);
-//     dribbler.write((char *)&packet, sizeof(dribbler_packet_set), (char *)&ans, sizeof(dribbler_packet_ans));
-//     wait_us(5);
-//     dribbler_out = 1;
+//     dribbler.write((char *)&packet, sizeof(dribbler_packet_set), (char
+//     *)&ans, sizeof(dribbler_packet_ans)); wait_us(5); dribbler_out = 1;
 //   }
 
 //   void launch()
@@ -73,20 +92,3 @@
 //     shell_println("-");
 //     }
 //   }
-
-//   SHELL_COMMAND(set_dribbler, "Set speed for dribbler")
-//   {
-//     if (argc != 1)
-//     {
-//       shell_println("Usage: set_dribbler [speed]");
-//     }
-//     else
-//     {
-//       while (!shell_available())
-//       {
-//         dribbler::set_speed(atof(argv[0]));
-//         wait_us(500);
-//       }
-//     }
-//   }
-// }

@@ -67,6 +67,9 @@ namespace tritri {
 }
 namespace drivers
 {
+    extern SPI drivers;
+    extern DigitalOut drivers_out[5];
+
     void tmc4671_init(uint8_t motor);
     void start_motor(uint8_t motor);
     void stop_motor(uint8_t motor, bool freewheel = false);

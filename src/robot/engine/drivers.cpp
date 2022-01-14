@@ -36,8 +36,8 @@ namespace drivers {
     int16_t tmc4671_field_read_verif(uint8_t motor, uint8_t address, uint16_t mask, int16_t shift);
     int16_t tmc4671_getS16CircleDifference(int16_t newValue, int16_t oldValue);
 
-    static SPI drivers(DRV_MOSI, DRV_MISO, DRV_CLK);
-    static DigitalOut drivers_out[5] = {DRIVERS_CS1,
+    SPI drivers(DRV_MOSI, DRV_MISO, DRV_CLK);
+    DigitalOut drivers_out[5] = {DRIVERS_CS1,
                                         DRIVERS_CS2,
                                         DRIVERS_CS3,
                                         DRIVERS_CS4,
