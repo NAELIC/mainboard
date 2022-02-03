@@ -12,7 +12,7 @@ Platform used :
 
 You can find datasheet in `docs` folder.
 
-## Cheatseet
+## Cheatsheet
 
 ```bash
 pio run -t upload -e master
