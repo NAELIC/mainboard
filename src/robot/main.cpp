@@ -10,7 +10,7 @@
 #include "kicker/kicker.h"
 
 #include "engine/drivers.h"
-// #include "engine/dribbler.h"
+#include "engine/dribbler.h"
 #include "ir/ir.h"
 #include <nrf.h>
 
@@ -28,6 +28,8 @@ EventQueue event_queue;
 
 int main() {
     kicker_init();
+    
+    dribbler::init();
 
     // infos_init();
 
@@ -63,8 +65,5 @@ int main() {
     // watchdog.start(TIMEOUT_WATCHDOG_MS);
     led = 1;
 
-    // while (true) {
-    //     ThisThread::sleep_for(100s);
-    // }
     event_queue.dispatch_forever();
 }
