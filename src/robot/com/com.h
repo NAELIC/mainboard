@@ -17,6 +17,16 @@ namespace com {
         RUNNING,
         WAIT_AND_INIT
     };
+
+    /**
+    * @brief main process of robot com thread 
+    * 
+    */
     void launch();
+
+    /**
+     * @brief init com for all mast
+     * 
+     */
     void robot_init();
 }
